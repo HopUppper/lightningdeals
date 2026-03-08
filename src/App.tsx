@@ -34,6 +34,8 @@ const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const DeliveryPolicy = lazy(() => import("./pages/DeliveryPolicy"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
