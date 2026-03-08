@@ -216,6 +216,9 @@ const Dashboard = () => {
               <TabsTrigger value="account" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
                 <User className="w-3.5 h-3.5" /> Account
               </TabsTrigger>
+              <TabsTrigger value="referrals" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
+                <Gift className="w-3.5 h-3.5" /> Referrals
+              </TabsTrigger>
               <TabsTrigger value="support" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
                 <MessageCircle className="w-3.5 h-3.5" /> Support
               </TabsTrigger>
