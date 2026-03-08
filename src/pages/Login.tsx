@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, LogIn, Zap, Shield, Clock } from "lucide-react";
+import { Eye, EyeOff, LogIn, Zap, Shield, Clock, MailCheck } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
+import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 
 const MAX_ATTEMPTS = 5;
@@ -24,6 +25,20 @@ const Login = () => {
   const attemptsRef = useRef(0);
   const lockoutUntilRef = useRef(0);
 
+  const [showEmailConfirm, setShowEmailConfirm] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  const handleResendVerification = async () => {
+    setResending(true);
+    const { error } = await supabase.auth.resend({ type: "signup", email });
+    setResending(false);
+    if (error) {
+      toast({ title: "Failed to resend", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Verification email sent!", description: "Check your inbox and spam folder." });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const now = Date.now();
@@ -40,16 +55,26 @@ const Login = () => {
     const { error } = await signIn(email, password);
     setLoading(false);
     if (error) {
+      // Check if email not confirmed
+      if (error.message?.toLowerCase().includes("email not confirmed")) {
+        setShowEmailConfirm(true);
+        toast({ title: "Email not verified", description: "Please verify your email before signing in.", variant: "destructive" });
+        return;
+      }
       attemptsRef.current++;
       if (attemptsRef.current >= MAX_ATTEMPTS) {
         lockoutUntilRef.current = Date.now() + LOCKOUT_MS;
         attemptsRef.current = 0;
         toast({ title: "Account locked temporarily", description: "Too many failed attempts. Wait 1 minute.", variant: "destructive" });
       } else {
-        toast({ title: "Login failed", description: error.message, variant: "destructive" });
+        const friendlyMsg = error.message?.includes("Invalid login")
+          ? "Incorrect email or password. Please try again."
+          : error.message;
+        toast({ title: "Login failed", description: friendlyMsg, variant: "destructive" });
       }
     } else {
       attemptsRef.current = 0;
+      setShowEmailConfirm(false);
       toast({ title: "Welcome back!" });
     }
   };
@@ -135,6 +160,26 @@ const Login = () => {
               )}
             </Button>
           </form>
+
+          {showEmailConfirm && (
+            <div className="mt-6 p-4 rounded-xl bg-accent/5 border border-accent/20">
+              <div className="flex items-start gap-3">
+                <MailCheck className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground font-body">Email not verified</p>
+                  <p className="text-xs text-muted-foreground mt-1 font-body">Check your inbox for the verification link.</p>
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={resending}
+                    className="text-xs text-accent font-semibold hover:underline mt-2 disabled:opacity-50 font-body"
+                  >
+                    {resending ? "Sending..." : "Resend verification email"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-between mt-6">
             <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-primary transition-colors">Forgot password?</Link>

@@ -34,6 +34,8 @@ const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const DeliveryPolicy = lazy(() => import("./pages/DeliveryPolicy"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -83,6 +85,8 @@ const App = () => (
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/change-password" element={<ProtectedRoute requiredRole="customer"><ChangePassword /></ProtectedRoute>} />
+              <Route path="/wishlist" element={<ProtectedRoute requiredRole="customer"><Wishlist /></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute requiredRole="customer"><Dashboard /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
