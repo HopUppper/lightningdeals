@@ -263,6 +263,31 @@ const ProductDetail = () => {
                 >
                   <Heart className={`w-5 h-5 ${wishlisted ? "fill-accent" : ""}`} />
                 </button>
+                <button
+                  onClick={() => {
+                    const inC = isInCompare(product.id);
+                    if (inC) {
+                      removeFromCompare(product.id);
+                      toast.success("Removed from comparison");
+                    } else {
+                      addToCompare({
+                        id: product.id, name: product.name, slug: product.slug,
+                        description: product.description, price_original: product.price_original,
+                        price_discounted: product.price_discounted, duration: product.duration,
+                        delivery: product.delivery, features: product.features,
+                        logo_url: product.logo_url, color: product.color,
+                        category_name: product.categories?.name ?? null,
+                      });
+                      toast.success("Added to comparison");
+                    }
+                  }}
+                  className={`p-4 rounded-full border transition-all duration-300 ${
+                    isInCompare(product.id) ? "bg-accent/10 border-accent/30 text-accent" : "border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/30"
+                  }`}
+                  title={isInCompare(product.id) ? "Remove from compare" : "Compare"}
+                >
+                  <GitCompareArrows className="w-5 h-5" />
+                </button>
               </div>
 
               {features.length > 0 && (
