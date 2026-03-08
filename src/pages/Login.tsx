@@ -24,6 +24,20 @@ const Login = () => {
   const attemptsRef = useRef(0);
   const lockoutUntilRef = useRef(0);
 
+  const [showEmailConfirm, setShowEmailConfirm] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  const handleResendVerification = async () => {
+    setResending(true);
+    const { error } = await supabase.auth.resend({ type: "signup", email });
+    setResending(false);
+    if (error) {
+      toast({ title: "Failed to resend", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Verification email sent!", description: "Check your inbox and spam folder." });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const now = Date.now();
@@ -40,16 +54,26 @@ const Login = () => {
     const { error } = await signIn(email, password);
     setLoading(false);
     if (error) {
+      // Check if email not confirmed
+      if (error.message?.toLowerCase().includes("email not confirmed")) {
+        setShowEmailConfirm(true);
+        toast({ title: "Email not verified", description: "Please verify your email before signing in.", variant: "destructive" });
+        return;
+      }
       attemptsRef.current++;
       if (attemptsRef.current >= MAX_ATTEMPTS) {
         lockoutUntilRef.current = Date.now() + LOCKOUT_MS;
         attemptsRef.current = 0;
         toast({ title: "Account locked temporarily", description: "Too many failed attempts. Wait 1 minute.", variant: "destructive" });
       } else {
-        toast({ title: "Login failed", description: error.message, variant: "destructive" });
+        const friendlyMsg = error.message?.includes("Invalid login")
+          ? "Incorrect email or password. Please try again."
+          : error.message;
+        toast({ title: "Login failed", description: friendlyMsg, variant: "destructive" });
       }
     } else {
       attemptsRef.current = 0;
+      setShowEmailConfirm(false);
       toast({ title: "Welcome back!" });
     }
   };
