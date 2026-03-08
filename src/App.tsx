@@ -9,6 +9,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { CompareProvider } from "@/contexts/CompareContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import CompareDrawer from "@/components/CompareDrawer";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { lazy, Suspense } from "react";
 
 // Eager load critical path
@@ -99,6 +100,7 @@ const App = () => (
             </Routes>
           </Suspense>
           <CompareDrawer />
+          <PWAInstallPrompt />
         </CompareProvider>
         </CartProvider>
         </AuthProvider>
