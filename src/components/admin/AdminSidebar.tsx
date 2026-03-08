@@ -10,6 +10,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, ShoppingCart, Package, FolderTree } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 
 const items = [
   { title: "Overview", key: "overview", icon: LayoutDashboard },
@@ -31,10 +32,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: Props) => {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <div className="p-4 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg btn-primary-gradient flex items-center justify-center text-primary-foreground font-display font-bold text-sm shrink-0">
-            PB
-          </div>
-          {!collapsed && <span className="font-display font-bold text-foreground">Admin</span>}
+          <BrandLogo size="sm" showText={!collapsed} />
         </div>
         <SidebarGroup>
           <SidebarGroupLabel>Management</SidebarGroupLabel>

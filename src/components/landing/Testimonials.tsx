@@ -22,7 +22,7 @@ const reviews = [
   },
   {
     name: "Sneha Gupta",
-    text: "TradingView Premium delivered in under 3 minutes. Paisa Baazi is my go-to for subscriptions!",
+    text: "TradingView Premium delivered in under 3 minutes. Lightning Deals is my go-to for subscriptions!",
     rating: 5,
     product: "TradingView",
   },

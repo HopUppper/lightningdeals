@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -58,12 +59,10 @@ const Signup = () => {
       <div className="glass-card p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl btn-primary-gradient flex items-center justify-center text-primary-foreground font-display font-bold">
-              PB
-            </div>
+            <BrandLogo size="lg" showText={false} />
           </Link>
           <h1 className="text-2xl font-display font-bold text-foreground">Create Account</h1>
-          <p className="text-muted-foreground mt-1">Join Paisa Baazi today</p>
+          <p className="text-muted-foreground mt-1">Join Lightning Deals today</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

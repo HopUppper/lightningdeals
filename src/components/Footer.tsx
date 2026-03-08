@@ -1,15 +1,12 @@
 import { Link } from "react-router-dom";
-
+import BrandLogo from "@/components/BrandLogo";
 const Footer = () => (
   <footer className="bg-foreground/[0.03] border-t border-border">
     <div className="container-tight section-padding pb-8">
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg btn-primary-gradient flex items-center justify-center text-primary-foreground font-display font-bold text-sm">
-              PB
-            </div>
-            <span className="font-display font-bold text-lg text-foreground">Paisa Baazi</span>
+          <div className="mb-4">
+            <BrandLogo />
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Premium software subscriptions at unbeatable prices. Trusted by 10,000+ customers.
@@ -54,7 +51,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="border-t border-border pt-6 text-center">
-        <p className="text-xs text-muted-foreground">© 2026 Paisa Baazi. All rights reserved.</p>
+        <p className="text-xs text-muted-foreground">© 2026 Lightning Deals. All rights reserved.</p>
       </div>
     </div>
   </footer>
