@@ -148,7 +148,7 @@ const Checkout = () => {
           email: form.email,
           contact: form.phone,
         },
-        theme: { color: "#7c3aed" },
+        theme: { color: "#1a7a4e" },
         handler: async (response: any) => {
           try {
             const { data: verifyData, error: verifyError } = await supabase.functions.invoke(
