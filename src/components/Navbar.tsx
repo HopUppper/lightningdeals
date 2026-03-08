@@ -101,9 +101,20 @@ const Navbar = () => {
                 <Link to="/cart" onClick={() => setOpen(false)} className="text-sm font-medium text-muted-foreground">
                   Cart
                 </Link>
-                <Link to="/login" onClick={() => setOpen(false)} className="text-sm font-medium text-muted-foreground">
-                  Login
-                </Link>
+                {user ? (
+                  <>
+                    <Link to={role === "admin" ? "/admin" : "/dashboard"} onClick={() => setOpen(false)} className="text-sm font-medium text-muted-foreground">
+                      {role === "admin" ? "Admin" : "Dashboard"}
+                    </Link>
+                    <button onClick={() => { signOut(); setOpen(false); }} className="text-sm font-medium text-muted-foreground">
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link to="/login" onClick={() => setOpen(false)} className="text-sm font-medium text-muted-foreground">
+                    Login
+                  </Link>
+                )}
               </div>
             </div>
           </motion.div>
