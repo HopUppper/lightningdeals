@@ -51,14 +51,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchRole(session.user.id);
-      } else {
-        setLoading(false);
+        await fetchRole(session.user.id);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
