@@ -10,7 +10,8 @@ import AdminCoupons from "@/components/admin/AdminCoupons";
 import AdminErrorLogs from "@/components/admin/AdminErrorLogs";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import { Button } from "@/components/ui/button";
-import { LogOut, Search } from "lucide-react";
+import { LogOut, Search, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
   const { signOut } = useAuth();
@@ -20,7 +21,6 @@ const AdminDashboard = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -77,42 +77,38 @@ const AdminDashboard = () => {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-        <div className="flex-1 flex flex-col">
-          <header className="h-12 flex items-center justify-between border-b border-border/50 bg-background/80 backdrop-blur-xl px-4 sticky top-0 z-40">
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Enhanced header */}
+          <header className="h-14 flex items-center justify-between border-b border-border/40 bg-card/50 backdrop-blur-xl px-4 sm:px-6 sticky top-0 z-40">
             <div className="flex items-center gap-3">
-              <SidebarTrigger className="text-muted-foreground" />
-              <span className="font-display font-bold text-foreground text-sm">{tabLabel(activeTab)}</span>
+              <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
+              <div className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Link to="/admin" className="hover:text-foreground transition-colors">Admin</Link>
+                <ChevronRight className="w-3 h-3" />
+                <span className="text-foreground font-semibold">{tabLabel(activeTab)}</span>
+              </div>
+              <span className="sm:hidden font-display font-bold text-foreground text-sm">{tabLabel(activeTab)}</span>
             </div>
             <div className="flex items-center gap-2">
-              {/* Search trigger */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-muted/30 text-muted-foreground text-xs hover:bg-muted/50 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/60 bg-secondary/50 text-muted-foreground text-xs hover:bg-secondary hover:text-foreground transition-all"
               >
                 <Search className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Search...</span>
                 <kbd className="hidden sm:inline text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono">⌘K</kbd>
               </button>
               <AdminNotifications />
-              <Button variant="outline" size="sm" onClick={signOut} className="gap-1.5 h-8 text-xs">
-                <LogOut className="w-3.5 h-3.5" /> Logout
+              <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5 h-8 text-xs text-muted-foreground hover:text-foreground">
+                <LogOut className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </header>
 
-          <main className="flex-1 p-4 sm:p-5 overflow-auto">
-            {activeTab === "overview" && (
-              <AdminOverview onNavigate={setActiveTab} onQuickAction={handleQuickAction} />
-            )}
-            {activeTab === "orders" && (
-              <AdminOrders initialFilter={orderFilter} />
-            )}
-            {activeTab === "products" && (
-              <AdminProducts
-                autoOpenNew={autoOpenNewProduct}
-                onNewHandled={() => setAutoOpenNewProduct(false)}
-              />
-            )}
+          <main className="flex-1 p-4 sm:p-6 overflow-auto">
+            {activeTab === "overview" && <AdminOverview onNavigate={setActiveTab} onQuickAction={handleQuickAction} />}
+            {activeTab === "orders" && <AdminOrders initialFilter={orderFilter} />}
+            {activeTab === "products" && <AdminProducts autoOpenNew={autoOpenNewProduct} onNewHandled={() => setAutoOpenNewProduct(false)} />}
             {activeTab === "categories" && <AdminCategories />}
             {activeTab === "coupons" && <AdminCoupons />}
             {activeTab === "error-logs" && <AdminErrorLogs />}
@@ -122,14 +118,11 @@ const AdminDashboard = () => {
 
       {/* Search overlay */}
       {searchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh]" onClick={() => setSearchOpen(false)}>
-          <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
-          <div
-            className="relative w-full max-w-md bg-background border border-border rounded-xl shadow-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
-              <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[18vh]" onClick={() => setSearchOpen(false)}>
+          <div className="absolute inset-0 bg-background/70 backdrop-blur-md" />
+          <div className="relative w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-border/50">
+              <Search className="w-5 h-5 text-muted-foreground shrink-0" />
               <input
                 autoFocus
                 value={searchQuery}
@@ -146,7 +139,7 @@ const AdminDashboard = () => {
                 }}
               />
             </div>
-            <div className="max-h-64 overflow-y-auto p-2">
+            <div className="max-h-72 overflow-y-auto p-2">
               {searchItems.map((item) => (
                 <button
                   key={item.label}
@@ -154,13 +147,14 @@ const AdminDashboard = () => {
                     if (item.action) handleQuickAction(item.action);
                     else handleSearchNav(item.tab);
                   }}
-                  className="w-full text-left px-3 py-2 rounded-lg text-sm text-foreground hover:bg-muted/50 transition-colors"
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm text-foreground hover:bg-secondary/70 transition-colors flex items-center justify-between group"
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
               ))}
               {searchItems.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">No results</p>
+                <p className="text-sm text-muted-foreground text-center py-6">No results found</p>
               )}
             </div>
           </div>
