@@ -36,6 +36,8 @@ const Dashboard = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [wishlist, setWishlist] = useState<any[]>([]);
   const [myReviews, setMyReviews] = useState<any[]>([]);
+  const [referral, setReferral] = useState<any>(null);
+  const [referralTxns, setReferralTxns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ name: "", phone: "" });
