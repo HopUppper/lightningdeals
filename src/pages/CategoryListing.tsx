@@ -158,13 +158,22 @@ const CategoryListing = () => {
     );
     if (sentinelRef.current) observerRef.current.observe(sentinelRef.current);
     return () => observerRef.current?.disconnect();
-  }, [hasMore, loadingMore, loading, fetchPage, sortBy]);
+  }, [hasMore, loadingMore, loading, fetchPage, sortBy, durationFilter]);
 
   const sortOptions: { value: SortOption; label: string }[] = [
     { value: "newest", label: "Newest" },
     { value: "price_low", label: "Price: Low → High" },
     { value: "price_high", label: "Price: High → Low" },
     { value: "name", label: "Name A–Z" },
+  ];
+
+  const durationOptions: { value: DurationFilter; label: string }[] = [
+    { value: "all", label: "All Durations" },
+    { value: "1_month", label: "1 Month" },
+    { value: "3_months", label: "3 Months" },
+    { value: "6_months", label: "6 Months" },
+    { value: "1_year", label: "1 Year" },
+    { value: "lifetime", label: "Lifetime" },
   ];
 
   return (
