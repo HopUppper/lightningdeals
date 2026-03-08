@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { CompareProvider } from "@/contexts/CompareContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import CompareDrawer from "@/components/CompareDrawer";
 import { lazy, Suspense } from "react";
 
 // Eager load critical path
