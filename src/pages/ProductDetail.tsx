@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart, Shield, Zap, Clock, Star, Check } from "lucide-react";
+import { ShoppingCart, Shield, Zap, Clock, Star, Check, TrendingUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import ProductOfferBadge from "@/components/ProductOfferBadge";
 import SEOHead from "@/components/SEOHead";
+import CountdownTimer from "@/components/CountdownTimer";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -144,6 +145,18 @@ const ProductDetail = () => {
               {product.offer_label && (
                 <p className="mt-2 text-sm font-medium text-accent">{product.offer_label}</p>
               )}
+
+              {product.offer_expires_at && (
+                <div className="mt-3">
+                  <CountdownTimer expiresAt={product.offer_expires_at} />
+                </div>
+              )}
+
+              <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1 text-accent-foreground font-medium">
+                  <TrendingUp className="w-3 h-3" /> Only 12 subscriptions left today
+                </span>
+              </div>
 
               <div className="flex gap-6 mt-6 text-sm text-muted-foreground">
                 <span><strong className="text-foreground">Duration:</strong> {product.duration || "1 Year"}</span>

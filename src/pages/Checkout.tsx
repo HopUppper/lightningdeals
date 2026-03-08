@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, ArrowLeft, Loader2, CreditCard, Shield } from "lucide-react";
+import { ShoppingCart, ArrowLeft, Loader2, CreditCard, Shield, Tag, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +31,9 @@ const Checkout = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -42,6 +45,58 @@ const Checkout = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const couponDiscount = appliedCoupon
+    ? appliedCoupon.discount_type === "percentage"
+      ? Math.round(totalPrice * appliedCoupon.discount_value / 100)
+      : Math.min(appliedCoupon.discount_value, totalPrice)
+    : 0;
+
+  const finalPrice = Math.max(0, totalPrice - couponDiscount);
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    const { data, error } = await supabase
+      .from("coupons")
+      .select("*")
+      .eq("code", couponCode.toUpperCase().trim())
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (error || !data) {
+      toast.error("Invalid coupon code");
+      setCouponLoading(false);
+      return;
+    }
+
+    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+      toast.error("This coupon has expired");
+      setCouponLoading(false);
+      return;
+    }
+
+    if (data.max_uses && data.used_count >= data.max_uses) {
+      toast.error("This coupon has reached its usage limit");
+      setCouponLoading(false);
+      return;
+    }
+
+    if (data.min_order_amount && totalPrice < data.min_order_amount) {
+      toast.error(`Minimum order of ₹${data.min_order_amount} required`);
+      setCouponLoading(false);
+      return;
+    }
+
+    setAppliedCoupon(data);
+    toast.success("Coupon applied!");
+    setCouponLoading(false);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
   };
 
   const handlePayment = async () => {
@@ -66,10 +121,9 @@ const Checkout = () => {
         return;
       }
 
-      // Create Razorpay order via edge function
       const { data, error } = await supabase.functions.invoke("create-razorpay-order", {
         body: {
-          amount: totalPrice,
+          amount: finalPrice,
           currency: "INR",
           receipt: `order_${Date.now()}`,
           notes: { customer_email: form.email },
@@ -111,6 +165,8 @@ const Checkout = () => {
                     customer_phone: form.phone,
                     customer_country: form.country,
                     notes: form.notes,
+                    coupon_code: appliedCoupon?.code || "",
+                    coupon_discount: couponDiscount,
                   },
                 },
               }
@@ -120,6 +176,11 @@ const Checkout = () => {
               toast.error("Payment verification failed. Contact support.");
               setLoading(false);
               return;
+            }
+
+            // Increment coupon usage
+            if (appliedCoupon) {
+              await supabase.from("coupons").update({ used_count: appliedCoupon.used_count + 1 } as any).eq("id", appliedCoupon.id);
             }
 
             clearCart();
@@ -213,6 +274,42 @@ const Checkout = () => {
               </div>
             </div>
 
+            {/* Coupon Code */}
+            <div className="glass-card p-6 mb-6">
+              <h2 className="font-display font-semibold text-foreground mb-3">Promo Code</h2>
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between bg-primary/10 rounded-lg px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-primary" />
+                    <span className="font-display font-bold text-primary tracking-wider">{appliedCoupon.code}</span>
+                    <span className="text-sm text-muted-foreground">
+                      — {appliedCoupon.discount_type === "percentage" ? `${appliedCoupon.discount_value}% off` : `₹${appliedCoupon.discount_value} off`}
+                    </span>
+                  </div>
+                  <button onClick={removeCoupon} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-foreground text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Enter code"
+                    onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+                  />
+                  <button
+                    onClick={applyCoupon}
+                    disabled={couponLoading}
+                    className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    {couponLoading ? "..." : "Apply"}
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Order Summary */}
             <div className="glass-card p-6 space-y-3 mb-6">
               <h2 className="font-display font-semibold text-foreground mb-4">Order Summary</h2>
@@ -222,9 +319,18 @@ const Checkout = () => {
                   <span className="text-foreground font-medium">₹{item.price * item.quantity}</span>
                 </div>
               ))}
+              {couponDiscount > 0 && (
+                <div className="flex justify-between text-sm text-primary">
+                  <span>Coupon Discount ({appliedCoupon.code})</span>
+                  <span className="font-medium">−₹{couponDiscount}</span>
+                </div>
+              )}
               <div className="border-t border-border pt-3 flex justify-between">
                 <span className="font-display font-semibold text-foreground">Total</span>
-                <span className="font-display font-bold text-foreground text-lg">₹{totalPrice}</span>
+                <div className="text-right">
+                  {couponDiscount > 0 && <span className="text-sm text-muted-foreground line-through mr-2">₹{totalPrice}</span>}
+                  <span className="font-display font-bold text-foreground text-lg">₹{finalPrice}</span>
+                </div>
               </div>
             </div>
 
@@ -237,7 +343,7 @@ const Checkout = () => {
               {loading ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
               ) : (
-                <><CreditCard className="w-4 h-4" /> Pay ₹{totalPrice}</>
+                <><CreditCard className="w-4 h-4" /> Pay ₹{finalPrice}</>
               )}
             </button>
 
