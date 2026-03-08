@@ -383,6 +383,83 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
         </div>
       </div>
 
+      {/* Insights Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { icon: Percent, label: "Conversion Rate", value: `${conversionRate}%`, desc: "Paid / Total Orders", color: "text-primary" },
+          { icon: Repeat, label: "Repeat Customers", value: `${repeatRate}%`, desc: "Ordered more than once", color: "text-accent-foreground" },
+          { icon: Star, label: "Avg Rating", value: avgRating > 0 ? `${avgRating} ★` : "N/A", desc: `${avgRating > 0 ? "From customer reviews" : "No reviews yet"}`, color: "text-accent-foreground" },
+          { icon: UserPlus, label: "New Signups (30d)", value: customerGrowth.reduce((s, d) => s + d.customers, 0), desc: "Last 30 days", color: "text-emerald-500" },
+        ].map((m, i) => (
+          <motion.div
+            key={m.label}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 + i * 0.05 }}
+            className="glass-card p-4"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <m.icon className={`w-4 h-4 ${m.color}`} />
+              <span className="text-xs text-muted-foreground">{m.label}</span>
+            </div>
+            <p className="text-xl font-display font-bold text-foreground">{m.value}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{m.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Customer Growth + Recent Customers */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 glass-card p-5">
+          <h3 className="font-display font-bold text-foreground text-sm mb-3 flex items-center gap-2">
+            <UserPlus className="w-4 h-4 text-emerald-500" /> Customer Growth (30 Days)
+          </h3>
+          <ResponsiveContainer width="100%" height={180}>
+            <AreaChart data={customerGrowth}>
+              <defs>
+                <linearGradient id="custGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(142, 70%, 45%)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(142, 70%, 45%)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="date" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} interval={4} />
+              <YAxis tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+              <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, color: "hsl(var(--foreground))" }} />
+              <Area type="monotone" dataKey="customers" stroke="hsl(142, 70%, 45%)" strokeWidth={2} fill="url(#custGrad)" dot={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="glass-card overflow-hidden">
+          <div className="p-3 border-b border-border/50">
+            <h2 className="font-display font-bold text-foreground text-sm flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" /> Recent Customers
+            </h2>
+          </div>
+          <div className="p-3 space-y-3">
+            {recentCustomers.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4">No customers yet</p>
+            ) : (
+              recentCustomers.map((c) => (
+                <div key={c.user_id} className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                    {(c.name || c.email || "?").charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-foreground truncate">{c.name || "—"}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{c.email}</p>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground shrink-0">
+                    {new Date(c.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Recent Orders + Top Selling */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 glass-card overflow-hidden">
