@@ -195,6 +195,9 @@ const Dashboard = () => {
               <TabsTrigger value="wishlist" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
                 <Heart className="w-3.5 h-3.5" /> Wishlist
               </TabsTrigger>
+              <TabsTrigger value="reviews" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
+                <Star className="w-3.5 h-3.5" /> Reviews
+              </TabsTrigger>
               <TabsTrigger value="account" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
                 <User className="w-3.5 h-3.5" /> Account
               </TabsTrigger>
