@@ -60,7 +60,6 @@ const Signup = () => {
           <Link to="/" className="inline-flex items-center gap-2 mb-6">
             <BrandLogo size="lg" showText={false} />
           </Link>
-            </div>
           <h1 className="text-2xl font-display font-bold text-foreground">Create Account</h1>
           <p className="text-muted-foreground mt-1">Join Lightning Deals today</p>
         </div>

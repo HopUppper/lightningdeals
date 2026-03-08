@@ -10,6 +10,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, ShoppingCart, Package, FolderTree } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 
 const items = [
   { title: "Overview", key: "overview", icon: LayoutDashboard },
