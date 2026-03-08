@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import SEOHead from "@/components/SEOHead";
-import { supabase } from "@/integrations/supabase/client";
+
 
 const Categories = () => {
   const [categories, setCategories] = useState<any[]>([]);
@@ -17,19 +17,25 @@ const Categories = () => {
     const fetchCats = async () => {
       setLoading(true);
       try {
-        // Fetch categories separately from product counts to avoid join issues
-        const { data: cats, error: catError } = await supabase
-          .from("categories")
-          .select("id, name, slug, description, icon")
-          .order("name");
-        if (catError) throw catError;
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        const headers = {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json",
+        };
 
-        // Get product counts per category
-        const { data: products, error: prodError } = await supabase
-          .from("products")
-          .select("category_id")
-          .eq("is_active", true);
-        if (prodError) throw prodError;
+        // Fetch categories and products in parallel
+        const [catsRes, prodsRes] = await Promise.all([
+          fetch(`${supabaseUrl}/rest/v1/categories?select=id,name,slug,description,icon&order=name`, { headers }),
+          fetch(`${supabaseUrl}/rest/v1/products?select=category_id&is_active=eq.true`, { headers }),
+        ]);
+
+        if (!catsRes.ok) throw new Error(`Categories fetch failed: ${catsRes.status}`);
+        if (!prodsRes.ok) throw new Error(`Products fetch failed: ${prodsRes.status}`);
+
+        const cats = await catsRes.json();
+        const products = await prodsRes.json();
 
         const countMap: Record<string, number> = {};
         (products ?? []).forEach((p: any) => {
