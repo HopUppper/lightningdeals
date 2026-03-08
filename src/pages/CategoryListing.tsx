@@ -8,6 +8,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import { supabase } from "@/integrations/supabase/client";
 import ProductOfferBadge from "@/components/ProductOfferBadge";
 import { Badge } from "@/components/ui/badge";
+import ProductLogo from "@/components/ProductLogo";
 
 const PAGE_SIZE = 12;
 
