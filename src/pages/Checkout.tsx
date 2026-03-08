@@ -3,27 +3,20 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, ArrowLeft, Loader2, CreditCard, Shield, Tag, X } from "lucide-react";
+import { ShoppingCart, ArrowLeft, MessageCircle, Shield, Lock, Zap, Tag, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";
 
-const RAZORPAY_SCRIPT = "https://checkout.razorpay.com/v1/checkout.js";
+const WHATSAPP_NUMBER = "919999999999";
 
-const loadRazorpay = (): Promise<boolean> => {
-  return new Promise((resolve) => {
-    if (document.querySelector(`script[src="${RAZORPAY_SCRIPT}"]`)) {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = RAZORPAY_SCRIPT;
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
+const generateOrderId = () => {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let id = "LD-";
+  for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return id;
 };
 
 const Checkout = () => {
@@ -39,11 +32,9 @@ const Checkout = () => {
     name: "",
     email: "",
     phone: "",
-    country: "India",
-    notes: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -65,153 +56,72 @@ const Checkout = () => {
       .eq("is_active", true)
       .maybeSingle();
 
-    if (error || !data) {
-      toast.error("Invalid coupon code");
-      setCouponLoading(false);
-      return;
-    }
-
-    if (data.expires_at && new Date(data.expires_at) < new Date()) {
-      toast.error("This coupon has expired");
-      setCouponLoading(false);
-      return;
-    }
-
-    if (data.max_uses && data.used_count >= data.max_uses) {
-      toast.error("This coupon has reached its usage limit");
-      setCouponLoading(false);
-      return;
-    }
-
-    if (data.min_order_amount && totalPrice < data.min_order_amount) {
-      toast.error(`Minimum order of ₹${data.min_order_amount} required`);
-      setCouponLoading(false);
-      return;
-    }
+    if (error || !data) { toast.error("Invalid coupon code"); setCouponLoading(false); return; }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) { toast.error("This coupon has expired"); setCouponLoading(false); return; }
+    if (data.max_uses && data.used_count >= data.max_uses) { toast.error("Coupon usage limit reached"); setCouponLoading(false); return; }
+    if (data.min_order_amount && totalPrice < data.min_order_amount) { toast.error(`Minimum order of ₹${data.min_order_amount} required`); setCouponLoading(false); return; }
 
     setAppliedCoupon(data);
     toast.success("Coupon applied!");
     setCouponLoading(false);
   };
 
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponCode("");
-  };
+  const removeCoupon = () => { setAppliedCoupon(null); setCouponCode(""); };
 
-  const handlePayment = async () => {
-    if (!user) {
-      toast.error("Please log in to continue");
-      navigate("/login");
-      return;
-    }
-
-    if (!form.name || !form.email) {
-      toast.error("Please fill in your name and email");
-      return;
-    }
+  const handleWhatsAppOrder = async () => {
+    if (!user) { toast.error("Please log in to place an order"); navigate("/login"); return; }
+    if (!form.name || !form.email || !form.phone) { toast.error("Please fill in all fields"); return; }
 
     setLoading(true);
-
     try {
-      const loaded = await loadRazorpay();
-      if (!loaded) {
-        toast.error("Failed to load payment gateway. Please try again.");
-        setLoading(false);
-        return;
+      const orderId = generateOrderId();
+      const productNames = items.map((i) => `${i.name} × ${i.quantity}`).join(", ");
+
+      // Create orders in database
+      for (const item of items) {
+        for (let i = 0; i < item.quantity; i++) {
+          await supabase.from("orders").insert({
+            user_id: user.id,
+            product_id: item.id,
+            payment_amount: item.price,
+            payment_status: "pending",
+            payment_id: orderId,
+            customer_name: form.name,
+            customer_email: form.email,
+            customer_phone: form.phone,
+            order_status: "pending",
+            coupon_code: appliedCoupon?.code || "",
+            coupon_discount: couponDiscount,
+            notes: `WhatsApp Order | ID: ${orderId}`,
+          });
+        }
       }
 
-      const { data, error } = await supabase.functions.invoke("create-razorpay-order", {
-        body: {
-          amount: finalPrice,
-          currency: "INR",
-          receipt: `order_${Date.now()}`,
-          notes: { customer_email: form.email },
-        },
-      });
-
-      if (error || !data?.order_id) {
-        toast.error(data?.error || "Failed to create order. Please try again.");
-        setLoading(false);
-        return;
+      // Increment coupon usage
+      if (appliedCoupon) {
+        await supabase.from("coupons").update({ used_count: appliedCoupon.used_count + 1 } as any).eq("id", appliedCoupon.id);
       }
 
-      const options = {
-        key: data.key_id,
-        amount: data.amount,
-        currency: data.currency,
-        name: "Lightning Deals",
-        description: `Order of ${items.length} item(s)`,
-        order_id: data.order_id,
-        prefill: {
-          name: form.name,
-          email: form.email,
-          contact: form.phone,
-        },
-        theme: { color: "#1a7a4e" },
-        handler: async (response: any) => {
-          try {
-            const { data: verifyData, error: verifyError } = await supabase.functions.invoke(
-              "verify-razorpay-payment",
-              {
-                body: {
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  order_data: {
-                    items: items.map((i) => ({ id: i.id, quantity: i.quantity, price: i.price })),
-                    customer_name: form.name,
-                    customer_email: form.email,
-                    customer_phone: form.phone,
-                    customer_country: form.country,
-                    notes: form.notes,
-                    coupon_code: appliedCoupon?.code || "",
-                    coupon_discount: couponDiscount,
-                  },
-                },
-              }
-            );
+      // Build WhatsApp message
+      const message = encodeURIComponent(
+        `Hello Lightning Deals! ⚡\n\n` +
+        `I would like to place an order.\n\n` +
+        `📦 *Products:* ${productNames}\n` +
+        `💰 *Total:* ₹${finalPrice}${couponDiscount > 0 ? ` (₹${couponDiscount} off with ${appliedCoupon.code})` : ""}\n` +
+        `🆔 *Order ID:* ${orderId}\n` +
+        `👤 *Name:* ${form.name}\n` +
+        `📧 *Email:* ${form.email}\n` +
+        `📱 *WhatsApp:* ${form.phone}\n\n` +
+        `Please guide me with the payment process. 🙏`
+      );
 
-            if (verifyError || !verifyData?.success) {
-              toast.error("Payment verification failed. Contact support.");
-              setLoading(false);
-              return;
-            }
-
-            // Increment coupon usage
-            if (appliedCoupon) {
-              await supabase.from("coupons").update({ used_count: appliedCoupon.used_count + 1 } as any).eq("id", appliedCoupon.id);
-            }
-
-            clearCart();
-            navigate("/order-confirmation", {
-              state: {
-                paymentId: response.razorpay_payment_id,
-                orderCount: items.reduce((s, i) => s + i.quantity, 0),
-              },
-            });
-          } catch {
-            toast.error("Something went wrong verifying payment.");
-            setLoading(false);
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setLoading(false);
-            toast.info("Payment cancelled");
-          },
-        },
-      };
-
-      const rzp = new (window as any).Razorpay(options);
-      rzp.on("payment.failed", (response: any) => {
-        toast.error(response.error?.description || "Payment failed. Please try again.");
-        setLoading(false);
-      });
-      rzp.open();
+      clearCart();
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
+      navigate("/order-confirmation", { state: { orderId, orderCount: items.reduce((s, i) => s + i.quantity, 0) } });
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong. Please try again.");
+    } finally {
       setLoading(false);
     }
   };
@@ -239,38 +149,34 @@ const Checkout = () => {
             <Link to="/cart" className="text-sm text-primary hover:underline inline-flex items-center gap-1 mb-6">
               <ArrowLeft className="w-3 h-3" /> Back to Cart
             </Link>
-            <h1 className="text-3xl font-display font-bold text-foreground mb-8">Checkout</h1>
+            <h1 className="text-3xl font-display font-bold text-foreground mb-8">Secure Checkout</h1>
+
+            {/* Trust banner */}
+            <div className="bg-primary/5 border border-primary/15 rounded-2xl p-5 mb-6 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Shield className="w-5 h-5 text-primary" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Complete your order through our <strong className="text-foreground">secure WhatsApp checkout</strong> for faster processing and personalized support.
+              </p>
+            </div>
 
             {/* Contact Details */}
             <div className="glass-card p-6 mb-6 space-y-4">
-              <h2 className="font-display font-semibold text-foreground">Contact Details</h2>
+              <h2 className="font-display font-semibold text-foreground">Your Details</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Full Name *</label>
-                  <input name="name" value={form.name} onChange={handleChange} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your name" />
+                  <input name="name" value={form.name} onChange={handleChange} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your name" />
                 </div>
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Email *</label>
-                  <input name="email" type="email" value={form.email} onChange={handleChange} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="you@email.com" />
-                </div>
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">WhatsApp Number</label>
-                  <input name="phone" value={form.phone} onChange={handleChange} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="+91..." />
-                </div>
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Country</label>
-                  <select name="country" value={form.country} onChange={handleChange} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option>India</option>
-                    <option>USA</option>
-                    <option>UK</option>
-                    <option>Canada</option>
-                    <option>Other</option>
-                  </select>
+                  <input name="email" type="email" value={form.email} onChange={handleChange} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="you@email.com" />
                 </div>
               </div>
               <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Notes / Special Requests</label>
-                <textarea name="notes" value={form.notes} onChange={handleChange} rows={2} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Any specific requirements..." />
+                <label className="text-sm text-muted-foreground mb-1 block">WhatsApp Number *</label>
+                <input name="phone" value={form.phone} onChange={handleChange} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="+91 98765 43210" />
               </div>
             </div>
 
@@ -286,24 +192,12 @@ const Checkout = () => {
                       — {appliedCoupon.discount_type === "percentage" ? `${appliedCoupon.discount_value}% off` : `₹${appliedCoupon.discount_value} off`}
                     </span>
                   </div>
-                  <button onClick={removeCoupon} className="text-muted-foreground hover:text-foreground">
-                    <X className="w-4 h-4" />
-                  </button>
+                  <button onClick={removeCoupon} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <input
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-foreground text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter code"
-                    onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
-                  />
-                  <button
-                    onClick={applyCoupon}
-                    disabled={couponLoading}
-                    className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  >
+                  <input value={couponCode} onChange={(e) => setCouponCode(e.target.value)} className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-foreground text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Enter code" onKeyDown={(e) => e.key === "Enter" && applyCoupon()} />
+                  <button onClick={applyCoupon} disabled={couponLoading} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50">
                     {couponLoading ? "..." : "Apply"}
                   </button>
                 </div>
@@ -334,22 +228,32 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* Pay Button */}
+            {/* WhatsApp Order Button */}
             <button
-              onClick={handlePayment}
+              onClick={handleWhatsAppOrder}
               disabled={loading}
-              className="btn-primary-gradient w-full inline-flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full inline-flex items-center justify-center gap-3 py-4 rounded-xl font-semibold text-base text-primary-foreground disabled:opacity-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              style={{ background: "linear-gradient(135deg, hsl(142, 70%, 45%), hsl(152, 58%, 36%))", boxShadow: "0 0 30px -8px hsl(142 70% 45% / 0.4)" }}
             >
               {loading ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
+                <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Processing...</>
               ) : (
-                <><CreditCard className="w-4 h-4" /> Pay ₹{finalPrice}</>
+                <><MessageCircle className="w-5 h-5" /> Order on WhatsApp — ₹{finalPrice}</>
               )}
             </button>
 
-            <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted-foreground">
-              <Shield className="w-3 h-3" />
-              <span>Secured by Razorpay · UPI, Cards, Net Banking, Wallets</span>
+            {/* Trust indicators */}
+            <div className="grid grid-cols-3 gap-3 mt-6">
+              {[
+                { icon: Lock, label: "Secure Order" },
+                { icon: Zap, label: "Fast Delivery" },
+                { icon: MessageCircle, label: "Direct Support" },
+              ].map((t) => (
+                <div key={t.label} className="flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-muted/50 text-xs text-muted-foreground">
+                  <t.icon className="w-3.5 h-3.5" />
+                  <span>{t.label}</span>
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>
