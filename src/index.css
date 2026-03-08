@@ -49,6 +49,47 @@
     --sidebar-border: 220 12% 18%;
     --sidebar-ring: 38 85% 58%;
   }
+
+  .light {
+    --background: 40 20% 97%;
+    --foreground: 220 15% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 12%;
+    --primary: 220 15% 12%;
+    --primary-foreground: 40 20% 97%;
+    --secondary: 220 10% 93%;
+    --secondary-foreground: 220 10% 35%;
+    --muted: 220 10% 91%;
+    --muted-foreground: 215 8% 45%;
+    --accent: 38 85% 48%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 10% 88%;
+    --input: 220 10% 88%;
+    --ring: 38 85% 48%;
+
+    --glow: 38 85% 48%;
+
+    --gradient-hero: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(220 10% 92%) 0%, hsl(40 20% 97%) 100%);
+    --gradient-glow: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), hsl(38 85% 48% / 0.06), transparent 40%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 10% 97%) 100%);
+
+    --shadow-glow: 0 0 60px -20px hsl(38 85% 48% / 0.15);
+    --shadow-card: 0 0 0 1px hsl(220 10% 88%);
+    --shadow-elevated: 0 24px 48px -12px hsl(220 20% 80% / 0.3);
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 8% 45%;
+    --sidebar-primary: 220 15% 12%;
+    --sidebar-primary-foreground: 40 20% 97%;
+    --sidebar-accent: 220 10% 93%;
+    --sidebar-accent-foreground: 220 15% 12%;
+    --sidebar-border: 220 10% 88%;
+    --sidebar-ring: 38 85% 48%;
+  }
 }
 
 @layer base {
