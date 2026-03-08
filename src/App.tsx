@@ -100,6 +100,7 @@ const App = () => (
             </Routes>
           </Suspense>
           <CompareDrawer />
+          <PWAInstallPrompt />
         </CompareProvider>
         </CartProvider>
         </AuthProvider>
