@@ -151,7 +151,7 @@ const CategoryListing = () => {
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
           pageRef.current += 1;
-          fetchPage(pageRef.current, false, sortBy);
+          fetchPage(pageRef.current, false, sortBy, durationFilter);
         }
       },
       { rootMargin: "200px" }
