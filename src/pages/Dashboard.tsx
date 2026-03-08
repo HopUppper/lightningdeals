@@ -31,14 +31,17 @@ const fadeIn = {
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [wishlist, setWishlist] = useState<any[]>([]);
+  const [myReviews, setMyReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ name: "", phone: "" });
   const [timelineOrder, setTimelineOrder] = useState<any>(null);
   const [timeline, setTimeline] = useState<any[]>([]);
+  const [generatingInvoice, setGeneratingInvoice] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     if (!user) { setLoading(false); return; }
