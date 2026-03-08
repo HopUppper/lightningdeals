@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import BrandLogo from "@/components/BrandLogo";
 import GlobalSearch from "@/components/GlobalSearch";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -71,6 +72,7 @@ const Navbar = memo(() => {
 
         <div className="hidden md:flex items-center gap-2">
           <GlobalSearch />
+          <ThemeToggle />
           <Link to="/cart" className="relative p-2.5 rounded-full hover:bg-secondary transition-colors duration-300 group">
             <ShoppingCart className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
             {totalItems > 0 && (
@@ -109,6 +111,7 @@ const Navbar = memo(() => {
         {/* Mobile */}
         <div className="md:hidden flex items-center gap-1">
           <GlobalSearch />
+          <ThemeToggle />
           <Link to="/cart" className="relative p-2">
             <ShoppingCart className="w-4 h-4 text-foreground" />
             {totalItems > 0 && (
