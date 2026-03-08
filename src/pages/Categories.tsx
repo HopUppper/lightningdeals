@@ -5,7 +5,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { supabase } from "@/integrations/supabase/client";
-import { Layers } from "lucide-react";
 
 const Categories = () => {
   const [categories, setCategories] = useState<any[]>([]);
@@ -21,7 +20,6 @@ const Categories = () => {
 
       if (!cats) { setCategories([]); setLoading(false); return; }
 
-      // Get product counts per category
       const { data: products } = await supabase
         .from("products")
         .select("category_id")
@@ -43,9 +41,9 @@ const Categories = () => {
       <Navbar />
       <div className="pt-24 section-padding">
         <div className="container-tight">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-14">
             <span className="text-sm font-semibold text-primary uppercase tracking-wider">Explore</span>
-            <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground mt-3">Browse by Category</h1>
+            <h1 className="text-3xl sm:text-5xl font-display font-bold text-foreground mt-3 tracking-tight">Browse by Category</h1>
             <p className="text-muted-foreground mt-3 max-w-lg mx-auto">Find the perfect premium subscription at the best price.</p>
           </motion.div>
 
@@ -54,22 +52,25 @@ const Categories = () => {
               <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {categories.map((cat, i) => (
                 <motion.div
                   key={cat.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.07 }}
+                  transition={{ delay: i * 0.05, type: "spring", damping: 20 }}
                 >
-                  <Link to={`/categories/${cat.slug}`} className="glass-card p-6 flex items-start gap-4 group block">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                      <Layers className="w-5 h-5 text-primary" />
+                  <Link to={`/categories/${cat.slug}`} className="glass-card p-6 flex items-start gap-4 group block h-full">
+                    <div className="w-12 h-12 rounded-xl bg-primary/8 flex items-center justify-center shrink-0 group-hover:bg-primary/15 group-hover:scale-110 transition-all duration-500 text-xl">
+                      {cat.icon || "📦"}
                     </div>
-                    <div>
-                      <h3 className="font-display font-semibold text-foreground group-hover:text-primary transition-colors">{cat.name}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{cat.description || "Premium subscriptions at discounted prices"}</p>
-                      <span className="text-xs text-primary font-medium mt-2 inline-block">{cat.count} products →</span>
+                    <div className="min-w-0">
+                      <h3 className="font-display font-semibold text-foreground group-hover:text-primary transition-colors duration-300 tracking-tight">{cat.name}</h3>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{cat.description || "Premium subscriptions at discounted prices"}</p>
+                      <span className="text-xs text-primary font-semibold mt-2 inline-flex items-center gap-1">
+                        {cat.count} products
+                        <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+                      </span>
                     </div>
                   </Link>
                 </motion.div>
