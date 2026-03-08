@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X, ShoppingCart, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 
 const navLinks = [
   { label: "Home", to: "/" },
