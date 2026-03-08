@@ -7,11 +7,11 @@ import { credEase, staggerContainer } from "@/components/animations/CredAnimatio
 
 const PRIORITY_SLUGS = [
   "ai-tools",
-  "design-tools",
-  "developer-tools",
-  "marketing-tools",
-  "productivity-tools",
-  "business-collaboration",
+  "design-creative-tools",
+  "developer-tech-tools",
+  "marketing-growth-tools",
+  "productivity-collaboration-tools",
+  "education-learning-tools",
 ];
 
 const container = staggerContainer(0.08);
