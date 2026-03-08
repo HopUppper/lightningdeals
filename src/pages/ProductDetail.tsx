@@ -106,16 +106,7 @@ const ProductDetail = () => {
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
               <div className="glass-card p-12 flex items-center justify-center relative overflow-hidden">
                 <ProductOfferBadge product={product} fallbackDiscount={savings} />
-                {product.logo_url ? (
-                  <img src={product.logo_url} alt={product.name} className="w-32 h-32 rounded-3xl object-contain" />
-                ) : (
-                  <div
-                    className="w-32 h-32 rounded-3xl flex items-center justify-center text-primary-foreground font-display font-bold text-5xl"
-                    style={{ backgroundColor: product.color || "hsl(var(--primary))" }}
-                  >
-                    {product.name[0]}
-                  </div>
-                )}
+                <ProductLogo name={product.name} logoUrl={product.logo_url} color={product.color} size="w-32 h-32" fontSize="text-5xl" />
               </div>
 
               <div className="grid grid-cols-3 gap-3 mt-6">
