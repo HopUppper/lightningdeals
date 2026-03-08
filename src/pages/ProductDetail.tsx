@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 
 const productData: Record<string, {
   name: string; desc: string; longDesc: string; price: number; original: number;
