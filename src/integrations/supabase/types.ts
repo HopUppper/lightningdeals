@@ -371,6 +371,7 @@ export type Database = {
           id: string
           name: string
           phone: string | null
+          referred_by: string | null
           updated_at: string
           user_id: string
         }
@@ -380,6 +381,7 @@ export type Database = {
           id?: string
           name?: string
           phone?: string | null
+          referred_by?: string | null
           updated_at?: string
           user_id: string
         }
@@ -389,10 +391,79 @@ export type Database = {
           id?: string
           name?: string
           phone?: string | null
+          referred_by?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          total_earned: number
+          total_referrals: number
+          user_id: string
+          wallet_balance: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          total_earned?: number
+          total_referrals?: number
+          user_id: string
+          wallet_balance?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          total_earned?: number
+          total_referrals?: number
+          user_id?: string
+          wallet_balance?: number
+        }
+        Relationships: []
+      }
+      referral_transactions: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string | null
+          referred_id: string
+          referrer_id: string
+          reward_amount: number
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          referred_id: string
+          referrer_id: string
+          reward_amount?: number
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          referred_id?: string
+          referrer_id?: string
+          reward_amount?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
