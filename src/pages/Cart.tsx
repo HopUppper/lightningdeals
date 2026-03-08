@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Trash2, ArrowRight, Minus, Plus } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
+import ProductLogo from "@/components/ProductLogo";
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
