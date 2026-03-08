@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ProductOfferBadge from "@/components/ProductOfferBadge";
 import SEOHead from "@/components/SEOHead";
 import CountdownTimer from "@/components/CountdownTimer";
+import ProductLogo from "@/components/ProductLogo";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
