@@ -112,6 +112,7 @@ const AdminDashboard = () => {
             {activeTab === "products" && <AdminProducts autoOpenNew={autoOpenNewProduct} onNewHandled={() => setAutoOpenNewProduct(false)} />}
             {activeTab === "categories" && <AdminCategories />}
             {activeTab === "coupons" && <AdminCoupons />}
+            {activeTab === "blog" && <AdminBlog />}
             {activeTab === "error-logs" && <AdminErrorLogs />}
           </main>
         </div>
