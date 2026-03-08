@@ -81,6 +81,7 @@ const ProductDetail = () => {
       price: product.price_discounted,
       original: product.price_original,
       color: product.color || "",
+      logoUrl: product.logo_url || "",
     });
     toast.success(`${product.name} added to cart!`);
   };
