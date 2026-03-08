@@ -111,6 +111,7 @@ const Navbar = memo(() => {
         {/* Mobile */}
         <div className="md:hidden flex items-center gap-1">
           <GlobalSearch />
+          <ThemeToggle />
           <Link to="/cart" className="relative p-2">
             <ShoppingCart className="w-4 h-4 text-foreground" />
             {totalItems > 0 && (
