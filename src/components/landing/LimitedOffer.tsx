@@ -60,7 +60,7 @@ const LimitedOffer = () => {
               >
                 Don't miss out on our biggest sale. Premium tools at prices you won't believe.
               </motion.p>
-              <CountdownTimer targetDate={offerEnd} />
+              <CountdownTimer expiresAt={offerEnd} />
             </div>
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}

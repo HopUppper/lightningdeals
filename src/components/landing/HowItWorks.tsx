@@ -31,7 +31,7 @@ const card = {
   hidden: { opacity: 0, y: 40, scale: 0.95 },
   show: {
     opacity: 1, y: 0, scale: 1,
-    transition: { type: "spring", damping: 18, stiffness: 90 },
+    transition: { type: "spring" as const, damping: 18, stiffness: 90 },
   },
 };
 

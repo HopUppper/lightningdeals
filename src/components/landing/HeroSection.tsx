@@ -8,7 +8,7 @@ const container = {
 };
 const item = {
   hidden: { opacity: 0, y: 30, filter: "blur(8px)" },
-  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", damping: 20, stiffness: 100 } },
+  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring" as const, damping: 20, stiffness: 100 } },
 };
 
 const HeroSection = () => (
