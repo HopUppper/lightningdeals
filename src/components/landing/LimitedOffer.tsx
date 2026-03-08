@@ -4,7 +4,6 @@ import { Clock, ArrowRight } from "lucide-react";
 import CountdownTimer from "@/components/CountdownTimer";
 
 const LimitedOffer = () => {
-  // 48 hours from now for rolling urgency
   const offerEnd = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
 
   return (
@@ -14,20 +13,19 @@ const LimitedOffer = () => {
           initial={{ opacity: 0, y: 30, scale: 0.97 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ type: "spring", damping: 18, stiffness: 80 }}
-          className="relative overflow-hidden rounded-3xl p-8 sm:p-12"
+          transition={{ type: "spring", damping: 20, stiffness: 80 }}
+          className="relative overflow-hidden rounded-3xl p-8 sm:p-12 noise-overlay"
           style={{ background: "var(--gradient-hero)" }}
         >
-          {/* Animated glow */}
           <motion.div
-            className="absolute top-0 right-0 w-64 h-64 bg-accent/15 rounded-full blur-[80px]"
-            animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.25, 0.1] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-0 right-0 w-80 h-80 bg-accent/10 rounded-full blur-[100px]"
+            animate={{ scale: [1, 1.3, 1], opacity: [0.08, 0.2, 0.08] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute bottom-0 left-0 w-48 h-48 bg-primary/15 rounded-full blur-[60px]"
+            className="absolute bottom-0 left-0 w-60 h-60 bg-primary/10 rounded-full blur-[80px]"
             animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
 
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
@@ -36,29 +34,29 @@ const LimitedOffer = () => {
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ type: "spring", damping: 20, delay: 0.1 }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-dark mb-4"
+                transition={{ delay: 0.1 }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-dark border border-white/10 mb-4"
               >
-                <Clock className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium text-primary-foreground/80">Limited Time Offer</span>
+                <Clock className="w-3.5 h-3.5 text-accent" />
+                <span className="text-sm font-medium text-primary-foreground/70">Limited Time Offer</span>
               </motion.div>
               <motion.h2
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ type: "spring", damping: 20, delay: 0.2 }}
-                className="text-2xl sm:text-3xl font-display font-bold text-primary-foreground mb-3"
+                transition={{ delay: 0.2 }}
+                className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-primary-foreground mb-3 tracking-tight"
               >
-                Get <span className="gradient-text-gold">70% OFF</span> on All Premium Subscriptions
+                Get <span className="gradient-text-gold">70% OFF</span> on All Plans
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ type: "spring", damping: 20, delay: 0.3 }}
-                className="text-primary-foreground/60 max-w-lg mb-4"
+                transition={{ delay: 0.3 }}
+                className="text-primary-foreground/50 max-w-lg mb-5"
               >
-                Don't miss out on our biggest sale. Premium tools at prices you won't believe.
+                Don't miss our biggest sale. Premium tools at unbeatable prices.
               </motion.p>
               <CountdownTimer expiresAt={offerEnd} />
             </div>
@@ -66,7 +64,7 @@ const LimitedOffer = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ type: "spring", damping: 16, delay: 0.4 }}
+              transition={{ delay: 0.4, type: "spring", damping: 16 }}
             >
               <Link to="/categories" className="btn-gold inline-flex items-center gap-2 whitespace-nowrap text-base group">
                 Shop Now
