@@ -60,6 +60,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
         <CartProvider>
+        <CompareProvider>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -87,6 +88,8 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          <CompareDrawer />
+        </CompareProvider>
         </CartProvider>
         </AuthProvider>
       </BrowserRouter>
