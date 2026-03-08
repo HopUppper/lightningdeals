@@ -47,6 +47,19 @@ const TrustSection = memo(() => (
           </motion.div>
         ))}
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ type: "spring", damping: 25 }}
+        className="mt-12 text-center"
+      >
+        <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-primary/5 border border-primary/10">
+          <Zap className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium text-foreground">Most subscriptions delivered within <strong className="text-primary">10–30 minutes</strong></span>
+        </div>
+      </motion.div>
     </div>
   </section>
 ));
