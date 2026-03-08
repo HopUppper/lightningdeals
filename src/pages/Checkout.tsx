@@ -205,7 +205,7 @@ const Checkout = () => {
                   <h2 className="font-display font-semibold text-foreground mb-4 text-lg">How It Works</h2>
                   <div className="space-y-3">
                     {[
-                      "Click "Order on WhatsApp" below",
+                      'Click "Order on WhatsApp" below',
                       "Send the pre-filled message to our team",
                       "We'll guide you with payment instructions",
                       "Subscription delivered in under 5 minutes",
