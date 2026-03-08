@@ -1,7 +1,9 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import SEOHead from "@/components/SEOHead";
 import { motion } from "framer-motion";
+import { MessageCircle } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const faqs = [
@@ -16,19 +18,22 @@ const faqs = [
 
 const FAQ = () => (
   <div className="min-h-screen bg-background">
+    <SEOHead title="FAQ — Lightning Deals" description="Find answers to frequently asked questions about Lightning Deals." />
     <Navbar />
+
     <div className="pt-28 section-padding">
       <div className="container-tight max-w-2xl">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="page-header">
           <span className="section-eyebrow">FAQ</span>
           <h1 className="section-title">Frequently Asked Questions</h1>
+          <p className="section-subtitle mx-auto">Everything you need to know about Lightning Deals.</p>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <Accordion type="single" collapsible className="space-y-3">
             {faqs.map((faq, i) => (
               <AccordionItem key={i} value={`faq-${i}`} className="glass-card px-7 border-none">
-                <AccordionTrigger className="font-display font-semibold text-foreground text-left hover:no-underline py-6">
+                <AccordionTrigger className="font-display font-semibold text-foreground text-left hover:no-underline py-6 text-base">
                   {faq.q}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground pb-6 leading-relaxed">
@@ -38,8 +43,23 @@ const FAQ = () => (
             ))}
           </Accordion>
         </motion.div>
+
+        {/* Still have questions */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-8 text-center mt-12">
+          <h3 className="font-display font-semibold text-foreground text-lg mb-2">Still have questions?</h3>
+          <p className="text-sm text-muted-foreground mb-5">Our team is here to help you 24/7.</p>
+          <a
+            href="https://wa.me/917695956938"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-gold inline-flex"
+          >
+            <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
+          </a>
+        </motion.div>
       </div>
     </div>
+
     <Footer />
     <WhatsAppButton />
   </div>
