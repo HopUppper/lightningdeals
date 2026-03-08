@@ -146,6 +146,18 @@ const ProductDetail = () => {
                 <p className="mt-2 text-sm font-medium text-accent">{product.offer_label}</p>
               )}
 
+              {product.offer_expires_at && (
+                <div className="mt-3">
+                  <CountdownTimer expiresAt={product.offer_expires_at} />
+                </div>
+              )}
+
+              <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1 text-accent-foreground font-medium">
+                  <TrendingUp className="w-3 h-3" /> Only 12 subscriptions left today
+                </span>
+              </div>
+
               <div className="flex gap-6 mt-6 text-sm text-muted-foreground">
                 <span><strong className="text-foreground">Duration:</strong> {product.duration || "1 Year"}</span>
                 <span><strong className="text-foreground">Delivery:</strong> {product.delivery || "WhatsApp"}</span>
