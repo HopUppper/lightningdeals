@@ -169,11 +169,11 @@ const GlobalSearch = memo(({ onClose }: { onClose?: () => void }) => {
           setIsOpen(true);
           setTimeout(() => inputRef.current?.focus(), 50);
         }}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-secondary/60 hover:bg-secondary text-muted-foreground transition-colors duration-200 text-sm"
+        className="flex items-center gap-2 h-9 px-2.5 lg:px-3 rounded-lg border border-border/50 bg-secondary/40 hover:bg-secondary/80 hover:border-border text-muted-foreground transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
       >
-        <Search className="w-4 h-4" />
-        <span className="hidden lg:inline">Search products...</span>
-        <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono text-muted-foreground border border-border/50">
+        <Search className="w-3.5 h-3.5 shrink-0" />
+        <span className="hidden lg:inline text-xs text-muted-foreground/70">Search...</span>
+        <kbd className="hidden lg:inline-flex items-center px-1 py-px rounded text-[9px] font-mono text-muted-foreground/50 bg-background/60 border border-border/40 ml-1">
           ⌘K
         </kbd>
       </button>
