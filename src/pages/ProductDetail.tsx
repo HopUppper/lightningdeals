@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import SEOHead from "@/components/SEOHead";
 import CountdownTimer from "@/components/CountdownTimer";
 import ProductLogo from "@/components/ProductLogo";
+import { useCompare } from "@/contexts/CompareContext";
 
 const WHATSAPP_NUMBER = "917695956938";
 
