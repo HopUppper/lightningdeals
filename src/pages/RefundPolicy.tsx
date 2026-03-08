@@ -17,7 +17,7 @@ const RefundPolicy = () => (
               { title: "Refund Process", content: "Once a refund request is received, our team will verify the issue within 24 hours. If approved, the refund will be processed to your original payment method within 5–7 business days." },
               { title: "Non-Refundable Cases", content: "Refunds are not available in the following cases: the subscription has already been activated and used, credentials have been shared with third parties, the request is made after 48 hours of purchase, or the issue is caused by user error or misuse." },
               { title: "Replacement Policy", content: "If a delivered subscription is defective, we may offer a replacement instead of a refund. Replacements are processed within 24 hours and delivered via WhatsApp." },
-              { title: "Customer Support", content: "For any refund or replacement queries, reach out to us on WhatsApp or email support@lightningdeals.in. Our support team is available to help resolve issues promptly." },
+              { title: "Customer Support", content: "For any refund or replacement queries, reach out to us on WhatsApp or email sidhjain9002@gmail.com. Our support team is available to help resolve issues promptly." },
             ].map((s) => (
               <div key={s.title}>
                 <h2 className="font-display font-semibold text-foreground text-lg mb-3">{s.title}</h2>

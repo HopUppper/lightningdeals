@@ -88,7 +88,7 @@ function generateInvoicePDF(invoice: {
   // Footer
   addText("Thank you for your purchase!", 50, yPos, 11, true);
   yPos -= 18;
-  addText("For support, contact us on WhatsApp or email support@lightningdeals.in", 50, yPos, 9, false);
+  addText("For support, contact us on WhatsApp or email sidhjain9002@gmail.com", 50, yPos, 9, false);
   yPos -= smallLineHeight;
   addText("This is a computer-generated invoice and does not require a signature.", 50, yPos, 8, false);
 
