@@ -17,7 +17,6 @@ const LimitedOffer = () => {
           className="relative overflow-hidden rounded-3xl p-10 sm:p-14 noise-overlay"
           style={{ background: "var(--gradient-hero)" }}
         >
-          {/* Static glows instead of animated */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-accent/10 rounded-full blur-[100px] animate-float-slow" />
           <div className="absolute bottom-0 left-0 w-60 h-60 bg-primary/10 rounded-full blur-[80px] animate-float" />
 
@@ -28,7 +27,7 @@ const LimitedOffer = () => {
                 <span className="text-sm font-medium text-primary-foreground/70">Limited Time Offer</span>
               </div>
               <h2 className="!text-3xl sm:!text-4xl lg:!text-5xl font-display font-bold text-primary-foreground mb-4 tracking-tight">
-                Get <span className="gradient-text-gold">70% OFF</span> on All Plans
+                Get <span className="gradient-text-gold">90% OFF</span> on All Plans
               </h2>
               <p className="text-primary-foreground/50 max-w-lg mb-6 text-lg">
                 Don't miss our biggest sale. Premium tools at unbeatable prices.

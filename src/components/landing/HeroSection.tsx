@@ -13,7 +13,6 @@ const item = {
 
 const HeroSection = () => (
   <section className="relative min-h-[94vh] flex items-center overflow-hidden noise-overlay" style={{ background: "var(--gradient-hero)" }}>
-    {/* Static gradient orbs instead of animated ones - GPU friendly */}
     <div className="absolute top-10 right-[10%] w-[500px] h-[500px] bg-primary/15 rounded-full blur-[150px] animate-float-slow" />
     <div className="absolute -bottom-20 left-[5%] w-[600px] h-[400px] bg-accent/8 rounded-full blur-[140px] animate-float" />
 
@@ -24,31 +23,43 @@ const HeroSection = () => (
 
     <div className="container-tight section-padding relative z-10">
       <motion.div className="max-w-3xl" variants={container} initial="hidden" animate="show">
-        <motion.div variants={item} className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-dark mb-10 border border-white/10 animate-pulse-glow">
-          <Sparkles className="w-3.5 h-3.5 text-accent" />
-          <span className="text-sm font-medium text-primary-foreground/70">🔥 Mega Sale Live — Up to 70% OFF</span>
+        {/* Brand name */}
+        <motion.div variants={item} className="flex items-center gap-2.5 mb-6">
+          <Zap className="w-6 h-6 text-accent fill-accent" />
+          <span className="text-xl sm:text-2xl font-display font-bold text-primary-foreground tracking-tight">Lightning Deals</span>
         </motion.div>
 
-        <motion.h1 variants={item} className="!text-4xl sm:!text-5xl lg:!text-7xl font-display font-bold !leading-[1.08] mb-7 tracking-tight">
+        {/* Sale badge */}
+        <motion.div variants={item} className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-dark mb-8 border border-white/10 animate-pulse-glow">
+          <Sparkles className="w-3.5 h-3.5 text-accent" />
+          <span className="text-sm font-medium text-primary-foreground/70">✨ Mega Sale Live — Up to 90% OFF Premium Tools</span>
+        </motion.div>
+
+        {/* Headline */}
+        <motion.h1 variants={item} className="!text-4xl sm:!text-5xl lg:!text-7xl font-display font-bold !leading-[1.08] mb-6 tracking-tight">
           <span className="text-primary-foreground">Premium Tools.</span>
           <br />
           <span className="gradient-text">Unbeatable Prices.</span>
         </motion.h1>
 
+        {/* Value proposition */}
         <motion.p variants={item} className="text-lg sm:text-xl text-primary-foreground/50 mb-12 max-w-xl leading-relaxed">
-          Access Canva Pro, Adobe, LinkedIn Premium, TradingView & 100+ more at massive discounts. Delivered instantly via WhatsApp.
+          Lightning Deals brings you premium software subscriptions at massive discounts. Access Canva, Adobe, Notion, ChatGPT & 100+ more — delivered instantly via WhatsApp.
         </motion.p>
 
+        {/* CTAs */}
         <motion.div variants={item} className="flex flex-wrap gap-4">
           <Link to="/categories" className="btn-primary-gradient inline-flex items-center gap-2.5 text-base group">
-            Browse Subscriptions
+            Browse Deals
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
           </Link>
-          <Link to="/about" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl border border-white/10 text-primary-foreground/70 font-semibold hover:bg-white/5 hover:border-white/20 transition-all duration-200 text-base">
-            How it Works
+          <Link to="/categories" className="btn-gold inline-flex items-center gap-2.5 text-base group">
+            Start Saving Now
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
           </Link>
         </motion.div>
 
+        {/* Trust badges */}
         <motion.div variants={item} className="flex flex-wrap items-center gap-8 mt-16">
           {[
             { icon: Shield, label: "Secure Orders" },
@@ -62,6 +73,7 @@ const HeroSection = () => (
           ))}
         </motion.div>
 
+        {/* Stats */}
         <motion.div variants={item} className="flex flex-wrap gap-12 mt-14 pt-10 border-t border-white/8">
           {[
             { value: "10K+", label: "Happy Customers" },
