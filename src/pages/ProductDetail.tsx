@@ -52,33 +52,28 @@ const ProductDetail = () => {
         setProduct(data);
 
         if (data) {
-          // Fetch reviews + wishlist + related in parallel
-          const promises: Promise<any>[] = [
-            supabase.from("reviews").select("*, profiles(name)").eq("product_id", data.id).order("created_at", { ascending: false }),
-          ];
+          // Fetch reviews
+          const { data: reviewsData } = await supabase
+            .from("reviews").select("*, profiles(name)").eq("product_id", data.id).order("created_at", { ascending: false });
+          setReviews(reviewsData ?? []);
 
+          // Check wishlist
           if (user) {
-            promises.push(supabase.from("wishlist").select("id").eq("user_id", user.id).eq("product_id", data.id).maybeSingle());
+            const { data: wl } = await supabase
+              .from("wishlist").select("id").eq("user_id", user.id).eq("product_id", data.id).maybeSingle();
+            setWishlisted(!!wl);
           }
 
           // Fetch related products from same category
           if (data.category_id) {
-            promises.push(
-              supabase.from("products")
-                .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge")
-                .eq("category_id", data.category_id)
-                .eq("is_active", true)
-                .neq("id", data.id)
-                .limit(4)
-            );
-          }
-
-          const results = await Promise.all(promises);
-          setReviews(results[0].data ?? []);
-          if (user && results[1]) setWishlisted(!!results[1].data);
-          const relatedIdx = user ? 2 : 1;
-          if (data.category_id && results[relatedIdx]) {
-            setRelatedProducts(results[relatedIdx].data ?? []);
+            const { data: related } = await supabase
+              .from("products")
+              .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge")
+              .eq("category_id", data.category_id)
+              .eq("is_active", true)
+              .neq("id", data.id)
+              .limit(4);
+            setRelatedProducts(related ?? []);
           }
         }
       } catch (e) {
