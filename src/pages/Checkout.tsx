@@ -86,7 +86,7 @@ const Checkout = () => {
         key: data.key_id,
         amount: data.amount,
         currency: data.currency,
-        name: "Paisa Baazi",
+        name: "Lightning Deals",
         description: `Order of ${items.length} item(s)`,
         order_id: data.order_id,
         prefill: {

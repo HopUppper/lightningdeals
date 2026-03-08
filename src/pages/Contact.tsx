@@ -51,7 +51,7 @@ const Contact = () => {
             <div className="lg:col-span-2 space-y-4">
               {[
                 { icon: MessageCircle, title: "WhatsApp", value: "+91 99999 99999", href: "https://wa.me/919999999999" },
-                { icon: Mail, title: "Email", value: "support@paisabaazi.com", href: "mailto:support@paisabaazi.com" },
+                { icon: Mail, title: "Email", value: "support@lightningdeals.in", href: "mailto:support@lightningdeals.in" },
                 { icon: MapPin, title: "Location", value: "India", href: "#" },
               ].map((c) => (
                 <a key={c.title} href={c.href} target="_blank" rel="noopener noreferrer" className="glass-card p-5 flex items-center gap-4 block">

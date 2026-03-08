@@ -353,7 +353,7 @@ const Dashboard = () => {
                 </a>
 
                 <a
-                  href="mailto:support@paisabaazi.com"
+                  href="mailto:support@lightningdeals.in"
                   className="glass-card p-6 hover:border-primary/30 transition-colors group"
                 >
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">

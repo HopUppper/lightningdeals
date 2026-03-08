@@ -151,7 +151,7 @@ const AdminOrders = () => {
                         </Button>
                         {order.customer_phone && (
                           <a
-                            href={`https://wa.me/${order.customer_phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hello, this is Sidh from Paisa Baazi.\nYour order has been received and we are processing your subscription.\nWe will deliver it shortly.`)}`}
+                            href={`https://wa.me/${order.customer_phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hello, this is Sidh from Lightning Deals.\nYour order has been received and we are processing your subscription.\nWe will deliver it shortly.`)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

@@ -27,7 +27,7 @@ export const useCart = () => {
   return ctx;
 };
 
-const STORAGE_KEY = "paisa-baazi-cart";
+const STORAGE_KEY = "lightning-deals-cart";
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>(() => {

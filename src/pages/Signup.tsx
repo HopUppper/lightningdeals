@@ -61,9 +61,8 @@ const Signup = () => {
             <BrandLogo size="lg" showText={false} />
           </Link>
             </div>
-          </Link>
           <h1 className="text-2xl font-display font-bold text-foreground">Create Account</h1>
-          <p className="text-muted-foreground mt-1">Join Paisa Baazi today</p>
+          <p className="text-muted-foreground mt-1">Join Lightning Deals today</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

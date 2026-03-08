@@ -15,7 +15,7 @@ const About = () => (
             We Make Premium Affordable
           </h1>
           <p className="text-muted-foreground mt-4 leading-relaxed">
-            Paisa Baazi is India's trusted platform for discounted digital subscriptions. We partner with authorized resellers to bring you premium software at prices that won't break the bank.
+            Lightning Deals is India's trusted platform for discounted digital subscriptions. We partner with authorized resellers to bring you premium software at prices that won't break the bank.
           </p>
         </motion.div>
 

@@ -51,7 +51,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="border-t border-border pt-6 text-center">
-        <p className="text-xs text-muted-foreground">© 2026 Paisa Baazi. All rights reserved.</p>
+        <p className="text-xs text-muted-foreground">© 2026 Lightning Deals. All rights reserved.</p>
       </div>
     </div>
   </footer>
