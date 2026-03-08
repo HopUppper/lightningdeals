@@ -4,6 +4,17 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import ProductLogo from "@/components/ProductLogo";
+import { credEase, staggerContainer } from "@/components/animations/CredAnimations";
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.6, ease: credEase, delay: i * 0.06 },
+  }),
+};
 
 const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
   const discount = p.price_original > 0
@@ -11,13 +22,8 @@ const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
     : 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ delay: i * 0.05, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <Link to={`/product/${p.slug}`} className="glass-card p-6 block group relative h-full">
+    <motion.div variants={cardVariants} custom={i}>
+      <Link to={`/product/${p.slug}`} className="glass-card p-6 block group relative h-full hover-lift">
         {discount > 0 && (
           <span className="absolute top-4 right-4 text-[11px] font-medium text-accent font-body">
             {discount}% off
@@ -42,7 +48,7 @@ const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
           )}
         </div>
 
-        <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-body">
+        <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300 font-body">
           View details <ArrowRight className="w-3 h-3" />
         </div>
       </Link>
@@ -61,6 +67,8 @@ const CardSkeleton = () => (
     <div className="h-5 w-1/3 bg-muted rounded animate-shimmer" />
   </div>
 );
+
+const container = staggerContainer(0.06);
 
 const TrendingDeals = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -91,10 +99,10 @@ const TrendingDeals = () => {
     <section className="section-padding relative overflow-hidden">
       <div className="container-tight relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 30, filter: "blur(4px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.8, ease: credEase }}
           className="flex items-end justify-between mb-16"
         >
           <div>
@@ -109,12 +117,18 @@ const TrendingDeals = () => {
           </Link>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        >
           {loading
             ? Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={i} />)
             : products.map((p, i) => <ProductCard key={p.id} p={p} i={i} />)
           }
-        </div>
+        </motion.div>
 
         <div className="sm:hidden mt-12 text-center">
           <Link to="/categories" className="btn-primary !text-sm">

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { credEase, staggerContainer } from "@/components/animations/CredAnimations";
 
 const PRIORITY_SLUGS = [
   "ai-tools",
@@ -12,6 +13,18 @@ const PRIORITY_SLUGS = [
   "productivity-tools",
   "business-collaboration",
 ];
+
+const container = staggerContainer(0.08);
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 24, scale: 0.96 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.6, ease: credEase, delay: i * 0.06 },
+  }),
+};
 
 const CategoriesPreview = memo(() => {
   const [categories, setCategories] = useState<any[]>([]);
@@ -43,10 +56,10 @@ const CategoriesPreview = memo(() => {
     <section className="section-padding relative overflow-hidden">
       <div className="container-tight relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 30, filter: "blur(4px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.8, ease: credEase }}
           className="text-center mb-16"
         >
           <span className="section-eyebrow">Categories</span>
@@ -54,18 +67,18 @@ const CategoriesPreview = memo(() => {
           <p className="section-subtitle mx-auto">Find the perfect tools for your workflow</p>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+          className="grid grid-cols-2 sm:grid-cols-3 gap-4"
+        >
           {categories.map((cat, i) => (
-            <motion.div
-              key={cat.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{ delay: i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            >
+            <motion.div key={cat.id} variants={cardVariants} custom={i}>
               <Link
                 to={`/categories/${cat.slug}`}
-                className="glass-card p-8 flex flex-col items-start group h-full"
+                className="glass-card p-8 flex flex-col items-start group h-full hover-lift"
               >
                 <h3 className="font-body font-semibold text-foreground text-sm group-hover:text-accent transition-colors duration-300">
                   {cat.name}
@@ -79,7 +92,7 @@ const CategoriesPreview = memo(() => {
               </Link>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
