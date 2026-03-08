@@ -1,14 +1,14 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import {
   Package, LogOut, User, MessageCircle, Mail, Phone, Edit2,
   Check, X, Key, Clock, Shield, RefreshCw, Download, Heart,
-  Star, ArrowRight,
+  Star, ArrowRight, ShoppingCart, Trash2, FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,26 +31,31 @@ const fadeIn = {
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [wishlist, setWishlist] = useState<any[]>([]);
+  const [myReviews, setMyReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ name: "", phone: "" });
   const [timelineOrder, setTimelineOrder] = useState<any>(null);
   const [timeline, setTimeline] = useState<any[]>([]);
+  const [generatingInvoice, setGeneratingInvoice] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     if (!user) { setLoading(false); return; }
     try {
-      const [profileRes, ordersRes, wishlistRes] = await Promise.all([
+      const [profileRes, ordersRes, wishlistRes, reviewsRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
-        supabase.from("orders").select("*, products(name, logo_url, duration, delivery, slug)").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("orders").select("*, products(name, logo_url, duration, delivery, slug, price_discounted, price_original, color)").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("wishlist").select("*, products(id, name, slug, logo_url, color, price_original, price_discounted, description)").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("reviews").select("*, products(name, slug, logo_url)").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
       setProfile(profileRes.data);
       setOrders(ordersRes.data ?? []);
       setWishlist(wishlistRes.data ?? []);
+      setMyReviews(reviewsRes.data ?? []);
       if (profileRes.data) {
         setProfileForm({ name: profileRes.data.name || "", phone: profileRes.data.phone || "" });
       }
@@ -96,6 +101,38 @@ const Dashboard = () => {
     if (error) { toast.error("Failed to remove"); return; }
     setWishlist((prev) => prev.filter((w) => w.id !== wishlistId));
     toast.success("Removed from wishlist");
+  };
+
+  const handleReorder = (order: any) => {
+    if (order.products?.slug) {
+      navigate(`/product/${order.products.slug}`);
+    }
+  };
+
+  const handleGenerateInvoice = async (order: any) => {
+    setGeneratingInvoice(order.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-invoice", {
+        body: { order_id: order.id },
+      });
+      if (error || !data?.success) {
+        toast.error("Failed to generate invoice");
+      } else {
+        setOrders((prev) => prev.map((o) => o.id === order.id ? { ...o, invoice_url: data.invoice_path } : o));
+        toast.success("Invoice generated!");
+      }
+    } catch {
+      toast.error("Failed to generate invoice");
+    } finally {
+      setGeneratingInvoice(null);
+    }
+  };
+
+  const deleteReview = async (reviewId: string) => {
+    const { error } = await supabase.from("reviews").delete().eq("id", reviewId);
+    if (error) { toast.error("Failed to delete review"); return; }
+    setMyReviews((prev) => prev.filter((r) => r.id !== reviewId));
+    toast.success("Review deleted");
   };
 
   const deliveredOrders = orders.filter((o) => o.order_status === "delivered");
@@ -158,6 +195,9 @@ const Dashboard = () => {
               <TabsTrigger value="wishlist" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
                 <Heart className="w-3.5 h-3.5" /> Wishlist
               </TabsTrigger>
+              <TabsTrigger value="reviews" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
+                <Star className="w-3.5 h-3.5" /> Reviews
+              </TabsTrigger>
               <TabsTrigger value="account" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
                 <User className="w-3.5 h-3.5" /> Account
               </TabsTrigger>
@@ -214,12 +254,23 @@ const Dashboard = () => {
                           <div className="flex gap-4 text-xs text-muted-foreground font-body">
                             {order.products?.duration && <span>{order.products.duration}</span>}
                           </div>
-                          <div className="flex items-center gap-4">
-                            {order.invoice_url && (
+                          <div className="flex items-center gap-3">
+                            {order.invoice_url ? (
                               <button onClick={() => handleDownloadInvoice(order)} className="text-xs text-accent hover:text-accent/80 font-medium inline-flex items-center gap-1 font-body">
                                 <Download className="w-3 h-3" /> Invoice
                               </button>
-                            )}
+                            ) : order.payment_status === "paid" ? (
+                              <button
+                                onClick={() => handleGenerateInvoice(order)}
+                                disabled={generatingInvoice === order.id}
+                                className="text-xs text-accent hover:text-accent/80 font-medium inline-flex items-center gap-1 font-body disabled:opacity-50"
+                              >
+                                <FileText className="w-3 h-3" /> {generatingInvoice === order.id ? "Generating..." : "Get Invoice"}
+                              </button>
+                            ) : null}
+                            <button onClick={() => handleReorder(order)} className="text-xs text-primary hover:text-primary/80 font-medium inline-flex items-center gap-1 font-body">
+                              <ShoppingCart className="w-3 h-3" /> Reorder
+                            </button>
                             <button onClick={() => openTimeline(order)} className="text-xs text-accent hover:text-accent/80 font-medium font-body">
                               Timeline
                             </button>
@@ -287,6 +338,65 @@ const Dashboard = () => {
                       >
                         View product <ArrowRight className="w-3 h-3" />
                       </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Reviews Tab */}
+            <TabsContent value="reviews">
+              {myReviews.length === 0 ? (
+                <div className="glass-card p-16 text-center">
+                  <Star className="w-10 h-10 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground mb-2 font-body">No reviews yet</p>
+                  <p className="text-xs text-muted-foreground mb-6 font-body">Purchase a product and share your experience</p>
+                  <Link to="/categories" className="btn-primary !text-sm">Browse Deals</Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {myReviews.map((review, i) => (
+                    <motion.div
+                      key={review.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="glass-card p-5"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <Link to={`/product/${review.products?.slug}`} className="flex items-center gap-3 min-w-0 flex-1">
+                          {review.products?.logo_url ? (
+                            <img src={review.products.logo_url} alt="" className="w-10 h-10 rounded-lg object-contain bg-secondary p-1.5 shrink-0" loading="lazy" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                              <Star className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-body font-medium text-foreground text-sm truncate hover:text-accent transition-colors">
+                              {review.products?.name ?? "Product"}
+                            </p>
+                            <div className="flex gap-0.5 mt-1">
+                              {[1,2,3,4,5].map((s) => (
+                                <Star key={s} className={`w-3 h-3 ${s <= review.rating ? "fill-accent text-accent" : "text-muted"}`} />
+                              ))}
+                            </div>
+                          </div>
+                        </Link>
+                        <button
+                          onClick={() => deleteReview(review.id)}
+                          className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                          title="Delete review"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      {review.comment && (
+                        <p className="text-sm text-muted-foreground mt-3 leading-relaxed font-body">"{review.comment}"</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-2 font-body">
+                        {new Date(review.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
                     </motion.div>
                   ))}
                 </div>

@@ -371,6 +371,38 @@ const ProductDetail = () => {
               )}
             </div>
 
+            {/* Rating Breakdown */}
+            {reviews.length > 0 && (
+              <div className="glass-card p-6 mb-8">
+                <div className="flex items-center gap-8">
+                  <div className="text-center">
+                    <p className="text-5xl font-display text-foreground">{avgRating}</p>
+                    <div className="flex gap-0.5 mt-2 justify-center">
+                      {[1,2,3,4,5].map((s) => (
+                        <Star key={s} className={`w-3.5 h-3.5 ${s <= Math.round(Number(avgRating)) ? "fill-accent text-accent" : "text-muted"}`} />
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{reviews.length} review{reviews.length !== 1 ? "s" : ""}</p>
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    {[5,4,3,2,1].map((star) => {
+                      const count = reviews.filter((r) => r.rating === star).length;
+                      const pct = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                      return (
+                        <div key={star} className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground w-6 text-right">{star}★</span>
+                          <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+                            <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="text-xs text-muted-foreground w-8">{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {user && (
               <div className="glass-card p-6 mb-8">
                 <h3 className="font-semibold text-foreground mb-4 text-sm">Write a Review</h3>
