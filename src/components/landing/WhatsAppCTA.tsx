@@ -2,7 +2,7 @@ import { memo } from "react";
 import { motion } from "framer-motion";
 import { MessageCircle, Shield, Zap, Clock } from "lucide-react";
 
-const WHATSAPP_NUMBER = "919999999999";
+const WHATSAPP_NUMBER = "917695956938";
 
 const WhatsAppCTA = memo(() => (
   <section className="section-padding bg-background">

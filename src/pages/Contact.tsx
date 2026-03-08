@@ -50,8 +50,8 @@ const Contact = () => {
             </div>
             <div className="lg:col-span-2 space-y-5">
               {[
-                { icon: MessageCircle, title: "WhatsApp", value: "+91 99999 99999", href: "https://wa.me/919999999999" },
-                { icon: Mail, title: "Email", value: "support@lightningdeals.in", href: "mailto:support@lightningdeals.in" },
+                { icon: MessageCircle, title: "WhatsApp", value: "+91 76959 56938", href: "https://wa.me/917695956938" },
+                { icon: Mail, title: "Email", value: "sidhjain9002@gmail.com", href: "mailto:sidhjain9002@gmail.com" },
                 { icon: MapPin, title: "Location", value: "India", href: "#" },
               ].map((c) => (
                 <a key={c.title} href={c.href} target="_blank" rel="noopener noreferrer" className="glass-card p-6 flex items-center gap-5 block">

@@ -36,7 +36,7 @@ const DeliveryPolicy = () => (
               { title: "How Subscriptions Are Delivered", content: "All products on Lightning Deals are digital subscriptions. After payment confirmation, your subscription credentials (login details, activation keys, or account access) are delivered directly via WhatsApp and a backup copy is sent to your email address." },
               { title: "Delivery Timeline", content: "Standard delivery is within 5 minutes of payment confirmation. During peak hours or for certain products, delivery may take up to 30 minutes. If you have not received your delivery within 1 hour, please contact our support team." },
               { title: "Delivery Issues", content: "If you experience any issues with your delivery — such as missing credentials, non-working accounts, or access problems — contact us immediately via WhatsApp. Our team will resolve the issue or provide a replacement within 24 hours." },
-              { title: "Customer Support Channels", content: "WhatsApp: +91 99999 99999 (fastest response)\nEmail: support@lightningdeals.in\n\nSupport is available 7 days a week." },
+              { title: "Customer Support Channels", content: "WhatsApp: +91 76959 56938 (fastest response)\nEmail: sidhjain9002@gmail.com\n\nSupport is available 7 days a week." },
             ].map((s) => (
               <div key={s.title}>
                 <h2 className="font-display font-semibold text-foreground text-lg mb-3">{s.title}</h2>

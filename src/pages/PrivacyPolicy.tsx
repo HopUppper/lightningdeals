@@ -19,7 +19,7 @@ const PrivacyPolicy = () => (
               { title: "WhatsApp Communication", content: "By providing your WhatsApp number, you consent to receiving order confirmations, delivery updates, and support messages via WhatsApp. You can opt out of promotional messages at any time by messaging us." },
               { title: "Cookies & Analytics", content: "We use essential cookies to maintain your session and shopping cart. Analytics cookies help us understand how visitors interact with our website to improve the user experience. You can manage cookie preferences through your browser settings." },
               { title: "Your Rights", content: "You have the right to access, correct, or delete your personal data. You may request a copy of your data or ask us to remove your account by contacting our support team. We will respond to all requests within 30 days." },
-              { title: "Contact Us", content: "For privacy-related inquiries, contact us at support@lightningdeals.in or reach out via WhatsApp." },
+              { title: "Contact Us", content: "For privacy-related inquiries, contact us at sidhjain9002@gmail.com or reach out via WhatsApp." },
             ].map((s) => (
               <div key={s.title}>
                 <h2 className="font-display font-semibold text-foreground text-lg mb-3">{s.title}</h2>
