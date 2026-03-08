@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { Package, ShoppingCart, LogOut, User, MessageCircle, Mail, Phone, Edit2, Check, X, Key, Clock, Shield, RefreshCw } from "lucide-react";
+import { Package, ShoppingCart, LogOut, User, MessageCircle, Mail, Phone, Edit2, Check, X, Key, Clock, Shield, RefreshCw, Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
