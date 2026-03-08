@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart, Shield, Zap, Clock, Star, Check, MessageCircle, Heart, ArrowLeft } from "lucide-react";
+import { ShoppingCart, Shield, Zap, Clock, Star, Check, MessageCircle, Heart, ArrowLeft, GitCompareArrows } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import SEOHead from "@/components/SEOHead";
 import CountdownTimer from "@/components/CountdownTimer";
 import ProductLogo from "@/components/ProductLogo";
+import { useCompare } from "@/contexts/CompareContext";
 
 const WHATSAPP_NUMBER = "917695956938";
 
@@ -27,6 +28,7 @@ const ProductDetail = () => {
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const { addItem } = useCart();
   const { user } = useAuth();
+  const { addToCompare, isInCompare, removeFromCompare } = useCompare();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -260,6 +262,31 @@ const ProductDetail = () => {
                   title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
                 >
                   <Heart className={`w-5 h-5 ${wishlisted ? "fill-accent" : ""}`} />
+                </button>
+                <button
+                  onClick={() => {
+                    const inC = isInCompare(product.id);
+                    if (inC) {
+                      removeFromCompare(product.id);
+                      toast.success("Removed from comparison");
+                    } else {
+                      addToCompare({
+                        id: product.id, name: product.name, slug: product.slug,
+                        description: product.description, price_original: product.price_original,
+                        price_discounted: product.price_discounted, duration: product.duration,
+                        delivery: product.delivery, features: product.features,
+                        logo_url: product.logo_url, color: product.color,
+                        category_name: product.categories?.name ?? null,
+                      });
+                      toast.success("Added to comparison");
+                    }
+                  }}
+                  className={`p-4 rounded-full border transition-all duration-300 ${
+                    isInCompare(product.id) ? "bg-accent/10 border-accent/30 text-accent" : "border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/30"
+                  }`}
+                  title={isInCompare(product.id) ? "Remove from compare" : "Compare"}
+                >
+                  <GitCompareArrows className="w-5 h-5" />
                 </button>
               </div>
 

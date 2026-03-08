@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, memo } from "react";
 import { motion } from "framer-motion";
-import { Clock, ArrowUpDown, Flame, Filter } from "lucide-react";
+import { Clock, ArrowUpDown, Flame, Filter, GitCompareArrows } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import ProductOfferBadge from "@/components/ProductOfferBadge";
 import ProductLogo from "@/components/ProductLogo";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCompare } from "@/contexts/CompareContext";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 12;
 type SortOption = "newest" | "price_low" | "price_high" | "name";
@@ -18,6 +20,26 @@ const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
   const discount = p.price_original > 0
     ? Math.round(((p.price_original - p.price_discounted) / p.price_original) * 100)
     : 0;
+  const { addToCompare, isInCompare, removeFromCompare } = useCompare();
+
+  const inCompare = isInCompare(p.id);
+
+  const handleCompare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (inCompare) {
+      removeFromCompare(p.id);
+      toast.success("Removed from comparison");
+    } else {
+      addToCompare({
+        id: p.id, name: p.name, slug: p.slug, description: p.description,
+        price_original: p.price_original, price_discounted: p.price_discounted,
+        duration: p.duration, delivery: null, features: null,
+        logo_url: p.logo_url, color: p.color, category_name: p.categories?.name ?? null,
+      });
+      toast.success("Added to comparison");
+    }
+  };
 
   return (
     <motion.div
@@ -27,6 +49,20 @@ const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
     >
       <Link to={`/product/${p.slug}`} className="glass-card p-7 block group relative overflow-hidden h-full">
         <ProductOfferBadge product={p} fallbackDiscount={discount} />
+
+        {/* Compare button */}
+        <button
+          onClick={handleCompare}
+          className={`absolute top-3 right-3 z-10 p-1.5 rounded-lg transition-all duration-200 ${
+            inCompare
+              ? "bg-accent/20 text-accent"
+              : "bg-secondary/80 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground"
+          }`}
+          title={inCompare ? "Remove from compare" : "Add to compare"}
+        >
+          <GitCompareArrows className="w-3.5 h-3.5" />
+        </button>
+
         <div className="flex items-center gap-4 mb-5">
           <div className="group-hover:scale-105 transition-transform duration-300 will-change-transform">
             <ProductLogo name={p.name} logoUrl={p.logo_url} color={p.color} size="w-14 h-14" fontSize="text-xl" />
