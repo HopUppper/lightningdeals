@@ -142,8 +142,8 @@ const CategoryListing = () => {
     pageRef.current = 0;
     setProducts([]);
     setHasMore(true);
-    fetchPage(0, true, sortBy);
-  }, [slug, fetchPage, sortBy]);
+    fetchPage(0, true, sortBy, durationFilter);
+  }, [slug, fetchPage, sortBy, durationFilter]);
 
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect();
