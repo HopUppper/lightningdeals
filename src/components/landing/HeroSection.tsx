@@ -13,16 +13,16 @@ const item = {
 };
 
 const leftTools = [
-  { name: "Canva", color: "#00C4CC", icon: "C", x: 40, y: 80 },
-  { name: "Notion", color: "#000000", icon: "N", x: 20, y: 220 },
-  { name: "ChatGPT", color: "#10A37F", icon: "G", x: 60, y: 360 },
-  { name: "Linear", color: "#5E6AD2", icon: "L", x: 10, y: 500 },
+  { name: "Canva", domain: "canva.com", x: 40, y: 80 },
+  { name: "Notion", domain: "notion.so", x: 15, y: 220 },
+  { name: "ChatGPT", domain: "openai.com", x: 55, y: 360 },
+  { name: "Linear", domain: "linear.app", x: 10, y: 500 },
 ];
 const rightTools = [
-  { name: "Figma", color: "#A259FF", icon: "F", x: 30, y: 100 },
-  { name: "Adobe", color: "#FF0000", icon: "A", x: 50, y: 250 },
-  { name: "Perplexity", color: "#1FB8CD", icon: "P", x: 15, y: 400 },
-  { name: "Slack", color: "#4A154B", icon: "S", x: 55, y: 520 },
+  { name: "Figma", domain: "figma.com", x: 25, y: 100 },
+  { name: "Adobe", domain: "adobe.com", x: 50, y: 250 },
+  { name: "Perplexity", domain: "perplexity.ai", x: 10, y: 400 },
+  { name: "Slack", domain: "slack.com", x: 45, y: 520 },
 ];
 
 const FloatingLogo = ({ tool, index }: { tool: typeof leftTools[0]; index: number }) => {
@@ -30,35 +30,89 @@ const FloatingLogo = ({ tool, index }: { tool: typeof leftTools[0]; index: numbe
   const yOff = index % 2 === 0 ? -16 : 16;
   return (
     <motion.div
-      className="absolute flex items-center justify-center w-11 h-11 rounded-xl font-display font-bold text-white/90 text-xs select-none pointer-events-none"
-      style={{ left: tool.x, top: tool.y, backgroundColor: tool.color }}
+      className="absolute w-10 h-10 rounded-xl overflow-hidden select-none pointer-events-none bg-white/10 backdrop-blur-sm p-1.5 border border-white/10"
+      style={{ left: tool.x, top: tool.y }}
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{
-        opacity: [0, 0.25, 0.3, 0.25, 0],
+        opacity: [0, 0.35, 0.45, 0.35, 0],
         scale: [0.8, 1, 1.05, 1, 0.8],
         y: [0, yOff, 0, -yOff, 0],
       }}
-      transition={{ duration: dur, repeat: Infinity, delay: index * 0.5, ease: "easeInOut" }}
+      transition={{ duration: dur, repeat: Infinity, delay: index * 0.6, ease: "easeInOut" }}
     >
-      {tool.icon}
+      <img
+        src={`https://logo.clearbit.com/${tool.domain}`}
+        alt={tool.name}
+        className="w-full h-full object-contain rounded-md"
+        loading="lazy"
+        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+      />
     </motion.div>
   );
 };
 
-const LightningStreak = ({ style }: { style: React.CSSProperties }) => (
+/* Lightning bolt SVG that strikes from top to bottom */
+const LightningBolt = ({ side, delay }: { side: "left" | "right"; delay: number }) => (
   <motion.div
     className="absolute pointer-events-none"
     style={{
-      width: "2px",
-      height: "180px",
-      background: "linear-gradient(180deg, transparent 0%, hsl(152,58%,42%) 30%, hsl(43,90%,55%) 70%, transparent 100%)",
-      filter: "blur(1px)",
+      [side]: side === "left" ? 80 : 70,
+      top: "5%",
+      width: 40,
+      height: 500,
       opacity: 0,
-      ...style,
     }}
-    animate={{ opacity: [0, 0, 0.35, 0.5, 0.25, 0], scaleY: [0.3, 0.3, 1, 1.1, 0.8, 0.3] }}
-    transition={{ duration: 4, repeat: Infinity, repeatDelay: 6, ease: "easeInOut" }}
-  />
+    animate={{
+      opacity: [0, 0, 0.6, 0.8, 0.4, 0],
+    }}
+    transition={{ duration: 2.5, repeat: Infinity, repeatDelay: delay, ease: "easeOut" }}
+  >
+    <svg viewBox="0 0 40 500" fill="none" className="w-full h-full">
+      <motion.path
+        d="M20 0 L14 120 L26 140 L12 280 L28 310 L8 500"
+        stroke="url(#lightning-grad)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{
+          pathLength: [0, 0, 1, 1, 1],
+          opacity: [0, 0, 0.8, 0.6, 0],
+        }}
+        transition={{ duration: 2.5, repeat: Infinity, repeatDelay: delay, ease: "easeOut" }}
+      />
+      {/* Glow path */}
+      <motion.path
+        d="M20 0 L14 120 L26 140 L12 280 L28 310 L8 500"
+        stroke="url(#lightning-grad)"
+        strokeWidth="6"
+        strokeLinecap="round"
+        fill="none"
+        filter="url(#glow)"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{
+          pathLength: [0, 0, 1, 1, 1],
+          opacity: [0, 0, 0.3, 0.2, 0],
+        }}
+        transition={{ duration: 2.5, repeat: Infinity, repeatDelay: delay, ease: "easeOut" }}
+      />
+      <defs>
+        <linearGradient id="lightning-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="hsl(152,58%,50%)" stopOpacity="0.9" />
+          <stop offset="40%" stopColor="hsl(152,58%,42%)" stopOpacity="1" />
+          <stop offset="70%" stopColor="hsl(43,90%,55%)" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="hsl(43,90%,55%)" stopOpacity="0" />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+    </svg>
+  </motion.div>
 );
 
 const HeroSection = () => {
@@ -67,7 +121,7 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-[94vh] flex items-center overflow-hidden noise-overlay" style={{ background: "var(--gradient-hero)" }}>
-      {/* Animated gradient orbs */}
+      {/* Gradient orbs */}
       <motion.div className="absolute top-10 right-[10%] w-[500px] h-[500px] bg-primary/15 rounded-full blur-[150px]"
         animate={{ y: [0, -20, 0], x: [0, 10, 0], scale: [1, 1.05, 1] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
@@ -77,33 +131,23 @@ const HeroSection = () => {
         transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Grid overlay */}
+      {/* Grid */}
       <div className="absolute inset-0 opacity-[0.03]" style={{
         backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
         backgroundSize: "60px 60px",
       }} />
 
-      {/* === 3-column layout === */}
+      {/* 3-column layout */}
       <div className="w-full max-w-[1560px] mx-auto px-5 sm:px-8 lg:px-10 py-20 sm:py-24 lg:py-32 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(120px,1fr)_minmax(0,720px)_minmax(120px,1fr)] items-center gap-0">
 
-          {/* Left side — floating logos + accents (hidden on mobile) */}
+          {/* Left — logos + lightning */}
           <div className="hidden lg:block relative h-[600px]">
             {left.map((t, i) => <FloatingLogo key={t.name} tool={t} index={i} />)}
-            <LightningStreak style={{ left: 70, top: "15%", transform: "rotate(-12deg)" }} />
-            <motion.div className="absolute left-6 top-[25%] w-px h-28"
-              style={{ background: "linear-gradient(180deg, transparent, hsl(152,58%,36%/0.2), transparent)" }}
-              animate={{ opacity: [0.15, 0.45, 0.15], scaleY: [0.8, 1.2, 0.8] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.div className="absolute left-14 top-[55%] w-px h-20"
-              style={{ background: "linear-gradient(180deg, transparent, hsl(43,90%,55%/0.15), transparent)" }}
-              animate={{ opacity: [0.1, 0.35, 0.1], scaleY: [0.9, 1.15, 0.9] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            />
+            <LightningBolt side="left" delay={6} />
           </div>
 
-          {/* Center — main content */}
+          {/* Center */}
           <motion.div className="text-center" variants={container} initial="hidden" animate="show">
             <motion.div variants={item} className="flex items-center justify-center gap-2.5 mb-6">
               <Zap className="w-6 h-6 text-accent fill-accent" />
@@ -127,16 +171,13 @@ const HeroSection = () => {
 
             <motion.div variants={item} className="flex flex-wrap justify-center gap-4">
               <Link to="/categories" className="btn-primary-gradient inline-flex items-center gap-2.5 text-base group">
-                Browse Deals
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                Browse Deals <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
               </Link>
               <Link to="/categories" className="btn-gold inline-flex items-center gap-2.5 text-base group">
-                Start Saving Now
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                Start Saving Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
               </Link>
             </motion.div>
 
-            {/* Trust badges - compact row */}
             <motion.div variants={item} className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 mt-10">
               {[
                 { icon: Zap, label: "100+ Premium Tools" },
@@ -150,7 +191,6 @@ const HeroSection = () => {
               ))}
             </motion.div>
 
-            {/* Stats */}
             <motion.div variants={item} className="flex flex-wrap justify-center gap-12 mt-12 pt-10 border-t border-white/8">
               {[
                 { value: "10K+", label: "Happy Customers" },
@@ -165,20 +205,10 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
 
-          {/* Right side — floating logos + accents (hidden on mobile) */}
+          {/* Right — logos + lightning */}
           <div className="hidden lg:block relative h-[600px]">
             {right.map((t, i) => <FloatingLogo key={t.name} tool={t} index={i + 4} />)}
-            <LightningStreak style={{ right: 60, top: "20%", transform: "rotate(12deg)" }} />
-            <motion.div className="absolute right-6 top-[30%] w-px h-24"
-              style={{ background: "linear-gradient(180deg, transparent, hsl(152,58%,36%/0.2), transparent)" }}
-              animate={{ opacity: [0.15, 0.4, 0.15], scaleY: [0.85, 1.15, 0.85] }}
-              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            />
-            <motion.div className="absolute right-14 top-[60%] w-px h-18"
-              style={{ background: "linear-gradient(180deg, transparent, hsl(43,90%,55%/0.12), transparent)" }}
-              animate={{ opacity: [0.1, 0.3, 0.1], scaleY: [0.9, 1.2, 0.9] }}
-              transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-            />
+            <LightningBolt side="right" delay={9} />
           </div>
         </div>
       </div>
