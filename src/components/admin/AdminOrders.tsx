@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Filter, Eye, MessageCircle } from "lucide-react";
+import { Search, Eye, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-const statuses = ["all", "pending", "processing", "delivered", "cancelled"] as const;
+const statuses = ["all", "pending", "processing", "delivered", "cancelled", "refunded"] as const;
 
 const statusColor = (status: string) => {
   const map: Record<string, string> = {
@@ -13,6 +13,7 @@ const statusColor = (status: string) => {
     processing: "bg-primary/20 text-primary",
     delivered: "bg-primary/30 text-primary",
     cancelled: "bg-destructive/20 text-destructive",
+    refunded: "bg-muted text-muted-foreground",
   };
   return map[status] ?? "bg-muted text-muted-foreground";
 };
@@ -23,6 +24,7 @@ const AdminOrders = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [statusHistory, setStatusHistory] = useState<any[]>([]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -32,7 +34,7 @@ const AdminOrders = () => {
       .order("created_at", { ascending: false });
 
     if (filterStatus !== "all") {
-      query = query.eq("order_status", filterStatus as "pending" | "processing" | "delivered" | "cancelled");
+      query = query.eq("order_status", filterStatus as any);
     }
 
     const { data } = await query;
@@ -42,13 +44,26 @@ const AdminOrders = () => {
 
   useEffect(() => { fetchOrders(); }, [filterStatus]);
 
+  const openOrderDetail = async (order: any) => {
+    setSelectedOrder(order);
+    const { data } = await supabase
+      .from("order_status_history")
+      .select("*")
+      .eq("order_id", order.id)
+      .order("created_at", { ascending: true });
+    setStatusHistory(data ?? []);
+  };
+
   const updateStatus = async (orderId: string, status: string) => {
     const { error } = await supabase.from("orders").update({ order_status: status as any }).eq("id", orderId);
     if (error) {
       toast.error("Failed to update status");
     } else {
       setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, order_status: status } : o)));
-      if (selectedOrder?.id === orderId) setSelectedOrder((prev: any) => ({ ...prev, order_status: status }));
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder((prev: any) => ({ ...prev, order_status: status }));
+        setStatusHistory((prev) => [...prev, { id: Date.now(), status, created_at: new Date().toISOString() }]);
+      }
       toast.success(`Order marked as ${status}`);
     }
   };
@@ -60,6 +75,7 @@ const AdminOrders = () => {
       o.customer_name?.toLowerCase().includes(s) ||
       o.customer_email?.toLowerCase().includes(s) ||
       o.payment_id?.toLowerCase().includes(s) ||
+      o.id?.toLowerCase().includes(s) ||
       o.products?.name?.toLowerCase().includes(s)
     );
   });
@@ -67,7 +83,7 @@ const AdminOrders = () => {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <h2 className="text-xl font-display font-bold text-foreground">All Orders</h2>
+        <h2 className="text-xl font-display font-bold text-foreground">All Orders ({orders.length})</h2>
         <div className="flex gap-2 items-center flex-wrap">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -78,7 +94,7 @@ const AdminOrders = () => {
               className="pl-9 pr-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary w-56"
             />
           </div>
-          <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
+          <div className="flex gap-1 bg-muted/50 rounded-lg p-1 flex-wrap">
             {statuses.map((s) => (
               <button
                 key={s}
@@ -142,11 +158,12 @@ const AdminOrders = () => {
                         <option value="processing">Processing</option>
                         <option value="delivered">Delivered</option>
                         <option value="cancelled">Cancelled</option>
+                        <option value="refunded">Refunded</option>
                       </select>
                     </td>
                     <td className="p-4">
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedOrder(order)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openOrderDetail(order)}>
                           <Eye className="w-4 h-4" />
                         </Button>
                         {order.customer_phone && (
@@ -175,7 +192,7 @@ const AdminOrders = () => {
 
       {/* Order Detail Modal */}
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display">Order Details</DialogTitle>
           </DialogHeader>
@@ -189,7 +206,7 @@ const AdminOrders = () => {
                 <div><span className="text-muted-foreground block text-xs">Product</span><span className="font-medium text-foreground">{selectedOrder.products?.name}</span></div>
                 <div><span className="text-muted-foreground block text-xs">Amount</span><span className="font-display font-bold text-foreground">₹{selectedOrder.payment_amount}</span></div>
                 <div><span className="text-muted-foreground block text-xs">Payment ID</span><span className="font-mono text-xs text-foreground">{selectedOrder.payment_id || "—"}</span></div>
-                <div><span className="text-muted-foreground block text-xs">Date</span><span className="font-medium text-foreground">{new Date(selectedOrder.created_at).toLocaleString("en-IN")}</span></div>
+                <div><span className="text-muted-foreground block text-xs">Order ID</span><span className="font-mono text-xs text-foreground">{selectedOrder.id?.slice(0, 8)}</span></div>
               </div>
               {selectedOrder.notes && (
                 <div>
@@ -197,19 +214,44 @@ const AdminOrders = () => {
                   <p className="text-foreground bg-muted/50 rounded-lg p-3 text-sm">{selectedOrder.notes}</p>
                 </div>
               )}
-              <div className="flex gap-2 pt-2">
-                {["pending", "processing", "delivered", "cancelled"].map((s) => (
+
+              {/* Status Buttons */}
+              <div className="flex gap-2 pt-2 flex-wrap">
+                {["pending", "processing", "delivered", "cancelled", "refunded"].map((s) => (
                   <Button
                     key={s}
                     size="sm"
                     variant={selectedOrder.order_status === s ? "default" : "outline"}
                     onClick={() => updateStatus(selectedOrder.id, s)}
-                    className="capitalize text-xs flex-1"
+                    className="capitalize text-xs flex-1 min-w-[70px]"
                   >
                     {s}
                   </Button>
                 ))}
               </div>
+
+              {/* Status Timeline */}
+              {statusHistory.length > 0 && (
+                <div>
+                  <span className="text-muted-foreground block text-xs mb-2 font-semibold">Order Timeline</span>
+                  <div className="relative pl-4 space-y-3">
+                    <div className="absolute left-[7px] top-1 bottom-1 w-0.5 bg-border" />
+                    {statusHistory.map((h, i) => (
+                      <div key={h.id} className="relative flex items-start gap-3">
+                        <div className={`absolute left-[-13px] w-3 h-3 rounded-full border-2 ${i === statusHistory.length - 1 ? "bg-primary border-primary" : "bg-background border-border"}`} />
+                        <div>
+                          <span className={`text-xs font-semibold capitalize ${statusColor(h.status)} px-2 py-0.5 rounded-full`}>
+                            {h.status}
+                          </span>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {new Date(h.created_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
