@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ProductImageUpload from "./ProductImageUpload";
+import { Sparkles, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface ProductForm {
   name: string;
@@ -44,6 +48,7 @@ const inputClass = "w-full rounded-lg border border-border bg-background px-3 py
 const badgePresets = ["", "Limited Offer", "Hot Deal", "Best Seller", "New", "50% OFF", "70% OFF", "80% OFF"];
 
 const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categories, onSave }: ProductFormDialogProps) => {
+  const [aiLoading, setAiLoading] = useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setForm((prev) => ({
@@ -68,6 +73,42 @@ const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categ
   const discountPercent = form.price_original > 0 && form.price_discounted > 0 && form.price_discounted < form.price_original
     ? Math.round(((form.price_original - form.price_discounted) / form.price_original) * 100)
     : 0;
+
+  const generateAIDescription = async () => {
+    if (!form.name) {
+      toast.error("Enter a product name first");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const categoryName = categories.find(c => c.id === form.category_id)?.name || "";
+      const { data, error } = await supabase.functions.invoke("generate-product-description", {
+        body: {
+          productName: form.name,
+          category: categoryName,
+          priceOriginal: form.price_original,
+          priceDiscounted: form.price_discounted,
+          duration: form.duration,
+          features: form.features,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+      setForm(prev => ({
+        ...prev,
+        description: data.short || prev.description,
+        long_description: data.long || prev.long_description,
+      }));
+      toast.success("AI descriptions generated!");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to generate descriptions");
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,11 +135,22 @@ const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categ
             </div>
           </div>
 
-          {/* Description */}
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Short Description</label>
-            <input name="description" value={form.description} onChange={handleChange} className={inputClass} placeholder="Brief one-liner about the product" />
+          {/* Description + AI Generate */}
+          <div className="flex items-center justify-between">
+            <label className="text-xs text-muted-foreground">Short Description</label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={generateAIDescription}
+              disabled={aiLoading || !form.name}
+              className="gap-1.5 h-7 text-xs"
+            >
+              {aiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+              {aiLoading ? "Generating..." : "AI Generate"}
+            </Button>
           </div>
+          <input name="description" value={form.description} onChange={handleChange} className={inputClass} placeholder="Brief one-liner about the product" />
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Detailed Description</label>
             <textarea name="long_description" value={form.long_description} onChange={handleChange} rows={3} className={`${inputClass} resize-none`} placeholder="Full product details shown on the product page" />
