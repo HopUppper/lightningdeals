@@ -161,6 +161,26 @@ const Login = () => {
             </Button>
           </form>
 
+          {showEmailConfirm && (
+            <div className="mt-6 p-4 rounded-xl bg-accent/5 border border-accent/20">
+              <div className="flex items-start gap-3">
+                <MailCheck className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground font-body">Email not verified</p>
+                  <p className="text-xs text-muted-foreground mt-1 font-body">Check your inbox for the verification link.</p>
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={resending}
+                    className="text-xs text-accent font-semibold hover:underline mt-2 disabled:opacity-50 font-body"
+                  >
+                    {resending ? "Sending..." : "Resend verification email"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mt-6">
             <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-primary transition-colors">Forgot password?</Link>
           </div>

@@ -45,10 +45,9 @@ const Wishlist = () => {
       id: item.products.id,
       name: item.products.name,
       price: item.products.price_discounted,
-      originalPrice: item.products.price_original,
-      image: item.products.logo_url || "",
-      duration: item.products.duration || "1 Year",
-      delivery: item.products.delivery || "WhatsApp (< 5 min)",
+      original: item.products.price_original,
+      color: item.products.color || "",
+      logoUrl: item.products.logo_url || "",
     });
     toast.success("Added to cart");
   };
