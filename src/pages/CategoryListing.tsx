@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, memo } from "react";
 import { motion } from "framer-motion";
-import { Clock, ArrowUpDown, Flame } from "lucide-react";
+import { Clock, ArrowUpDown, Flame, Filter } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const PAGE_SIZE = 12;
 type SortOption = "newest" | "price_low" | "price_high" | "name";
+type DurationFilter = "all" | "1_month" | "3_months" | "6_months" | "1_year" | "lifetime";
 
 const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
   const discount = p.price_original > 0
