@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { Package, ShoppingCart, LogOut, User, MessageCircle, Mail, Phone, Edit2, Check, X, Key, Clock, Shield, RefreshCw } from "lucide-react";
+import { Package, ShoppingCart, LogOut, User, MessageCircle, Mail, Phone, Edit2, Check, X, Key, Clock, Shield, RefreshCw, Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -70,6 +70,26 @@ const Dashboard = () => {
       .eq("order_id", order.id)
       .order("created_at", { ascending: true });
     setTimeline(data ?? []);
+  };
+
+  const handleDownloadInvoice = async (order: any) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("invoices")
+        .download(order.invoice_url);
+      if (error || !data) {
+        toast.error("Failed to download invoice");
+        return;
+      }
+      const url = URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${order.id.slice(0, 8)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Failed to download invoice");
+    }
   };
 
   const deliveredOrders = orders.filter((o) => o.order_status === "delivered");
@@ -165,9 +185,16 @@ const Dashboard = () => {
                             {order.products?.duration && <span>Duration: {order.products.duration}</span>}
                             {order.products?.delivery && <span>Delivery: {order.products.delivery}</span>}
                           </div>
-                          <button onClick={() => openTimeline(order)} className="text-xs text-primary hover:underline font-medium">
-                            View Timeline
-                          </button>
+                          <div className="flex items-center gap-3">
+                            {order.invoice_url && (
+                              <button onClick={() => handleDownloadInvoice(order)} className="text-xs text-primary hover:underline font-medium inline-flex items-center gap-1">
+                                <Download className="w-3 h-3" /> Invoice
+                              </button>
+                            )}
+                            <button onClick={() => openTimeline(order)} className="text-xs text-primary hover:underline font-medium">
+                              View Timeline
+                            </button>
+                          </div>
                         </div>
                       </motion.div>
                     );

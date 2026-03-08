@@ -88,6 +88,11 @@ serve(async (req) => {
       }
     }
 
+    // Generate invoices for each order (fire-and-forget)
+    for (const o of orders) {
+      supabase.functions.invoke('generate-invoice', { body: { order_id: o.id } }).catch(console.error);
+    }
+
     return new Response(JSON.stringify({ success: true, payment_id: razorpay_payment_id, orders }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
