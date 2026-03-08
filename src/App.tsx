@@ -20,6 +20,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Checkout from "./pages/Checkout";
+import OrderConfirmation from "./pages/OrderConfirmation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
