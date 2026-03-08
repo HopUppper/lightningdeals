@@ -79,6 +79,38 @@ export type Database = {
         }
         Relationships: []
       }
+      order_status_history: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           created_at: string
@@ -275,7 +307,12 @@ export type Database = {
     }
     Enums: {
       app_role: "customer" | "admin"
-      order_status: "pending" | "processing" | "delivered" | "cancelled"
+      order_status:
+        | "pending"
+        | "processing"
+        | "delivered"
+        | "cancelled"
+        | "refunded"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -404,7 +441,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["customer", "admin"],
-      order_status: ["pending", "processing", "delivered", "cancelled"],
+      order_status: [
+        "pending",
+        "processing",
+        "delivered",
+        "cancelled",
+        "refunded",
+      ],
     },
   },
 } as const
