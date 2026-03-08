@@ -72,6 +72,26 @@ const Dashboard = () => {
     setTimeline(data ?? []);
   };
 
+  const handleDownloadInvoice = async (order: any) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("invoices")
+        .download(order.invoice_url);
+      if (error || !data) {
+        toast.error("Failed to download invoice");
+        return;
+      }
+      const url = URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${order.id.slice(0, 8)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Failed to download invoice");
+    }
+  };
+
   const deliveredOrders = orders.filter((o) => o.order_status === "delivered");
   const pendingOrders = orders.filter((o) => o.order_status === "pending" || o.order_status === "processing");
 
