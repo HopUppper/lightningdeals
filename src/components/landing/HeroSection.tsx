@@ -4,33 +4,19 @@ import { ArrowRight, Sparkles, Shield, Zap, Clock } from "lucide-react";
 
 const container = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
 };
 const item = {
-  hidden: { opacity: 0, y: 30, filter: "blur(6px)" },
-  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring" as const, damping: 22, stiffness: 100 } },
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", damping: 25, stiffness: 120 } },
 };
 
 const HeroSection = () => (
   <section className="relative min-h-[94vh] flex items-center overflow-hidden noise-overlay" style={{ background: "var(--gradient-hero)" }}>
-    {/* Animated mesh gradients */}
-    <motion.div
-      className="absolute top-10 right-[10%] w-[500px] h-[500px] bg-primary/15 rounded-full blur-[150px]"
-      animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.25, 0.12] }}
-      transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-    />
-    <motion.div
-      className="absolute -bottom-20 left-[5%] w-[600px] h-[400px] bg-accent/8 rounded-full blur-[140px]"
-      animate={{ scale: [1, 1.15, 1], x: [0, 30, 0] }}
-      transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-    />
-    <motion.div
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-light/5 rounded-full blur-[200px]"
-      animate={{ rotate: [0, 180, 360] }}
-      transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-    />
+    {/* Static gradient orbs instead of animated ones - GPU friendly */}
+    <div className="absolute top-10 right-[10%] w-[500px] h-[500px] bg-primary/15 rounded-full blur-[150px] animate-float-slow" />
+    <div className="absolute -bottom-20 left-[5%] w-[600px] h-[400px] bg-accent/8 rounded-full blur-[140px] animate-float" />
 
-    {/* Grid pattern */}
     <div className="absolute inset-0 opacity-[0.03]" style={{
       backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
       backgroundSize: '60px 60px'
@@ -56,17 +42,13 @@ const HeroSection = () => (
         <motion.div variants={item} className="flex flex-wrap gap-4">
           <Link to="/categories" className="btn-primary-gradient inline-flex items-center gap-2.5 text-base group">
             Browse Subscriptions
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
           </Link>
-          <Link
-            to="/about"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl border border-white/10 text-primary-foreground/70 font-semibold hover:bg-white/5 hover:border-white/20 transition-all duration-300 text-base"
-          >
+          <Link to="/about" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl border border-white/10 text-primary-foreground/70 font-semibold hover:bg-white/5 hover:border-white/20 transition-all duration-200 text-base">
             How it Works
           </Link>
         </motion.div>
 
-        {/* Trust indicators */}
         <motion.div variants={item} className="flex flex-wrap items-center gap-8 mt-16">
           {[
             { icon: Shield, label: "Secure Payments" },
@@ -80,22 +62,16 @@ const HeroSection = () => (
           ))}
         </motion.div>
 
-        {/* Stats */}
         <motion.div variants={item} className="flex flex-wrap gap-12 mt-14 pt-10 border-t border-white/8">
           {[
             { value: "10K+", label: "Happy Customers" },
             { value: "100+", label: "Premium Tools" },
             { value: "< 5min", label: "Avg. Delivery" },
-          ].map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 + i * 0.1, type: "spring", damping: 18 }}
-            >
+          ].map((s) => (
+            <div key={s.label}>
               <div className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground tracking-tight">{s.value}</div>
               <div className="text-sm text-primary-foreground/40 mt-1">{s.label}</div>
-            </motion.div>
+            </div>
           ))}
         </motion.div>
       </motion.div>
