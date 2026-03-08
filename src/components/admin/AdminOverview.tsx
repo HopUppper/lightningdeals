@@ -49,24 +49,55 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ordersRes, productsRes] = await Promise.all([
+        const [ordersRes, productsRes, profilesRes, reviewsRes] = await Promise.all([
           supabase.from("orders").select("*, products(name, logo_url)").order("created_at", { ascending: false }),
           supabase.from("products").select("id", { count: "exact" }),
+          supabase.from("profiles").select("user_id, name, email, created_at").order("created_at", { ascending: false }).limit(50),
+          supabase.from("reviews").select("rating"),
         ]);
 
         const orderData = ordersRes.data ?? [];
+        const profilesData = profilesRes.data ?? [];
+        const reviewsData = reviewsRes.data ?? [];
         setOrders(orderData.slice(0, 8));
+        setRecentCustomers(profilesData.slice(0, 5));
 
         const paidOrders = orderData.filter((o) => o.payment_status === "paid");
         const pendingOrders = orderData.filter((o) => o.order_status === "pending").length;
         const uniqueUsers = new Set(orderData.map((o) => o.user_id));
         const totalRevenue = paidOrders.reduce((sum, o) => sum + Number(o.payment_amount), 0);
 
-        // Previous period stats (for trend comparison)
+        // Conversion rate (paid / total orders)
+        setConversionRate(orderData.length > 0 ? Math.round((paidOrders.length / orderData.length) * 100) : 0);
+
+        // Repeat customer rate
+        const userOrderCounts = new Map<string, number>();
+        orderData.forEach((o) => userOrderCounts.set(o.user_id, (userOrderCounts.get(o.user_id) || 0) + 1));
+        const repeatCustomers = Array.from(userOrderCounts.values()).filter((c) => c > 1).length;
+        setRepeatRate(uniqueUsers.size > 0 ? Math.round((repeatCustomers / uniqueUsers.size) * 100) : 0);
+
+        // Average rating
+        if (reviewsData.length > 0) {
+          setAvgRating(Number((reviewsData.reduce((s, r) => s + r.rating, 0) / reviewsData.length).toFixed(1)));
+        }
+
+        // Customer growth (last 30 days)
+        const growthMap = new Map<string, number>();
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          growthMap.set(d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }), 0);
+        }
+        profilesData.forEach((p) => {
+          const key = new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+          if (growthMap.has(key)) growthMap.set(key, (growthMap.get(key) || 0) + 1);
+        });
+        setCustomerGrowth(Array.from(growthMap.entries()).map(([date, customers]) => ({ date, customers })));
+
+        // Previous period stats
         const now = new Date();
         const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
         const fourteenDaysAgo = new Date(now.getTime() - 14 * 86400000);
-        const currentPeriod = paidOrders.filter((o) => new Date(o.created_at) >= sevenDaysAgo);
         const prevPeriod = paidOrders.filter((o) => {
           const d = new Date(o.created_at);
           return d >= fourteenDaysAgo && d < sevenDaysAgo;
@@ -87,7 +118,7 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
         });
         setTopProducts(Array.from(productMap.values()).sort((a, b) => b.count - a.count).slice(0, 5));
 
-        // Daily sales (7 or 30 days)
+        // Daily sales
         const days = chartRange === "7d" ? 7 : 30;
         const dayMap = new Map<string, { revenue: number; orders: number }>();
         for (let i = days - 1; i >= 0; i--) {
@@ -103,7 +134,7 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
         });
         setDailySales(Array.from(dayMap.entries()).map(([date, v]) => ({ date, ...v })));
 
-        // Monthly sales (6 months)
+        // Monthly sales
         const monthMap = new Map<string, { revenue: number; orders: number }>();
         for (let i = 5; i >= 0; i--) {
           const d = new Date();
