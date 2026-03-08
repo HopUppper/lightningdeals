@@ -74,6 +74,42 @@ const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categ
     ? Math.round(((form.price_original - form.price_discounted) / form.price_original) * 100)
     : 0;
 
+  const generateAIDescription = async () => {
+    if (!form.name) {
+      toast.error("Enter a product name first");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const categoryName = categories.find(c => c.id === form.category_id)?.name || "";
+      const { data, error } = await supabase.functions.invoke("generate-product-description", {
+        body: {
+          productName: form.name,
+          category: categoryName,
+          priceOriginal: form.price_original,
+          priceDiscounted: form.price_discounted,
+          duration: form.duration,
+          features: form.features,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+      setForm(prev => ({
+        ...prev,
+        description: data.short || prev.description,
+        long_description: data.long || prev.long_description,
+      }));
+      toast.success("AI descriptions generated!");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to generate descriptions");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
