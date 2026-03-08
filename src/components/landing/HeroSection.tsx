@@ -8,7 +8,7 @@ const container = {
 };
 const item = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", damping: 25, stiffness: 120 } },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, damping: 25, stiffness: 120 } },
 };
 
 const HeroSection = () => (
