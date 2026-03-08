@@ -46,14 +46,16 @@ const Dashboard = () => {
   const fetchData = useCallback(async () => {
     if (!user) { setLoading(false); return; }
     try {
-      const [profileRes, ordersRes, wishlistRes] = await Promise.all([
+      const [profileRes, ordersRes, wishlistRes, reviewsRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
-        supabase.from("orders").select("*, products(name, logo_url, duration, delivery, slug)").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("orders").select("*, products(name, logo_url, duration, delivery, slug, price_discounted, price_original, color)").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("wishlist").select("*, products(id, name, slug, logo_url, color, price_original, price_discounted, description)").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("reviews").select("*, products(name, slug, logo_url)").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
       setProfile(profileRes.data);
       setOrders(ordersRes.data ?? []);
       setWishlist(wishlistRes.data ?? []);
+      setMyReviews(reviewsRes.data ?? []);
       if (profileRes.data) {
         setProfileForm({ name: profileRes.data.name || "", phone: profileRes.data.phone || "" });
       }
