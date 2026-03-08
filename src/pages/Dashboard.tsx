@@ -48,16 +48,29 @@ const Dashboard = () => {
   const fetchData = useCallback(async () => {
     if (!user) { setLoading(false); return; }
     try {
-      const [profileRes, ordersRes, wishlistRes, reviewsRes] = await Promise.all([
+      const [profileRes, ordersRes, wishlistRes, reviewsRes, referralRes, txnsRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("orders").select("*, products(name, logo_url, duration, delivery, slug, price_discounted, price_original, color)").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("wishlist").select("*, products(id, name, slug, logo_url, color, price_original, price_discounted, description)").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("reviews").select("*, products(name, slug, logo_url)").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("referral_codes").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("referral_transactions").select("*").eq("referrer_id", user.id).order("created_at", { ascending: false }),
       ]);
       setProfile(profileRes.data);
       setOrders(ordersRes.data ?? []);
       setWishlist(wishlistRes.data ?? []);
       setMyReviews(reviewsRes.data ?? []);
+      setReferralTxns(txnsRes.data ?? []);
+
+      // Auto-create referral code if not exists
+      if (!referralRes.data) {
+        const code = `LD${user.id.slice(0, 6).toUpperCase()}`;
+        const { data: newRef } = await supabase.from("referral_codes").insert({ user_id: user.id, code }).select().single();
+        setReferral(newRef);
+      } else {
+        setReferral(referralRes.data);
+      }
+
       if (profileRes.data) {
         setProfileForm({ name: profileRes.data.name || "", phone: profileRes.data.phone || "" });
       }
