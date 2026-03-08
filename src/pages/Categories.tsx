@@ -17,17 +17,29 @@ const Categories = () => {
     const fetchCats = async () => {
       setLoading(true);
       try {
-        const { data: cats, error } = await supabase
+        // Fetch categories separately from product counts to avoid join issues
+        const { data: cats, error: catError } = await supabase
           .from("categories")
-          .select("id, name, slug, description, icon, products(id)")
-          .eq("products.is_active", true)
+          .select("id, name, slug, description, icon")
           .order("name");
-        if (error) throw error;
+        if (catError) throw catError;
+
+        // Get product counts per category
+        const { data: products, error: prodError } = await supabase
+          .from("products")
+          .select("category_id")
+          .eq("is_active", true);
+        if (prodError) throw prodError;
+
+        const countMap: Record<string, number> = {};
+        (products ?? []).forEach((p: any) => {
+          if (p.category_id) countMap[p.category_id] = (countMap[p.category_id] || 0) + 1;
+        });
+
         setCategories(
           (cats ?? []).map((c: any) => ({
             ...c,
-            count: Array.isArray(c.products) ? c.products.length : 0,
-            products: undefined,
+            count: countMap[c.id] || 0,
           }))
         );
       } catch (e) {
