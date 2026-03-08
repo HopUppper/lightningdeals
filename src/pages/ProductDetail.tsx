@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
 
 const productData: Record<string, {
   name: string; desc: string; longDesc: string; price: number; original: number;
@@ -62,7 +63,16 @@ const ProductDetail = () => {
 
   const savings = Math.round(((product.original - product.price) / product.original) * 100);
 
+  const { addItem } = useCart();
+
   const handleAddToCart = () => {
+    addItem({
+      id: id || "",
+      name: product.name,
+      price: product.price,
+      original: product.original,
+      color: product.color,
+    });
     toast.success(`${product.name} added to cart!`);
   };
 
