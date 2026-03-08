@@ -108,34 +108,41 @@ const CategoryListing = () => {
 
   const fetchPage = useCallback(async (page: number, isInitial: boolean, sort: SortOption, durFilter: DurationFilter) => {
     if (isInitial) setLoading(true); else setLoadingMore(true);
+    try {
+      if (isInitial) {
+        const { data: cat } = await supabase.from("categories").select("name").eq("slug", slug || "").maybeSingle();
+        if (cat) setCategoryName(cat.name);
+      }
 
-    if (isInitial) {
-      const { data: cat } = await supabase.from("categories").select("name").eq("slug", slug || "").maybeSingle();
-      if (cat) setCategoryName(cat.name);
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      const order = getOrderBy(sort);
+
+      let query = supabase
+        .from("products")
+        .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge, categories!inner(name, slug)", { count: "exact" })
+        .eq("categories.slug", slug || "")
+        .eq("is_active", true);
+
+      const durPattern = getDurationIlike(durFilter);
+      if (durPattern) query = query.ilike("duration", durPattern);
+
+      const { data: prods, count, error } = await query
+        .order(order.column, { ascending: order.ascending })
+        .range(from, to);
+      if (error) throw error;
+
+      const newProducts = prods ?? [];
+      if (isInitial) setProducts(newProducts); else setProducts(prev => [...prev, ...newProducts]);
+      setTotalCount(count ?? 0);
+      setHasMore(from + newProducts.length < (count ?? 0));
+    } catch (e) {
+      console.error("Failed to fetch products:", e);
+      if (isInitial) setProducts([]);
+      setHasMore(false);
+    } finally {
+      if (isInitial) setLoading(false); else setLoadingMore(false);
     }
-
-    const from = page * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
-    const order = getOrderBy(sort);
-
-    let query = supabase
-      .from("products")
-      .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge, categories!inner(name, slug)", { count: "exact" })
-      .eq("categories.slug", slug || "")
-      .eq("is_active", true);
-
-    const durPattern = getDurationIlike(durFilter);
-    if (durPattern) query = query.ilike("duration", durPattern);
-
-    const { data: prods, count } = await query
-      .order(order.column, { ascending: order.ascending })
-      .range(from, to);
-
-    const newProducts = prods ?? [];
-    if (isInitial) setProducts(newProducts); else setProducts(prev => [...prev, ...newProducts]);
-    setTotalCount(count ?? 0);
-    setHasMore(from + newProducts.length < (count ?? 0));
-    if (isInitial) setLoading(false); else setLoadingMore(false);
   }, [slug]);
 
   useEffect(() => {
