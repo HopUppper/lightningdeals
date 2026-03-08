@@ -63,7 +63,16 @@ const ProductDetail = () => {
 
   const savings = Math.round(((product.original - product.price) / product.original) * 100);
 
+  const { addItem } = useCart();
+
   const handleAddToCart = () => {
+    addItem({
+      id: id || "",
+      name: product.name,
+      price: product.price,
+      original: product.original,
+      color: product.color,
+    });
     toast.success(`${product.name} added to cart!`);
   };
 
