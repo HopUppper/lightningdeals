@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { queryPublic, queryPublicSingle } from "@/lib/supabaseRest";
 import SEOHead from "@/components/SEOHead";
 import CountdownTimer from "@/components/CountdownTimer";
 import ProductLogo from "@/components/ProductLogo";
@@ -35,47 +36,51 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        let { data } = await supabase
-          .from("products")
-          .select("*, categories(name, slug)")
-          .eq("slug", id || "")
-          .eq("is_active", true)
-          .maybeSingle();
+        // Try by slug first, then by id - using direct REST for public data
+        let { data } = await queryPublicSingle({
+          table: "products",
+          select: "*,categories(name,slug)",
+          filters: { slug: `eq.${id || ""}`, is_active: "eq.true" },
+        });
 
         if (!data) {
-          const res = await supabase
-            .from("products")
-            .select("*, categories(name, slug)")
-            .eq("id", id || "")
-            .eq("is_active", true)
-            .maybeSingle();
+          const res = await queryPublicSingle({
+            table: "products",
+            select: "*,categories(name,slug)",
+            filters: { id: `eq.${id || ""}`, is_active: "eq.true" },
+          });
           data = res.data;
         }
 
         setProduct(data);
 
         if (data) {
-          // Fetch reviews
-          const { data: reviewsData } = await supabase
-            .from("reviews").select("*, profiles(name)").eq("product_id", data.id).order("created_at", { ascending: false });
+          // Fetch reviews - public data
+          const { data: reviewsData } = await queryPublic({
+            table: "reviews",
+            select: "id,rating,comment,created_at,user_id",
+            filters: { product_id: `eq.${data.id}` },
+            order: "created_at.desc",
+          });
           setReviews(reviewsData ?? []);
 
-          // Check wishlist
+          // Check wishlist - requires auth, use supabase client
           if (user) {
-            const { data: wl } = await supabase
-              .from("wishlist").select("id").eq("user_id", user.id).eq("product_id", data.id).maybeSingle();
-            setWishlisted(!!wl);
+            try {
+              const { data: wl } = await supabase
+                .from("wishlist").select("id").eq("user_id", user.id).eq("product_id", data.id).maybeSingle();
+              setWishlisted(!!wl);
+            } catch { /* ignore auth errors */ }
           }
 
-          // Fetch related products from same category
+          // Fetch related products - public data
           if (data.category_id) {
-            const { data: related } = await supabase
-              .from("products")
-              .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge")
-              .eq("category_id", data.category_id)
-              .eq("is_active", true)
-              .neq("id", data.id)
-              .limit(4);
+            const { data: related } = await queryPublic({
+              table: "products",
+              select: "id,name,slug,description,price_original,price_discounted,duration,logo_url,color,offer_badge",
+              filters: { category_id: `eq.${data.category_id}`, is_active: "eq.true", id: `neq.${data.id}` },
+              limit: 4,
+            });
             setRelatedProducts(related ?? []);
           }
         }
@@ -118,7 +123,12 @@ const ProductDetail = () => {
       comment: reviewForm.comment,
     }, { onConflict: "user_id,product_id" });
     if (error) { toast.error("Failed to submit review"); setSubmittingReview(false); return; }
-    const { data } = await supabase.from("reviews").select("*, profiles(name)").eq("product_id", product.id).order("created_at", { ascending: false });
+    const { data } = await queryPublic({
+      table: "reviews",
+      select: "id,rating,comment,created_at,user_id",
+      filters: { product_id: `eq.${product.id}` },
+      order: "created_at.desc",
+    });
     setReviews(data ?? []);
     setReviewForm({ rating: 5, comment: "" });
     setSubmittingReview(false);
@@ -154,7 +164,7 @@ const ProductDetail = () => {
     : 0;
 
   const avgRating = reviews.length > 0
-    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    ? (reviews.reduce((s: number, r: any) => s + r.rating, 0) / reviews.length).toFixed(1)
     : null;
 
   const handleAddToCart = () => {
@@ -372,90 +382,59 @@ const ProductDetail = () => {
               </div>
               {avgRating && (
                 <div className="text-right">
-                  <p className="text-3xl font-display text-foreground">{avgRating}</p>
-                  <p className="text-xs text-muted-foreground">{reviews.length} review{reviews.length !== 1 ? "s" : ""}</p>
+                  <div className="text-3xl font-display text-foreground">{avgRating}</div>
+                  <div className="flex gap-0.5 justify-end mt-1">
+                    {[1,2,3,4,5].map((s) => (
+                      <Star key={s} className={`w-3.5 h-3.5 ${s <= Math.round(Number(avgRating)) ? "fill-accent text-accent" : "text-muted"}`} />
+                    ))}
+                  </div>
+                  <span className="text-xs text-muted-foreground">{reviews.length} review{reviews.length !== 1 ? "s" : ""}</span>
                 </div>
               )}
             </div>
 
-            {/* Rating Breakdown */}
-            {reviews.length > 0 && (
-              <div className="glass-card p-6 mb-8">
-                <div className="flex items-center gap-8">
-                  <div className="text-center">
-                    <p className="text-5xl font-display text-foreground">{avgRating}</p>
-                    <div className="flex gap-0.5 mt-2 justify-center">
-                      {[1,2,3,4,5].map((s) => (
-                        <Star key={s} className={`w-3.5 h-3.5 ${s <= Math.round(Number(avgRating)) ? "fill-accent text-accent" : "text-muted"}`} />
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">{reviews.length} review{reviews.length !== 1 ? "s" : ""}</p>
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    {[5,4,3,2,1].map((star) => {
-                      const count = reviews.filter((r) => r.rating === star).length;
-                      const pct = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
-                      return (
-                        <div key={star} className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground w-6 text-right">{star}★</span>
-                          <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
-                            <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${pct}%` }} />
-                          </div>
-                          <span className="text-xs text-muted-foreground w-8">{count}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {user && (
-              <div className="glass-card p-6 mb-8">
-                <h3 className="font-semibold text-foreground mb-4 text-sm">Write a Review</h3>
-                <div className="flex gap-1 mb-4">
+              <div className="glass-card p-8 mb-10">
+                <h4 className="font-semibold text-foreground mb-5">Write a Review</h4>
+                <div className="flex gap-1.5 mb-5">
                   {[1,2,3,4,5].map((s) => (
-                    <button key={s} onClick={() => setReviewForm((f) => ({ ...f, rating: s }))} className="p-1">
-                      <Star className={`w-5 h-5 transition-colors ${s <= reviewForm.rating ? "fill-accent text-accent" : "text-muted hover:text-muted-foreground"}`} />
+                    <button key={s} onClick={() => setReviewForm({ ...reviewForm, rating: s })}>
+                      <Star className={`w-5 h-5 transition-colors ${s <= reviewForm.rating ? "fill-accent text-accent" : "text-muted"}`} />
                     </button>
                   ))}
                 </div>
                 <textarea
                   value={reviewForm.comment}
-                  onChange={(e) => setReviewForm((f) => ({ ...f, comment: e.target.value }))}
+                  onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
                   placeholder="Share your experience..."
-                  className="w-full rounded-lg border border-border bg-secondary px-4 py-3 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent resize-none h-24"
+                  className="w-full p-4 rounded-xl border border-border bg-card text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 resize-none h-28"
                 />
-                <button onClick={submitReview} disabled={submittingReview} className="btn-primary !py-2.5 !px-6 !text-sm mt-3">
+                <button onClick={submitReview} disabled={submittingReview} className="btn-primary mt-4 !text-sm">
                   {submittingReview ? "Submitting..." : "Submit Review"}
                 </button>
               </div>
             )}
 
             {reviews.length > 0 ? (
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 {reviews.map((r) => (
                   <div key={r.id} className="glass-card p-6">
-                    <div className="flex gap-0.5 mb-3">
-                      {[1,2,3,4,5].map((s) => (
-                        <Star key={s} className={`w-3 h-3 ${s <= r.rating ? "fill-accent text-accent" : "text-muted"}`} />
-                      ))}
-                    </div>
-                    {r.comment && <p className="text-sm text-muted-foreground leading-relaxed mb-4">"{r.comment}"</p>}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">{r.profiles?.name || "User"}</span>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map((s) => (
+                          <Star key={s} className={`w-3.5 h-3.5 ${s <= r.rating ? "fill-accent text-accent" : "text-muted"}`} />
+                        ))}
+                      </div>
                       <span className="text-xs text-muted-foreground">
-                        {new Date(r.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                        {new Date(r.created_at).toLocaleDateString()}
                       </span>
                     </div>
+                    {r.comment && <p className="text-sm text-muted-foreground leading-relaxed">{r.comment}</p>}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="glass-card p-12 text-center">
-                <Star className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No reviews yet. {user ? "Be the first to review!" : "Login to leave a review."}</p>
-              </div>
+              <p className="text-sm text-muted-foreground text-center py-8">No reviews yet. Be the first to review!</p>
             )}
           </div>
         </div>

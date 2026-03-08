@@ -2,7 +2,7 @@ import { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { queryPublic } from "@/lib/supabaseRest";
 import ProductLogo from "@/components/ProductLogo";
 import { credEase, staggerContainer } from "@/components/animations/CredAnimations";
 
@@ -77,12 +77,13 @@ const TrendingDeals = () => {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const { data, error } = await supabase
-          .from("products")
-          .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false })
-          .limit(8);
+        const { data, error } = await queryPublic({
+          table: "products",
+          select: "id,name,slug,description,price_original,price_discounted,duration,logo_url,color,offer_badge",
+          filters: { is_active: "eq.true" },
+          order: "created_at.desc",
+          limit: 8,
+        });
         if (error) throw error;
         setProducts(data ?? []);
       } catch (e) {

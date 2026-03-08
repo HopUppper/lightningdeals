@@ -5,7 +5,7 @@ import { Clock, ArrowUpDown, Flame, Filter, GitCompareArrows } from "lucide-reac
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { supabase } from "@/integrations/supabase/client";
+import { queryPublic, queryPublicSingle } from "@/lib/supabaseRest";
 import ProductOfferBadge from "@/components/ProductOfferBadge";
 import ProductLogo from "@/components/ProductLogo";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,7 +35,7 @@ const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
         id: p.id, name: p.name, slug: p.slug, description: p.description,
         price_original: p.price_original, price_discounted: p.price_discounted,
         duration: p.duration, delivery: null, features: null,
-        logo_url: p.logo_url, color: p.color, category_name: p.categories?.name ?? null,
+        logo_url: p.logo_url, color: p.color, category_name: p.category_name ?? null,
       });
       toast.success("Added to comparison");
     }
@@ -50,7 +50,6 @@ const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
       <Link to={`/product/${p.slug}`} className="glass-card p-7 block group relative overflow-hidden h-full">
         <ProductOfferBadge product={p} fallbackDiscount={discount} />
 
-        {/* Compare button */}
         <button
           onClick={handleCompare}
           className={`absolute top-3 right-3 z-10 p-1.5 rounded-lg transition-all duration-200 ${
@@ -121,51 +120,71 @@ const CategoryListing = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const pageRef = useRef(0);
+  const [categoryId, setCategoryId] = useState<string | null>(null);
 
   const getOrderBy = (sort: SortOption) => {
     switch (sort) {
-      case "price_low": return { column: "price_discounted" as const, ascending: true };
-      case "price_high": return { column: "price_discounted" as const, ascending: false };
-      case "name": return { column: "name" as const, ascending: true };
-      default: return { column: "created_at" as const, ascending: false };
+      case "price_low": return "price_discounted.asc";
+      case "price_high": return "price_discounted.desc";
+      case "name": return "name.asc";
+      default: return "created_at.desc";
     }
   };
 
   const getDurationIlike = (df: DurationFilter): string | null => {
     switch (df) {
-      case "1_month": return "%1 Month%";
-      case "3_months": return "%3 Month%";
-      case "6_months": return "%6 Month%";
-      case "1_year": return "%1 Year%";
-      case "lifetime": return "%Lifetime%";
+      case "1_month": return "*1 Month*";
+      case "3_months": return "*3 Month*";
+      case "6_months": return "*6 Month*";
+      case "1_year": return "*1 Year*";
+      case "lifetime": return "*Lifetime*";
       default: return null;
     }
   };
 
-  const fetchPage = useCallback(async (page: number, isInitial: boolean, sort: SortOption, durFilter: DurationFilter) => {
+  const fetchPage = useCallback(async (page: number, isInitial: boolean, sort: SortOption, durFilter: DurationFilter, catId: string | null) => {
     if (isInitial) setLoading(true); else setLoadingMore(true);
     try {
+      let resolvedCatId = catId;
+
       if (isInitial) {
-        const { data: cat } = await supabase.from("categories").select("name").eq("slug", slug || "").maybeSingle();
-        if (cat) setCategoryName(cat.name);
+        const { data: cat } = await queryPublicSingle({
+          table: "categories",
+          select: "id,name",
+          filters: { slug: `eq.${slug || ""}` },
+        });
+        if (cat) {
+          setCategoryName(cat.name);
+          setCategoryId(cat.id);
+          resolvedCatId = cat.id;
+        }
+      }
+
+      if (!resolvedCatId) {
+        if (isInitial) setProducts([]);
+        setHasMore(false);
+        return;
       }
 
       const from = page * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
-      const order = getOrderBy(sort);
 
-      let query = supabase
-        .from("products")
-        .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge, categories!inner(name, slug)", { count: "exact" })
-        .eq("categories.slug", slug || "")
-        .eq("is_active", true);
+      const filters: Record<string, string> = {
+        category_id: `eq.${resolvedCatId}`,
+        is_active: "eq.true",
+      };
 
       const durPattern = getDurationIlike(durFilter);
-      if (durPattern) query = query.ilike("duration", durPattern);
+      if (durPattern) filters.duration = `ilike.${durPattern}`;
 
-      const { data: prods, count, error } = await query
-        .order(order.column, { ascending: order.ascending })
-        .range(from, to);
+      const { data: prods, count, error } = await queryPublic({
+        table: "products",
+        select: "id,name,slug,description,price_original,price_discounted,duration,logo_url,color,offer_badge",
+        filters,
+        order: getOrderBy(sort),
+        range: [from, to],
+        count: true,
+      });
       if (error) throw error;
 
       const newProducts = prods ?? [];
@@ -185,7 +204,8 @@ const CategoryListing = () => {
     pageRef.current = 0;
     setProducts([]);
     setHasMore(true);
-    fetchPage(0, true, sortBy, durationFilter);
+    setCategoryId(null);
+    fetchPage(0, true, sortBy, durationFilter, null);
   }, [slug, fetchPage, sortBy, durationFilter]);
 
   useEffect(() => {
@@ -194,14 +214,14 @@ const CategoryListing = () => {
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
           pageRef.current += 1;
-          fetchPage(pageRef.current, false, sortBy, durationFilter);
+          fetchPage(pageRef.current, false, sortBy, durationFilter, categoryId);
         }
       },
       { rootMargin: "200px" }
     );
     if (sentinelRef.current) observerRef.current.observe(sentinelRef.current);
     return () => observerRef.current?.disconnect();
-  }, [hasMore, loadingMore, loading, fetchPage, sortBy, durationFilter]);
+  }, [hasMore, loadingMore, loading, fetchPage, sortBy, durationFilter, categoryId]);
 
   const sortOptions: { value: SortOption; label: string }[] = [
     { value: "newest", label: "Newest" },

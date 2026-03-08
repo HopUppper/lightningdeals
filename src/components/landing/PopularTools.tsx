@@ -1,7 +1,7 @@
 import { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
+import { queryPublic } from "@/lib/supabaseRest";
 import ProductLogo from "@/components/ProductLogo";
 
 const ToolItem = memo(({ tool, i }: { tool: any; i: number }) => (
@@ -29,15 +29,16 @@ const PopularTools = () => {
   const [tools, setTools] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("name, slug, logo_url, color")
-        .eq("is_active", true)
-        .limit(16);
+    const fetchTools = async () => {
+      const { data } = await queryPublic({
+        table: "products",
+        select: "name,slug,logo_url,color",
+        filters: { is_active: "eq.true" },
+        limit: 16,
+      });
       setTools(data ?? []);
     };
-    fetch();
+    fetchTools();
   }, []);
 
   if (tools.length === 0) return null;

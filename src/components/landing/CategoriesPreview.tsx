@@ -2,7 +2,7 @@ import { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { queryPublic } from "@/lib/supabaseRest";
 import { credEase, staggerContainer } from "@/components/animations/CredAnimations";
 
 const PRIORITY_SLUGS = [
@@ -32,16 +32,17 @@ const CategoriesPreview = memo(() => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data, error } = await supabase
-          .from("categories")
-          .select("id, name, slug, description")
-          .order("name");
+        const { data, error } = await queryPublic({
+          table: "categories",
+          select: "id,name,slug,description",
+          order: "name",
+        });
         if (error) throw error;
         if (!data) return;
         const prioritized = PRIORITY_SLUGS
-          .map((slug) => data.find((c) => c.slug === slug))
+          .map((slug) => data.find((c: any) => c.slug === slug))
           .filter(Boolean);
-        const remaining = data.filter((c) => !PRIORITY_SLUGS.includes(c.slug));
+        const remaining = data.filter((c: any) => !PRIORITY_SLUGS.includes(c.slug));
         setCategories([...prioritized, ...remaining].slice(0, 6));
       } catch (e) {
         console.error("Failed to fetch categories:", e);
