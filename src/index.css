@@ -146,12 +146,16 @@
 
   .glass-card {
     @apply bg-card border border-border rounded-xl;
-    transition: border-color 0.4s ease, background-color 0.4s ease;
+    transition: border-color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .glass-card:hover {
     border-color: hsl(var(--border));
     background-color: hsl(var(--card));
     filter: brightness(1.04);
+    box-shadow: 0 8px 30px -8px hsl(var(--background) / 0.4);
   }
 
   .glass-nav {
