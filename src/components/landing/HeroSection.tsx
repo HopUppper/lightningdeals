@@ -51,7 +51,7 @@ const HeroSection = () => (
 
         <motion.div variants={item} className="flex flex-wrap items-center gap-8 mt-16">
           {[
-            { icon: Shield, label: "Secure Payments" },
+            { icon: Shield, label: "Secure Orders" },
             { icon: Zap, label: "Instant Delivery" },
             { icon: Clock, label: "24/7 Support" },
           ].map((badge) => (

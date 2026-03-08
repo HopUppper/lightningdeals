@@ -1,11 +1,11 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { Search, CreditCard, Zap } from "lucide-react";
+import { Search, MessageCircle, Zap } from "lucide-react";
 
 const steps = [
-  { icon: Search, title: "Choose Your Subscription", desc: "Browse our catalog of 100+ premium tools and pick your plan.", step: "01" },
-  { icon: CreditCard, title: "Make Secure Payment", desc: "Pay securely via UPI, cards, net banking or wallets through Razorpay.", step: "02" },
-  { icon: Zap, title: "Receive Within Minutes", desc: "Get your subscription credentials delivered directly to your WhatsApp.", step: "03" },
+  { icon: Search, title: "Browse & Choose", desc: "Explore 100+ premium subscriptions. Find the perfect plan at unbeatable prices.", step: "01" },
+  { icon: MessageCircle, title: "Order via WhatsApp", desc: "Place your order through our secure WhatsApp checkout with personalized support.", step: "02" },
+  { icon: Zap, title: "Instant Delivery", desc: "Get your subscription credentials delivered to WhatsApp & email within minutes.", step: "03" },
 ];
 
 const container = {
