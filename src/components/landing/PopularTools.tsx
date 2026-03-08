@@ -1,53 +1,78 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
-const tools = [
-  { name: "Canva Pro", color: "hsl(267, 60%, 55%)" },
-  { name: "Adobe CC", color: "hsl(0, 80%, 50%)" },
-  { name: "LinkedIn", color: "hsl(210, 80%, 45%)" },
-  { name: "TradingView", color: "hsl(210, 60%, 40%)" },
-  { name: "Notion", color: "hsl(0, 0%, 15%)" },
-  { name: "ChatGPT", color: "hsl(160, 60%, 40%)" },
-  { name: "Grammarly", color: "hsl(152, 60%, 40%)" },
-  { name: "Figma", color: "hsl(13, 80%, 55%)" },
-];
+const PopularTools = () => {
+  const [tools, setTools] = useState<any[]>([]);
 
-const PopularTools = () => (
-  <section className="section-padding bg-secondary/50">
-    <div className="container-tight">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="text-center mb-12"
-      >
-        <span className="text-sm font-semibold text-primary uppercase tracking-wider">Premium Tools</span>
-        <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mt-3">
-          Popular Subscriptions
-        </h2>
-      </motion.div>
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("name, slug, logo_url, color")
+        .eq("is_active", true)
+        .limit(16);
+      setTools(data ?? []);
+    };
+    fetch();
+  }, []);
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
-        {tools.map((tool, i) => (
-          <motion.div
-            key={tool.name}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.05 }}
-            className="glass-card p-4 flex flex-col items-center gap-3 cursor-pointer"
-          >
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center text-primary-foreground font-display font-bold text-lg"
-              style={{ backgroundColor: tool.color }}
+  if (tools.length === 0) return null;
+
+  return (
+    <section className="section-padding bg-secondary/30">
+      <div className="container-tight">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <span className="text-sm font-semibold text-primary uppercase tracking-wider">Premium Tools</span>
+          <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mt-3">
+            Popular Subscriptions
+          </h2>
+        </motion.div>
+
+        <div className="grid grid-cols-4 sm:grid-cols-8 gap-4">
+          {tools.slice(0, 16).map((tool, i) => (
+            <motion.div
+              key={tool.slug}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.03 }}
             >
-              {tool.name[0]}
-            </div>
-            <span className="text-xs font-medium text-foreground text-center">{tool.name}</span>
-          </motion.div>
-        ))}
+              <Link
+                to={`/product/${tool.slug}`}
+                className="glass-card p-3 flex flex-col items-center gap-2 cursor-pointer group"
+              >
+                {tool.logo_url ? (
+                  <img
+                    src={tool.logo_url}
+                    alt={tool.name}
+                    className="w-10 h-10 rounded-lg object-contain bg-muted/30 p-1 group-hover:scale-110 transition-transform duration-200"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-primary-foreground font-display font-bold text-sm group-hover:scale-110 transition-transform duration-200"
+                    style={{ backgroundColor: tool.color || "hsl(var(--primary))" }}
+                  >
+                    {tool.name[0]}
+                  </div>
+                )}
+                <span className="text-[10px] font-medium text-foreground text-center leading-tight line-clamp-1">
+                  {tool.name}
+                </span>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default PopularTools;

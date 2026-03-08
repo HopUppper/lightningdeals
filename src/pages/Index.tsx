@@ -3,6 +3,7 @@ import HeroSection from "@/components/landing/HeroSection";
 import HowItWorks from "@/components/landing/HowItWorks";
 import TrustSection from "@/components/landing/TrustSection";
 import PopularTools from "@/components/landing/PopularTools";
+import TrendingDeals from "@/components/landing/TrendingDeals";
 import Testimonials from "@/components/landing/Testimonials";
 import LimitedOffer from "@/components/landing/LimitedOffer";
 import Footer from "@/components/Footer";
@@ -13,6 +14,7 @@ const Index = () => (
     <Navbar />
     <HeroSection />
     <TrustSection />
+    <TrendingDeals />
     <HowItWorks />
     <PopularTools />
     <Testimonials />
