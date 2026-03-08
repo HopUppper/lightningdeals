@@ -114,6 +114,9 @@ export type Database = {
           logo_url: string | null
           long_description: string | null
           name: string
+          offer_badge: string | null
+          offer_expires_at: string | null
+          offer_label: string | null
           price_discounted: number
           price_original: number
           slug: string
@@ -132,6 +135,9 @@ export type Database = {
           logo_url?: string | null
           long_description?: string | null
           name: string
+          offer_badge?: string | null
+          offer_expires_at?: string | null
+          offer_label?: string | null
           price_discounted?: number
           price_original?: number
           slug: string
@@ -150,6 +156,9 @@ export type Database = {
           logo_url?: string | null
           long_description?: string | null
           name?: string
+          offer_badge?: string | null
+          offer_expires_at?: string | null
+          offer_label?: string | null
           price_discounted?: number
           price_original?: number
           slug?: string
