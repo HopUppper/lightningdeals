@@ -66,6 +66,7 @@ const AdminDashboard = () => {
 
   const searchItems = [
     { label: "Overview", tab: "overview" },
+    { label: "Analytics", tab: "analytics" },
     { label: "Orders", tab: "orders" },
     { label: "Products", tab: "products" },
     { label: "Categories", tab: "categories" },
