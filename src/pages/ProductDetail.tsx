@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import ProductOfferBadge from "@/components/ProductOfferBadge";
+import SEOHead from "@/components/SEOHead";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -86,6 +87,13 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${product.name} — Lightning Deals | ₹${product.price_discounted}`}
+        description={product.description || `Get ${product.name} at ₹${product.price_discounted} (${savings}% off). Instant delivery via WhatsApp.`}
+        keywords={`${product.name}, premium subscription, discount, Lightning Deals`}
+        url={`${window.location.origin}/products/${product.slug}`}
+        ogImage={product.logo_url || undefined}
+      />
       <Navbar />
       <div className="pt-24 section-padding">
         <div className="container-tight">

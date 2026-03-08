@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DollarSign, ShoppingCart, Users, Package, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 
 const AdminOverview = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [stats, setStats] = useState({ revenue: 0, customers: 0, products: 0, orderCount: 0 });
   const [topProducts, setTopProducts] = useState<{ name: string; count: number; revenue: number }[]>([]);
+  const [dailySales, setDailySales] = useState<{ date: string; revenue: number; orders: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,6 +37,24 @@ const AdminOverview = () => {
       const sorted = Array.from(productMap.values()).sort((a, b) => b.count - a.count).slice(0, 5);
       setTopProducts(sorted);
 
+      // Daily sales (last 7 days)
+      const dayMap = new Map<string, { revenue: number; orders: number }>();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+        dayMap.set(key, { revenue: 0, orders: 0 });
+      }
+      paidOrders.forEach((o) => {
+        const key = new Date(o.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+        const existing = dayMap.get(key);
+        if (existing) {
+          existing.revenue += Number(o.payment_amount);
+          existing.orders++;
+        }
+      });
+      setDailySales(Array.from(dayMap.entries()).map(([date, v]) => ({ date, ...v })));
+
       setStats({ revenue: totalRevenue, customers: uniqueUsers.size, products: productsRes.count ?? 0, orderCount: orderData.length });
       setLoading(false);
     };
@@ -47,6 +67,7 @@ const AdminOverview = () => {
       processing: "bg-primary/20 text-primary",
       delivered: "bg-primary/30 text-primary",
       cancelled: "bg-destructive/20 text-destructive",
+      refunded: "bg-muted text-muted-foreground",
     };
     return map[status] ?? "bg-muted text-muted-foreground";
   };
@@ -85,6 +106,45 @@ const AdminOverview = () => {
             </div>
           </motion.div>
         ))}
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass-card p-5">
+          <h3 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-primary" /> Revenue (Last 7 Days)
+          </h3>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={dailySales}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+              <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+              <Tooltip
+                contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                labelStyle={{ color: "hsl(var(--foreground))" }}
+              />
+              <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--primary))" }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="glass-card p-5">
+          <h3 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
+            <ShoppingCart className="w-4 h-4 text-primary" /> Orders (Last 7 Days)
+          </h3>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={dailySales}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+              <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                labelStyle={{ color: "hsl(var(--foreground))" }}
+              />
+              <Bar dataKey="orders" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
