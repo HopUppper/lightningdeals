@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart, Shield, Zap, Clock, Star, Check, TrendingUp } from "lucide-react";
+import { ShoppingCart, Shield, Zap, Clock, Star, Check, TrendingUp, MessageCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -12,6 +12,8 @@ import ProductOfferBadge from "@/components/ProductOfferBadge";
 import SEOHead from "@/components/SEOHead";
 import CountdownTimer from "@/components/CountdownTimer";
 import ProductLogo from "@/components/ProductLogo";
+
+const WHATSAPP_NUMBER = "919999999999";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -85,6 +87,19 @@ const ProductDetail = () => {
     toast.success(`${product.name} added to cart!`);
   };
 
+  const handleWhatsAppOrder = () => {
+    const message = encodeURIComponent(
+      `Hello Lightning Deals! ⚡\n\n` +
+      `I would like to order:\n\n` +
+      `📦 *Product:* ${product.name}\n` +
+      `⏱ *Duration:* ${product.duration || "1 Year"}\n` +
+      `💰 *Price:* ₹${product.price_discounted}\n` +
+      `🔗 *Link:* ${window.location.href}\n\n` +
+      `Please guide me with the payment process. 🙏`
+    );
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
+  };
+
   const features: string[] = product.features || [];
 
   return (
@@ -155,13 +170,23 @@ const ProductDetail = () => {
                 <span><strong className="text-foreground">Delivery:</strong> {product.delivery || "WhatsApp"}</span>
               </div>
 
-              <button
-                onClick={handleAddToCart}
-                className="btn-primary-gradient w-full mt-10 flex items-center justify-center gap-2.5 text-base py-4"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                Add to Cart
-              </button>
+              <div className="flex gap-3 mt-10">
+                <button
+                  onClick={handleAddToCart}
+                  className="btn-primary-gradient flex-1 flex items-center justify-center gap-2.5 text-base py-4"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  Add to Cart
+                </button>
+                <button
+                  onClick={handleWhatsAppOrder}
+                  className="flex-1 flex items-center justify-center gap-2.5 text-base py-4 rounded-xl font-semibold text-primary-foreground transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ background: "linear-gradient(135deg, hsl(142, 70%, 45%), hsl(152, 58%, 36%))", boxShadow: "0 0 25px -8px hsl(142 70% 45% / 0.35)" }}
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  Buy via WhatsApp
+                </button>
+              </div>
 
               {features.length > 0 && (
                 <div className="mt-10">

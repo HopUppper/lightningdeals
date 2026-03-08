@@ -2,3 +2,6 @@ project_id = "yxflvfacmosjsnkeiigy"
 
 [functions.generate-product-description]
 verify_jwt = false
+
+[functions.generate-invoice]
+verify_jwt = false
