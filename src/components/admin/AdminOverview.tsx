@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   DollarSign, ShoppingCart, Users, Package, TrendingUp, Plus,
   Edit2, Image, ClipboardList, Clock, Lightbulb, ArrowRight,
-  BarChart3, PieChart, CalendarDays, ArrowUpRight, ArrowDownRight
+  BarChart3, PieChart, CalendarDays, ArrowUpRight, ArrowDownRight,
+  UserPlus, Repeat, Star, Percent
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
