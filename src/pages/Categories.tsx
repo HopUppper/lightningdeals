@@ -17,35 +17,39 @@ const Categories = () => {
     const fetchCats = async () => {
       setLoading(true);
       try {
-        console.log("[Categories] Fetching categories...");
-        const { data: cats, error: catError } = await supabase
-          .from("categories")
-          .select("id, name, slug, description, icon")
-          .order("name");
-        console.log("[Categories] cats result:", { cats, catError });
-        if (catError) throw catError;
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        const headers = {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json",
+        };
 
-        console.log("[Categories] Fetching products for counts...");
-        const { data: products, error: prodError } = await supabase
-          .from("products")
-          .select("category_id")
-          .eq("is_active", true);
-        console.log("[Categories] products result:", { count: products?.length, prodError });
-        if (prodError) throw prodError;
+        // Fetch categories and products in parallel
+        const [catsRes, prodsRes] = await Promise.all([
+          fetch(`${supabaseUrl}/rest/v1/categories?select=id,name,slug,description,icon&order=name`, { headers }),
+          fetch(`${supabaseUrl}/rest/v1/products?select=category_id&is_active=eq.true`, { headers }),
+        ]);
+
+        if (!catsRes.ok) throw new Error(`Categories fetch failed: ${catsRes.status}`);
+        if (!prodsRes.ok) throw new Error(`Products fetch failed: ${prodsRes.status}`);
+
+        const cats = await catsRes.json();
+        const products = await prodsRes.json();
 
         const countMap: Record<string, number> = {};
         (products ?? []).forEach((p: any) => {
           if (p.category_id) countMap[p.category_id] = (countMap[p.category_id] || 0) + 1;
         });
 
-        const result = (cats ?? []).map((c: any) => ({
-          ...c,
-          count: countMap[c.id] || 0,
-        }));
-        console.log("[Categories] Setting categories:", result.length);
-        setCategories(result);
+        setCategories(
+          (cats ?? []).map((c: any) => ({
+            ...c,
+            count: countMap[c.id] || 0,
+          }))
+        );
       } catch (e) {
-        console.error("[Categories] Failed to fetch:", e);
+        console.error("Failed to fetch categories:", e);
         setCategories([]);
       } finally {
         setLoading(false);
