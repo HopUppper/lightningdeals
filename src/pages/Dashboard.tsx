@@ -475,6 +475,19 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </div>
+
+                <div className="pt-6 mt-6 border-t border-border flex flex-wrap gap-3">
+                  <Link to="/change-password">
+                    <Button variant="outline" size="sm" className="gap-2 rounded-full border-border text-muted-foreground hover:text-foreground">
+                      <Key className="w-3.5 h-3.5" /> Change Password
+                    </Button>
+                  </Link>
+                  <Link to="/wishlist">
+                    <Button variant="outline" size="sm" className="gap-2 rounded-full border-border text-muted-foreground hover:text-foreground">
+                      <Heart className="w-3.5 h-3.5" /> View Wishlist
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </TabsContent>
 
