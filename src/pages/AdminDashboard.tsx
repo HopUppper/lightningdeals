@@ -69,6 +69,7 @@ const AdminDashboard = () => {
     { label: "Products", tab: "products" },
     { label: "Categories", tab: "categories" },
     { label: "Coupons", tab: "coupons" },
+    { label: "Blog", tab: "blog" },
     { label: "Error Logs", tab: "error-logs" },
     { label: "Add New Product", tab: "products", action: "add-product" },
     { label: "Pending Orders", tab: "orders", action: "pending-orders" },
