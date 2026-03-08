@@ -4,6 +4,7 @@ import { Menu, X, ShoppingCart, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
+import BrandLogo from "@/components/BrandLogo";
 
 const navLinks = [
   { label: "Home", to: "/" },
