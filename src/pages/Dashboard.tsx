@@ -8,7 +8,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import {
   Package, LogOut, User, MessageCircle, Mail, Phone, Edit2,
   Check, X, Key, Clock, Shield, RefreshCw, Download, Heart,
-  Star, ArrowRight, ShoppingCart, Trash2, FileText,
+  Star, ArrowRight, ShoppingCart, Trash2, FileText, Gift, Copy, Share2, Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -36,6 +36,8 @@ const Dashboard = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [wishlist, setWishlist] = useState<any[]>([]);
   const [myReviews, setMyReviews] = useState<any[]>([]);
+  const [referral, setReferral] = useState<any>(null);
+  const [referralTxns, setReferralTxns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({ name: "", phone: "" });
@@ -46,16 +48,29 @@ const Dashboard = () => {
   const fetchData = useCallback(async () => {
     if (!user) { setLoading(false); return; }
     try {
-      const [profileRes, ordersRes, wishlistRes, reviewsRes] = await Promise.all([
+      const [profileRes, ordersRes, wishlistRes, reviewsRes, referralRes, txnsRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("orders").select("*, products(name, logo_url, duration, delivery, slug, price_discounted, price_original, color)").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("wishlist").select("*, products(id, name, slug, logo_url, color, price_original, price_discounted, description)").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("reviews").select("*, products(name, slug, logo_url)").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("referral_codes").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("referral_transactions").select("*").eq("referrer_id", user.id).order("created_at", { ascending: false }),
       ]);
       setProfile(profileRes.data);
       setOrders(ordersRes.data ?? []);
       setWishlist(wishlistRes.data ?? []);
       setMyReviews(reviewsRes.data ?? []);
+      setReferralTxns(txnsRes.data ?? []);
+
+      // Auto-create referral code if not exists
+      if (!referralRes.data) {
+        const code = `LD${user.id.slice(0, 6).toUpperCase()}`;
+        const { data: newRef } = await supabase.from("referral_codes").insert({ user_id: user.id, code }).select().single();
+        setReferral(newRef);
+      } else {
+        setReferral(referralRes.data);
+      }
+
       if (profileRes.data) {
         setProfileForm({ name: profileRes.data.name || "", phone: profileRes.data.phone || "" });
       }
@@ -200,6 +215,9 @@ const Dashboard = () => {
               </TabsTrigger>
               <TabsTrigger value="account" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
                 <User className="w-3.5 h-3.5" /> Account
+              </TabsTrigger>
+              <TabsTrigger value="referrals" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
+                <Gift className="w-3.5 h-3.5" /> Referrals
               </TabsTrigger>
               <TabsTrigger value="support" className="gap-2 rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground text-muted-foreground text-sm font-body">
                 <MessageCircle className="w-3.5 h-3.5" /> Support
@@ -488,6 +506,118 @@ const Dashboard = () => {
                     </Button>
                   </Link>
                 </div>
+              </div>
+            </TabsContent>
+
+            {/* Referrals Tab */}
+            <TabsContent value="referrals">
+              <div className="space-y-6">
+                {/* Referral Stats */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="glass-card p-5 text-center">
+                    <Wallet className="w-5 h-5 text-accent mx-auto mb-2" />
+                    <p className="text-2xl font-display text-foreground">₹{referral?.wallet_balance ?? 0}</p>
+                    <p className="text-xs text-muted-foreground font-body mt-1">Wallet Balance</p>
+                  </div>
+                  <div className="glass-card p-5 text-center">
+                    <Gift className="w-5 h-5 text-primary mx-auto mb-2" />
+                    <p className="text-2xl font-display text-foreground">{referral?.total_referrals ?? 0}</p>
+                    <p className="text-xs text-muted-foreground font-body mt-1">Total Referrals</p>
+                  </div>
+                  <div className="glass-card p-5 text-center">
+                    <Star className="w-5 h-5 text-emerald-500 mx-auto mb-2" />
+                    <p className="text-2xl font-display text-foreground">₹{referral?.total_earned ?? 0}</p>
+                    <p className="text-xs text-muted-foreground font-body mt-1">Total Earned</p>
+                  </div>
+                </div>
+
+                {/* Referral Code Card */}
+                <div className="glass-card p-6">
+                  <h3 className="font-body font-semibold text-foreground mb-1">Your Referral Code</h3>
+                  <p className="text-xs text-muted-foreground font-body mb-4">Share your code and earn 10% (up to ₹50) on every friend's purchase</p>
+                  
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex-1 bg-secondary rounded-xl px-5 py-3 font-mono text-lg text-foreground font-bold tracking-wider text-center border border-border">
+                      {referral?.code ?? "..."}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(referral?.code ?? "");
+                        toast.success("Code copied!");
+                      }}
+                      className="p-3 rounded-xl bg-secondary hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border"
+                    >
+                      <Copy className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        const text = `Hey! Use my referral code ${referral?.code} on Lightning Deals and we both benefit! 🔥 ${window.location.origin}/signup?ref=${referral?.code}`;
+                        if (navigator.share) {
+                          navigator.share({ title: "Lightning Deals Referral", text });
+                        } else {
+                          navigator.clipboard.writeText(text);
+                          toast.success("Referral message copied!");
+                        }
+                      }}
+                      className="flex-1 btn-primary !py-3 !text-sm gap-2"
+                    >
+                      <Share2 className="w-4 h-4" /> Share with Friends
+                    </button>
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(`Hey! Use my referral code ${referral?.code} on Lightning Deals and we both benefit! 🔥 ${window.location.origin}/signup?ref=${referral?.code}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-gold !py-3 !px-5 !text-sm gap-2"
+                    >
+                      <MessageCircle className="w-4 h-4" /> WhatsApp
+                    </a>
+                  </div>
+                </div>
+
+                {/* How it works */}
+                <div className="glass-card p-6">
+                  <h3 className="font-body font-semibold text-foreground mb-4">How Referrals Work</h3>
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    {[
+                      { step: "1", title: "Share Your Code", desc: "Send your unique referral code to friends" },
+                      { step: "2", title: "Friend Signs Up", desc: "They enter your code during signup" },
+                      { step: "3", title: "Earn Rewards", desc: "Get 10% (up to ₹50) on their first paid order" },
+                    ].map((s) => (
+                      <div key={s.step} className="text-center">
+                        <div className="w-8 h-8 rounded-full bg-accent/10 text-accent font-display font-bold text-sm flex items-center justify-center mx-auto mb-2">
+                          {s.step}
+                        </div>
+                        <p className="text-sm font-semibold text-foreground font-body">{s.title}</p>
+                        <p className="text-xs text-muted-foreground font-body mt-1">{s.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Transaction History */}
+                {referralTxns.length > 0 && (
+                  <div className="glass-card overflow-hidden">
+                    <div className="p-4 border-b border-border/50">
+                      <h3 className="font-body font-semibold text-foreground text-sm">Reward History</h3>
+                    </div>
+                    <div className="divide-y divide-border/30">
+                      {referralTxns.map((txn) => (
+                        <div key={txn.id} className="p-4 flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-foreground font-body">Referral Reward</p>
+                            <p className="text-xs text-muted-foreground font-body">
+                              {new Date(txn.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                            </p>
+                          </div>
+                          <span className="text-sm font-display font-bold text-emerald-500">+₹{txn.reward_amount}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
 

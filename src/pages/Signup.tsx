@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,9 +11,11 @@ import BrandLogo from "@/components/BrandLogo";
 import { motion } from "framer-motion";
 
 const Signup = () => {
+  const [searchParams] = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState(searchParams.get("ref") || "");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -31,6 +34,12 @@ const Signup = () => {
     if (error) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
+      // Store referral code in profile if provided
+      if (referralCode.trim()) {
+        // We'll update after email verification via a separate mechanism
+        // For now store in localStorage to apply after first login
+        localStorage.setItem("ld-referral-code", referralCode.trim());
+      }
       setSuccess(true);
     }
   };
@@ -93,6 +102,10 @@ const Signup = () => {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="referral" className="text-foreground">Referral Code <span className="text-muted-foreground font-normal">(optional)</span></Label>
+              <Input id="referral" placeholder="e.g. LD1A2B3C" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} className="h-12 bg-secondary border-border" />
             </div>
             <Button type="submit" className="w-full h-12 btn-primary-gradient text-base font-semibold" disabled={loading}>
               {loading ? (

@@ -44,6 +44,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         if (session?.user) {
           await fetchRole(session.user.id);
+          // Apply referral code from signup if present
+          const storedRef = localStorage.getItem("ld-referral-code");
+          if (storedRef) {
+            localStorage.removeItem("ld-referral-code");
+            await supabase.from("profiles").update({ referred_by: storedRef }).eq("user_id", session.user.id);
+          }
         } else {
           setRole(null);
         }
