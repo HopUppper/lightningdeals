@@ -7,7 +7,7 @@ import { CheckCircle, Package, ArrowRight, MessageCircle, Clock, Shield } from "
 
 const OrderConfirmation = () => {
   const location = useLocation();
-  const { orderId, orderCount } = location.state || {};
+  const { orderId, orderCount, paid } = location.state || {};
 
   return (
     <div className="min-h-screen bg-background">
