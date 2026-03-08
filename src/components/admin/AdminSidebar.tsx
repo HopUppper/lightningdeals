@@ -34,7 +34,6 @@ const AdminSidebar = ({ activeTab, setActiveTab }: Props) => {
         <div className="p-4 flex items-center gap-2">
           <BrandLogo size="sm" showText={!collapsed} />
         </div>
-        </div>
         <SidebarGroup>
           <SidebarGroupLabel>Management</SidebarGroupLabel>
           <SidebarGroupContent>
