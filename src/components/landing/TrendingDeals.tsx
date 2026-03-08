@@ -28,7 +28,7 @@ const TrendingDeals = () => {
     return (
       <section className="section-padding bg-background">
         <div className="container-tight">
-          <div className="flex justify-center py-12">
+          <div className="flex justify-center py-16">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         </div>
@@ -45,17 +45,15 @@ const TrendingDeals = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex items-end justify-between mb-12"
+          className="flex items-end justify-between mb-14"
         >
           <div>
-            <div className="inline-flex items-center gap-2 mb-3">
+            <div className="inline-flex items-center gap-2 mb-4">
               <Flame className="w-4 h-4 text-accent" />
-              <span className="text-sm font-semibold text-accent uppercase tracking-wider">Trending Now</span>
+              <span className="section-eyebrow text-accent">Trending Now</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground tracking-tight">
-              Trending Deals
-            </h2>
-            <p className="text-muted-foreground mt-2 max-w-md">Our most popular subscriptions this week</p>
+            <h2 className="section-title !mt-0">Trending Deals</h2>
+            <p className="section-subtitle !mt-2">Our most popular subscriptions this week</p>
           </div>
           <Link
             to="/categories"
@@ -65,7 +63,7 @@ const TrendingDeals = () => {
           </Link>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {products.map((p, i) => {
             const discount = p.price_original > 0
               ? Math.round(((p.price_original - p.price_discounted) / p.price_original) * 100)
@@ -81,10 +79,10 @@ const TrendingDeals = () => {
               >
                 <Link
                   to={`/product/${p.slug}`}
-                  className="glass-card p-5 block group relative overflow-hidden h-full"
+                  className="glass-card p-6 block group relative overflow-hidden h-full"
                 >
                   {/* Badge */}
-                  <div className="absolute top-3 right-3 z-10">
+                  <div className="absolute top-4 right-4 z-10">
                     {p.offer_badge ? (
                       <Badge className="bg-accent text-accent-foreground font-semibold text-[10px] shadow-sm">
                         {p.offer_badge}
@@ -101,26 +99,26 @@ const TrendingDeals = () => {
                   </div>
 
                   {/* Logo */}
-                  <div className="mb-4 group-hover:scale-105 transition-transform duration-500">
+                  <div className="mb-5 group-hover:scale-105 transition-transform duration-500">
                     <ProductLogo name={p.name} logoUrl={p.logo_url} color={p.color} />
                   </div>
 
                   <h3 className="font-display font-semibold text-foreground text-base group-hover:text-primary transition-colors duration-300 tracking-tight">
                     {p.name}
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed line-clamp-2">{p.description}</p>
+                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed line-clamp-2">{p.description}</p>
 
-                  <div className="flex items-center gap-1.5 mt-3">
-                    <Clock className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-[11px] text-muted-foreground">{p.duration}</span>
+                  <div className="flex items-center gap-1.5 mt-4">
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">{p.duration}</span>
                   </div>
 
-                  <div className="flex items-center gap-2 mt-3">
+                  <div className="flex items-baseline gap-2.5 mt-4">
                     {p.price_discounted > 0 ? (
                       <>
-                        <span className="text-lg font-display font-bold text-foreground">₹{p.price_discounted}</span>
+                        <span className="text-xl font-display font-bold text-foreground">₹{p.price_discounted}</span>
                         {p.price_original > 0 && (
-                          <span className="text-xs text-muted-foreground line-through">₹{p.price_original}</span>
+                          <span className="text-sm text-muted-foreground line-through">₹{p.price_original}</span>
                         )}
                       </>
                     ) : (
@@ -128,7 +126,7 @@ const TrendingDeals = () => {
                     )}
                   </div>
 
-                  <div className="mt-4 text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
+                  <div className="mt-5 text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
                     View Details →
                   </div>
                 </Link>
@@ -137,7 +135,7 @@ const TrendingDeals = () => {
           })}
         </div>
 
-        <div className="sm:hidden mt-8 text-center">
+        <div className="sm:hidden mt-10 text-center">
           <Link to="/categories" className="btn-primary-gradient inline-flex items-center gap-2 text-sm">
             View All Deals <ArrowRight className="w-4 h-4" />
           </Link>

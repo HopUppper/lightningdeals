@@ -30,15 +30,13 @@ const PopularTools = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-14"
         >
-          <span className="text-sm font-semibold text-primary uppercase tracking-wider">Premium Tools</span>
-          <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mt-3 tracking-tight">
-            Popular Subscriptions
-          </h2>
+          <span className="section-eyebrow">Premium Tools</span>
+          <h2 className="section-title">Popular Subscriptions</h2>
         </motion.div>
 
-        <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
+        <div className="grid grid-cols-4 sm:grid-cols-8 gap-4">
           {tools.slice(0, 16).map((tool, i) => (
             <motion.div
               key={tool.slug}
@@ -49,12 +47,12 @@ const PopularTools = () => {
             >
               <Link
                 to={`/product/${tool.slug}`}
-                className="glass-card p-3 flex flex-col items-center gap-2 cursor-pointer group"
+                className="glass-card p-4 flex flex-col items-center gap-2.5 cursor-pointer group"
               >
                 <div className="group-hover:scale-110 transition-transform duration-300">
                   <ProductLogo name={tool.name} logoUrl={tool.logo_url} color={tool.color} size="w-10 h-10" fontSize="text-sm" />
                 </div>
-                <span className="text-[10px] font-medium text-foreground text-center leading-tight line-clamp-1">
+                <span className="text-[11px] font-medium text-foreground text-center leading-tight line-clamp-1">
                   {tool.name}
                 </span>
               </Link>

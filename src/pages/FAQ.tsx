@@ -17,21 +17,21 @@ const faqs = [
 const FAQ = () => (
   <div className="min-h-screen bg-background">
     <Navbar />
-    <div className="pt-24 section-padding">
+    <div className="pt-28 section-padding">
       <div className="container-tight max-w-2xl">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <span className="text-sm font-semibold text-primary uppercase tracking-wider">FAQ</span>
-          <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground mt-3">Frequently Asked Questions</h1>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="page-header">
+          <span className="section-eyebrow">FAQ</span>
+          <h1 className="section-title">Frequently Asked Questions</h1>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <Accordion type="single" collapsible className="space-y-3">
             {faqs.map((faq, i) => (
-              <AccordionItem key={i} value={`faq-${i}`} className="glass-card px-6 border-none">
-                <AccordionTrigger className="font-display font-semibold text-foreground text-left hover:no-underline py-5">
+              <AccordionItem key={i} value={`faq-${i}`} className="glass-card px-7 border-none">
+                <AccordionTrigger className="font-display font-semibold text-foreground text-left hover:no-underline py-6">
                   {faq.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground pb-5 leading-relaxed">
+                <AccordionContent className="text-sm text-muted-foreground pb-6 leading-relaxed">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>

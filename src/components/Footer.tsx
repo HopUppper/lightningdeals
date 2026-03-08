@@ -3,19 +3,19 @@ import BrandLogo from "@/components/BrandLogo";
 
 const Footer = () => (
   <footer className="bg-foreground/[0.02] border-t border-border/50">
-    <div className="container-tight section-padding pb-8">
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+    <div className="container-tight px-5 sm:px-8 lg:px-10 py-16 sm:py-20">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-14">
         <div>
-          <div className="mb-4">
+          <div className="mb-5">
             <BrandLogo />
           </div>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
             Premium software subscriptions at unbeatable prices. Trusted by 10,000+ customers worldwide.
           </p>
         </div>
         <div>
-          <h4 className="font-display font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
-          <div className="space-y-2.5">
+          <h4 className="font-display font-semibold text-foreground mb-5 text-xs uppercase tracking-[0.15em]">Quick Links</h4>
+          <div className="space-y-3">
             {[
               { to: "/categories", label: "Browse Plans" },
               { to: "/about", label: "About Us" },
@@ -29,8 +29,8 @@ const Footer = () => (
           </div>
         </div>
         <div>
-          <h4 className="font-display font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Categories</h4>
-          <div className="space-y-2.5">
+          <h4 className="font-display font-semibold text-foreground mb-5 text-xs uppercase tracking-[0.15em]">Categories</h4>
+          <div className="space-y-3">
             {[
               { to: "/categories/ai-tools", label: "AI Tools" },
               { to: "/categories/design-tools", label: "Design Tools" },
@@ -44,8 +44,8 @@ const Footer = () => (
           </div>
         </div>
         <div>
-          <h4 className="font-display font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">Support</h4>
-          <div className="space-y-2.5">
+          <h4 className="font-display font-semibold text-foreground mb-5 text-xs uppercase tracking-[0.15em]">Support</h4>
+          <div className="space-y-3">
             {[
               { to: "/help", label: "Help Center" },
               { to: "/faq", label: "FAQ" },
@@ -58,8 +58,8 @@ const Footer = () => (
           </div>
         </div>
       </div>
-      <div className="section-divider mb-6" />
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+      <div className="section-divider mb-8" />
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <p className="text-xs text-muted-foreground">© 2026 Lightning Deals. All rights reserved.</p>
         <div className="flex items-center gap-4">
           <span className="text-xs text-muted-foreground">Powered with ⚡</span>
