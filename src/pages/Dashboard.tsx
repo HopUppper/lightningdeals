@@ -344,6 +344,65 @@ const Dashboard = () => {
               )}
             </TabsContent>
 
+            {/* Reviews Tab */}
+            <TabsContent value="reviews">
+              {myReviews.length === 0 ? (
+                <div className="glass-card p-16 text-center">
+                  <Star className="w-10 h-10 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground mb-2 font-body">No reviews yet</p>
+                  <p className="text-xs text-muted-foreground mb-6 font-body">Purchase a product and share your experience</p>
+                  <Link to="/categories" className="btn-primary !text-sm">Browse Deals</Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {myReviews.map((review, i) => (
+                    <motion.div
+                      key={review.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="glass-card p-5"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <Link to={`/product/${review.products?.slug}`} className="flex items-center gap-3 min-w-0 flex-1">
+                          {review.products?.logo_url ? (
+                            <img src={review.products.logo_url} alt="" className="w-10 h-10 rounded-lg object-contain bg-secondary p-1.5 shrink-0" loading="lazy" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                              <Star className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-body font-medium text-foreground text-sm truncate hover:text-accent transition-colors">
+                              {review.products?.name ?? "Product"}
+                            </p>
+                            <div className="flex gap-0.5 mt-1">
+                              {[1,2,3,4,5].map((s) => (
+                                <Star key={s} className={`w-3 h-3 ${s <= review.rating ? "fill-accent text-accent" : "text-muted"}`} />
+                              ))}
+                            </div>
+                          </div>
+                        </Link>
+                        <button
+                          onClick={() => deleteReview(review.id)}
+                          className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                          title="Delete review"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      {review.comment && (
+                        <p className="text-sm text-muted-foreground mt-3 leading-relaxed font-body">"{review.comment}"</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-2 font-body">
+                        {new Date(review.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
             {/* Account Tab */}
             <TabsContent value="account">
               <div className="glass-card p-8 space-y-6">
