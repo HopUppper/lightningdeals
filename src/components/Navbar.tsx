@@ -16,6 +16,7 @@ const navLinks = [
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, role, signOut } = useAuth();
+  const { totalItems } = useCart();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
