@@ -188,20 +188,37 @@ const CategoryListing = () => {
           </motion.div>
 
           {!loading && products.length > 0 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2.5 mb-10 flex-wrap">
-              <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground mr-1">Sort:</span>
-              {sortOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => { if (opt.value !== sortBy) { setSortBy(opt.value); pageRef.current = 0; } }}
-                  className={`text-xs px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                    sortBy === opt.value ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4 mb-10">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground mr-1">Sort:</span>
+                {sortOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => { if (opt.value !== sortBy) { setSortBy(opt.value); pageRef.current = 0; } }}
+                    className={`text-xs px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                      sortBy === opt.value ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground mr-1">Duration:</span>
+                {durationOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => { if (opt.value !== durationFilter) { setDurationFilter(opt.value); pageRef.current = 0; } }}
+                    className={`text-xs px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                      durationFilter === opt.value ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </motion.div>
           )}
 

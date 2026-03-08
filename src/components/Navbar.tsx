@@ -67,6 +67,7 @@ const Navbar = memo(() => {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          <GlobalSearch />
           <Link to="/cart" className="relative p-2.5 rounded-xl hover:bg-secondary/60 transition-colors duration-200 group">
             <ShoppingCart className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
             {totalItems > 0 && (
