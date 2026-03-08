@@ -35,6 +35,11 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
   const [dailySales, setDailySales] = useState<{ date: string; revenue: number; orders: number }[]>([]);
   const [monthlySales, setMonthlySales] = useState<{ month: string; revenue: number; orders: number }[]>([]);
   const [statusBreakdown, setStatusBreakdown] = useState<{ name: string; value: number }[]>([]);
+  const [customerGrowth, setCustomerGrowth] = useState<{ date: string; customers: number }[]>([]);
+  const [recentCustomers, setRecentCustomers] = useState<any[]>([]);
+  const [conversionRate, setConversionRate] = useState(0);
+  const [repeatRate, setRepeatRate] = useState(0);
+  const [avgRating, setAvgRating] = useState(0);
   const [loading, setLoading] = useState(true);
   const [tipIndex, setTipIndex] = useState(0);
   const [chartRange, setChartRange] = useState<"7d" | "30d">("7d");
