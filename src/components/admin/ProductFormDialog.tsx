@@ -45,7 +45,7 @@ interface ProductFormDialogProps {
 
 const inputClass = "w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary";
 
-const badgePresets = ["", "Limited Offer", "Hot Deal", "Best Seller", "New", "50% OFF", "70% OFF", "80% OFF"];
+const badgePresets = ["", "Limited Offer", "Hot Deal", "Best Seller", "New", "50% OFF", "80% OFF", "90% OFF"];
 
 const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categories, onSave }: ProductFormDialogProps) => {
   const [aiLoading, setAiLoading] = useState(false);

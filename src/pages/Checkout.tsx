@@ -161,6 +161,26 @@ const Checkout = () => {
               </p>
             </div>
 
+            {/* How to Complete Your Order */}
+            <div className="glass-card p-6 mb-6">
+              <h2 className="font-display font-semibold text-foreground mb-4">How to Complete Your Order</h2>
+              <div className="space-y-3">
+                {[
+                  { step: "1", text: 'Click the "Order on WhatsApp" button below.' },
+                  { step: "2", text: "Send the pre-filled message to our team." },
+                  { step: "3", text: "We will guide you with payment instructions." },
+                  { step: "4", text: "Your subscription will be delivered quickly." },
+                ].map((s) => (
+                  <div key={s.step} className="flex items-start gap-3">
+                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-primary">{s.step}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{s.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Contact Details */}
             <div className="glass-card p-6 mb-6 space-y-4">
               <h2 className="font-display font-semibold text-foreground">Your Details</h2>
