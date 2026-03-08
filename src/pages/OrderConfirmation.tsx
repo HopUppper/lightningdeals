@@ -34,9 +34,13 @@ const OrderConfirmation = () => {
               </motion.div>
 
               <div className="relative z-10">
-                <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-3">Order Placed!</h1>
+                <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-3">
+                  {paid ? "Payment Successful!" : "Order Placed!"}
+                </h1>
                 <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-                  Your order has been sent via WhatsApp. Our team will guide you through payment.
+                  {paid
+                    ? "Your payment has been verified. Your subscription will be delivered within 5 minutes."
+                    : "Your order has been sent via WhatsApp. Our team will guide you through payment."}
                 </p>
               </div>
             </div>
