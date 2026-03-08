@@ -1,9 +1,8 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 // Simple PDF generator - creates a valid PDF without external libs
@@ -18,7 +17,6 @@ function generateInvoicePDF(invoice: {
 }): Uint8Array {
   const lines: string[] = [];
   let yPos = 750;
-  const lineHeight = 18;
   const smallLineHeight = 14;
 
   const addText = (text: string, x: number, y: number, size = 12, bold = false) => {
@@ -39,11 +37,9 @@ function generateInvoicePDF(invoice: {
   addText("Premium Digital Subscriptions", 350, yPos, 9, false);
   yPos -= 40;
 
-  // Separator
   addLine(50, yPos, 545, yPos);
   yPos -= 30;
 
-  // Invoice details
   addText("Invoice Details", 50, yPos, 14, true);
   yPos -= 25;
   addText(`Invoice #: INV-${invoice.orderId.slice(0, 8).toUpperCase()}`, 50, yPos, 10, false);
@@ -52,7 +48,6 @@ function generateInvoicePDF(invoice: {
   addText(`Payment ID: ${invoice.paymentId}`, 50, yPos, 10, false);
   yPos -= 30;
 
-  // Bill To
   addText("Bill To", 50, yPos, 14, true);
   yPos -= 22;
   addText(invoice.customerName, 50, yPos, 11, false);
@@ -60,7 +55,6 @@ function generateInvoicePDF(invoice: {
   addText(invoice.customerEmail, 50, yPos, 10, false);
   yPos -= 35;
 
-  // Table header
   addLine(50, yPos + 5, 545, yPos + 5);
   addText("Item", 55, yPos - 10, 10, true);
   addText("Qty", 370, yPos - 10, 10, true);
@@ -69,7 +63,6 @@ function generateInvoicePDF(invoice: {
   addLine(50, yPos, 545, yPos);
   yPos -= 20;
 
-  // Item row
   addText(invoice.productName, 55, yPos, 10, false);
   addText("1", 380, yPos, 10, false);
   addText(`Rs. ${invoice.amount.toFixed(2)}`, 455, yPos, 10, false);
@@ -78,21 +71,18 @@ function generateInvoicePDF(invoice: {
   addLine(50, yPos, 545, yPos);
   yPos -= 22;
 
-  // Total
   addText("Total:", 370, yPos, 12, true);
   addText(`Rs. ${invoice.amount.toFixed(2)}`, 455, yPos, 12, true);
   yPos -= 15;
   addLine(370, yPos, 545, yPos);
   yPos -= 50;
 
-  // Footer
   addText("Thank you for your purchase!", 50, yPos, 11, true);
   yPos -= 18;
   addText("For support, contact us on WhatsApp or email sidhjain9002@gmail.com", 50, yPos, 9, false);
   yPos -= smallLineHeight;
   addText("This is a computer-generated invoice and does not require a signature.", 50, yPos, 8, false);
 
-  // Build PDF
   const stream = lines.join("\n");
   const streamBytes = new TextEncoder().encode(stream);
   const streamLength = streamBytes.length;
@@ -142,7 +132,7 @@ startxref
   return new TextEncoder().encode(pdf);
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -155,7 +145,6 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    // Fetch order with product
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select('*, products(name)')
@@ -183,7 +172,6 @@ serve(async (req) => {
 
     const fileName = `${order.user_id}/invoice-${order.id.slice(0, 8)}.pdf`;
 
-    // Upload to storage
     const { error: uploadError } = await supabase.storage
       .from('invoices')
       .upload(fileName, pdfBytes, {
@@ -199,7 +187,6 @@ serve(async (req) => {
       });
     }
 
-    // Update order with invoice path
     await supabase.from('orders').update({ invoice_url: fileName }).eq('id', order_id);
 
     return new Response(JSON.stringify({ success: true, invoice_path: fileName }), {

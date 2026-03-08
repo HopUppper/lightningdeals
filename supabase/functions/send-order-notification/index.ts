@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 const statusMessages: Record<string, { subject: string; body: string }> = {
@@ -43,7 +43,6 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Fetch order details
     const { data: order, error: orderError } = await supabase
       .from("orders")
       .select("*, products(name)")
@@ -76,11 +75,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Send email using Supabase's built-in auth admin
-    // We'll use a simple HTML email via the Supabase auth.admin.sendRawEmail or
-    // log it as a notification since we don't have an SMTP service configured
-    
-    // For now, create an admin notification to track the email intent
+    // Create an admin notification to track the email intent
     await supabase.from("admin_notifications").insert({
       title: `Email: ${template.subject}`,
       message: `Status update email queued for ${customerName} (${customerEmail}) — ${productName} marked as ${newStatus}`,
@@ -88,7 +83,6 @@ Deno.serve(async (req) => {
       order_id: orderId,
     });
 
-    // Log for auditing
     console.log(`[Email Notification] To: ${customerEmail}, Subject: ${template.subject}, Product: ${productName}`);
 
     return new Response(
