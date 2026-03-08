@@ -32,7 +32,7 @@ const AdminOrders = () => {
       .order("created_at", { ascending: false });
 
     if (filterStatus !== "all") {
-      query = query.eq("order_status", filterStatus);
+      query = query.eq("order_status", filterStatus as "pending" | "processing" | "delivered" | "cancelled");
     }
 
     const { data } = await query;
