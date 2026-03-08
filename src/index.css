@@ -279,6 +279,49 @@
     pointer-events: none;
     z-index: 1;
   }
+
+  /* Hero floating logos — pure CSS, GPU-accelerated */
+  @keyframes heroFloatA {
+    0%, 100% { opacity: 0; transform: translateY(0) scale(0.8) translateZ(0); }
+    15% { opacity: 0.35; transform: translateY(-8px) scale(1) translateZ(0); }
+    50% { opacity: 0.45; transform: translateY(-16px) scale(1.05) translateZ(0); }
+    85% { opacity: 0.35; transform: translateY(8px) scale(1) translateZ(0); }
+  }
+  @keyframes heroFloatB {
+    0%, 100% { opacity: 0; transform: translateY(0) scale(0.8) translateZ(0); }
+    15% { opacity: 0.35; transform: translateY(8px) scale(1) translateZ(0); }
+    50% { opacity: 0.45; transform: translateY(16px) scale(1.05) translateZ(0); }
+    85% { opacity: 0.35; transform: translateY(-8px) scale(1) translateZ(0); }
+  }
+  @keyframes lightningStrike {
+    0%, 20% { opacity: 0; }
+    30% { opacity: 0.6; }
+    50% { opacity: 0.8; }
+    70% { opacity: 0.4; }
+    100% { opacity: 0; }
+  }
+  .lightning-path {
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+    animation: lightningDraw 2.5s ease-out infinite;
+  }
+  .lightning-glow {
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+    animation: lightningDrawGlow 2.5s ease-out infinite;
+  }
+  @keyframes lightningDraw {
+    0%, 20% { stroke-dashoffset: 1200; opacity: 0; }
+    30% { stroke-dashoffset: 0; opacity: 0.8; }
+    70% { stroke-dashoffset: 0; opacity: 0.6; }
+    100% { stroke-dashoffset: 0; opacity: 0; }
+  }
+  @keyframes lightningDrawGlow {
+    0%, 20% { stroke-dashoffset: 1200; opacity: 0; }
+    30% { stroke-dashoffset: 0; opacity: 0.3; }
+    70% { stroke-dashoffset: 0; opacity: 0.2; }
+    100% { stroke-dashoffset: 0; opacity: 0; }
+  }
 }
 
 /* Reduce motion for users who prefer it */
