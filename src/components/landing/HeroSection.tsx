@@ -24,9 +24,9 @@ const HeroSection = () => (
 
     <div className="container-tight section-padding relative z-10">
       <motion.div className="max-w-3xl" variants={container} initial="hidden" animate="show">
-        <motion.div variants={item} className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-dark mb-10 border border-white/10">
+        <motion.div variants={item} className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-dark mb-10 border border-white/10 animate-pulse-glow">
           <Sparkles className="w-3.5 h-3.5 text-accent" />
-          <span className="text-sm font-medium text-primary-foreground/70">Save up to 70% on premium subscriptions</span>
+          <span className="text-sm font-medium text-primary-foreground/70">🔥 Mega Sale Live — Up to 70% OFF</span>
         </motion.div>
 
         <motion.h1 variants={item} className="!text-4xl sm:!text-5xl lg:!text-7xl font-display font-bold !leading-[1.08] mb-7 tracking-tight">
