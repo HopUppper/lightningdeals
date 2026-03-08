@@ -254,12 +254,23 @@ const Dashboard = () => {
                           <div className="flex gap-4 text-xs text-muted-foreground font-body">
                             {order.products?.duration && <span>{order.products.duration}</span>}
                           </div>
-                          <div className="flex items-center gap-4">
-                            {order.invoice_url && (
+                          <div className="flex items-center gap-3">
+                            {order.invoice_url ? (
                               <button onClick={() => handleDownloadInvoice(order)} className="text-xs text-accent hover:text-accent/80 font-medium inline-flex items-center gap-1 font-body">
                                 <Download className="w-3 h-3" /> Invoice
                               </button>
-                            )}
+                            ) : order.payment_status === "paid" ? (
+                              <button
+                                onClick={() => handleGenerateInvoice(order)}
+                                disabled={generatingInvoice === order.id}
+                                className="text-xs text-accent hover:text-accent/80 font-medium inline-flex items-center gap-1 font-body disabled:opacity-50"
+                              >
+                                <FileText className="w-3 h-3" /> {generatingInvoice === order.id ? "Generating..." : "Get Invoice"}
+                              </button>
+                            ) : null}
+                            <button onClick={() => handleReorder(order)} className="text-xs text-primary hover:text-primary/80 font-medium inline-flex items-center gap-1 font-body">
+                              <ShoppingCart className="w-3 h-3" /> Reorder
+                            </button>
                             <button onClick={() => openTimeline(order)} className="text-xs text-accent hover:text-accent/80 font-medium font-body">
                               Timeline
                             </button>
