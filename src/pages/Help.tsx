@@ -26,7 +26,7 @@ const Help = () => (
               <div className="text-sm text-muted-foreground">Find answers to commonly asked questions</div>
             </div>
           </Link>
-          <a href="https://wa.me/919999999999" target="_blank" rel="noopener noreferrer" className="glass-card p-6 flex items-center gap-4 block">
+          <a href="https://wa.me/917695956938" target="_blank" rel="noopener noreferrer" className="glass-card p-6 flex items-center gap-4 block">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <MessageCircle className="w-5 h-5 text-primary" />
             </div>

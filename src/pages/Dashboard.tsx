@@ -290,15 +290,15 @@ const Dashboard = () => {
             <TabsContent value="support">
               <h2 className="text-xl font-display font-bold text-foreground mb-4">Need Help?</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a href="https://wa.me/919999999999?text=Hi!%20I%20need%20help%20with%20my%20order." target="_blank" rel="noopener noreferrer" className="glass-card p-6 hover:border-primary/30 transition-colors group">
+                <a href="https://wa.me/917695956938?text=Hi!%20I%20need%20help%20with%20my%20order." target="_blank" rel="noopener noreferrer" className="glass-card p-6 hover:border-primary/30 transition-colors group">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors"><MessageCircle className="w-6 h-6 text-primary" /></div>
                   <h3 className="font-display font-semibold text-foreground mb-1">WhatsApp Support</h3>
                   <p className="text-sm text-muted-foreground">Chat with us on WhatsApp for instant support</p>
                 </a>
-                <a href="mailto:support@lightningdeals.in" className="glass-card p-6 hover:border-primary/30 transition-colors group">
+                <a href="mailto:sidhjain9002@gmail.com" className="glass-card p-6 hover:border-primary/30 transition-colors group">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors"><Mail className="w-6 h-6 text-primary" /></div>
                   <h3 className="font-display font-semibold text-foreground mb-1">Email Support</h3>
-                  <p className="text-sm text-muted-foreground">support@lightningdeals.in</p>
+                  <p className="text-sm text-muted-foreground">sidhjain9002@gmail.com</p>
                 </a>
               </div>
             </TabsContent>
