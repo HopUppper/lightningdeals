@@ -95,7 +95,18 @@ const CategoryListing = () => {
     }
   };
 
-  const fetchPage = useCallback(async (page: number, isInitial: boolean, sort: SortOption) => {
+  const getDurationIlike = (df: DurationFilter): string | null => {
+    switch (df) {
+      case "1_month": return "%1 Month%";
+      case "3_months": return "%3 Month%";
+      case "6_months": return "%6 Month%";
+      case "1_year": return "%1 Year%";
+      case "lifetime": return "%Lifetime%";
+      default: return null;
+    }
+  };
+
+  const fetchPage = useCallback(async (page: number, isInitial: boolean, sort: SortOption, durFilter: DurationFilter) => {
     if (isInitial) setLoading(true); else setLoadingMore(true);
 
     if (isInitial) {
@@ -107,11 +118,16 @@ const CategoryListing = () => {
     const to = from + PAGE_SIZE - 1;
     const order = getOrderBy(sort);
 
-    const { data: prods, count } = await supabase
+    let query = supabase
       .from("products")
       .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge, categories!inner(name, slug)", { count: "exact" })
       .eq("categories.slug", slug || "")
-      .eq("is_active", true)
+      .eq("is_active", true);
+
+    const durPattern = getDurationIlike(durFilter);
+    if (durPattern) query = query.ilike("duration", durPattern);
+
+    const { data: prods, count } = await query
       .order(order.column, { ascending: order.ascending })
       .range(from, to);
 
