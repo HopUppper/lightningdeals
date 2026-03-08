@@ -2,11 +2,15 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { ShoppingCart, Trash2, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingCart, Trash2, ArrowRight, Minus, Plus } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { Button } from "@/components/ui/button";
 
 const Cart = () => {
-  // Static demo cart — will be replaced with state/context later
+  const { items, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -14,15 +18,63 @@ const Cart = () => {
         <div className="container-tight max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-3xl font-display font-bold text-foreground mb-8">Shopping Cart</h1>
-            <div className="glass-card p-8 text-center">
-              <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-lg font-display font-semibold text-foreground mb-2">Your cart is empty</h2>
-              <p className="text-sm text-muted-foreground mb-6">Browse our premium subscriptions and add items to your cart.</p>
-              <Link to="/categories" className="btn-primary-gradient inline-flex items-center gap-2">
-                Browse Plans
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+
+            {items.length === 0 ? (
+              <div className="glass-card p-8 text-center">
+                <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h2 className="text-lg font-display font-semibold text-foreground mb-2">Your cart is empty</h2>
+                <p className="text-sm text-muted-foreground mb-6">Browse our premium subscriptions and add items to your cart.</p>
+                <Link to="/categories" className="btn-primary-gradient inline-flex items-center gap-2">
+                  Browse Plans <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {items.map((item) => (
+                  <div key={item.id} className="glass-card p-4 flex items-center gap-4">
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center text-primary-foreground font-display font-bold text-lg shrink-0"
+                      style={{ backgroundColor: item.color }}
+                    >
+                      {item.name[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-display font-semibold text-foreground truncate">{item.name}</h3>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-foreground font-semibold">₹{item.price}</span>
+                        <span className="text-muted-foreground line-through text-xs">₹{item.original}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                        <Minus className="w-3 h-3" />
+                      </Button>
+                      <span className="w-8 text-center text-sm font-medium text-foreground">{item.quantity}</span>
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                        <Plus className="w-3 h-3" />
+                      </Button>
+                    </div>
+                    <span className="text-foreground font-display font-semibold w-20 text-right">₹{item.price * item.quantity}</span>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+
+                <div className="glass-card p-6 mt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="text-foreground font-display font-bold text-xl">₹{totalPrice}</span>
+                  </div>
+                  <Button onClick={() => navigate("/checkout")} className="btn-primary-gradient w-full flex items-center justify-center gap-2 py-3">
+                    Proceed to Checkout <ArrowRight className="w-4 h-4" />
+                  </Button>
+                  <button onClick={clearCart} className="w-full text-center text-sm text-muted-foreground hover:text-destructive mt-3 transition-colors">
+                    Clear Cart
+                  </button>
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
       </div>
