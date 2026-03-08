@@ -509,6 +509,118 @@ const Dashboard = () => {
               </div>
             </TabsContent>
 
+            {/* Referrals Tab */}
+            <TabsContent value="referrals">
+              <div className="space-y-6">
+                {/* Referral Stats */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="glass-card p-5 text-center">
+                    <Wallet className="w-5 h-5 text-accent mx-auto mb-2" />
+                    <p className="text-2xl font-display text-foreground">₹{referral?.wallet_balance ?? 0}</p>
+                    <p className="text-xs text-muted-foreground font-body mt-1">Wallet Balance</p>
+                  </div>
+                  <div className="glass-card p-5 text-center">
+                    <Gift className="w-5 h-5 text-primary mx-auto mb-2" />
+                    <p className="text-2xl font-display text-foreground">{referral?.total_referrals ?? 0}</p>
+                    <p className="text-xs text-muted-foreground font-body mt-1">Total Referrals</p>
+                  </div>
+                  <div className="glass-card p-5 text-center">
+                    <Star className="w-5 h-5 text-emerald-500 mx-auto mb-2" />
+                    <p className="text-2xl font-display text-foreground">₹{referral?.total_earned ?? 0}</p>
+                    <p className="text-xs text-muted-foreground font-body mt-1">Total Earned</p>
+                  </div>
+                </div>
+
+                {/* Referral Code Card */}
+                <div className="glass-card p-6">
+                  <h3 className="font-body font-semibold text-foreground mb-1">Your Referral Code</h3>
+                  <p className="text-xs text-muted-foreground font-body mb-4">Share your code and earn 10% (up to ₹50) on every friend's purchase</p>
+                  
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex-1 bg-secondary rounded-xl px-5 py-3 font-mono text-lg text-foreground font-bold tracking-wider text-center border border-border">
+                      {referral?.code ?? "..."}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(referral?.code ?? "");
+                        toast.success("Code copied!");
+                      }}
+                      className="p-3 rounded-xl bg-secondary hover:bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border"
+                    >
+                      <Copy className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        const text = `Hey! Use my referral code ${referral?.code} on Lightning Deals and we both benefit! 🔥 ${window.location.origin}/signup?ref=${referral?.code}`;
+                        if (navigator.share) {
+                          navigator.share({ title: "Lightning Deals Referral", text });
+                        } else {
+                          navigator.clipboard.writeText(text);
+                          toast.success("Referral message copied!");
+                        }
+                      }}
+                      className="flex-1 btn-primary !py-3 !text-sm gap-2"
+                    >
+                      <Share2 className="w-4 h-4" /> Share with Friends
+                    </button>
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(`Hey! Use my referral code ${referral?.code} on Lightning Deals and we both benefit! 🔥 ${window.location.origin}/signup?ref=${referral?.code}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-gold !py-3 !px-5 !text-sm gap-2"
+                    >
+                      <MessageCircle className="w-4 h-4" /> WhatsApp
+                    </a>
+                  </div>
+                </div>
+
+                {/* How it works */}
+                <div className="glass-card p-6">
+                  <h3 className="font-body font-semibold text-foreground mb-4">How Referrals Work</h3>
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    {[
+                      { step: "1", title: "Share Your Code", desc: "Send your unique referral code to friends" },
+                      { step: "2", title: "Friend Signs Up", desc: "They enter your code during signup" },
+                      { step: "3", title: "Earn Rewards", desc: "Get 10% (up to ₹50) on their first paid order" },
+                    ].map((s) => (
+                      <div key={s.step} className="text-center">
+                        <div className="w-8 h-8 rounded-full bg-accent/10 text-accent font-display font-bold text-sm flex items-center justify-center mx-auto mb-2">
+                          {s.step}
+                        </div>
+                        <p className="text-sm font-semibold text-foreground font-body">{s.title}</p>
+                        <p className="text-xs text-muted-foreground font-body mt-1">{s.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Transaction History */}
+                {referralTxns.length > 0 && (
+                  <div className="glass-card overflow-hidden">
+                    <div className="p-4 border-b border-border/50">
+                      <h3 className="font-body font-semibold text-foreground text-sm">Reward History</h3>
+                    </div>
+                    <div className="divide-y divide-border/30">
+                      {referralTxns.map((txn) => (
+                        <div key={txn.id} className="p-4 flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-foreground font-body">Referral Reward</p>
+                            <p className="text-xs text-muted-foreground font-body">
+                              {new Date(txn.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                            </p>
+                          </div>
+                          <span className="text-sm font-display font-bold text-emerald-500">+₹{txn.reward_amount}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
             {/* Support Tab */}
             <TabsContent value="support">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
