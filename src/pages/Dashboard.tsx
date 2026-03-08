@@ -165,9 +165,16 @@ const Dashboard = () => {
                             {order.products?.duration && <span>Duration: {order.products.duration}</span>}
                             {order.products?.delivery && <span>Delivery: {order.products.delivery}</span>}
                           </div>
-                          <button onClick={() => openTimeline(order)} className="text-xs text-primary hover:underline font-medium">
-                            View Timeline
-                          </button>
+                          <div className="flex items-center gap-3">
+                            {order.invoice_url && (
+                              <button onClick={() => handleDownloadInvoice(order)} className="text-xs text-primary hover:underline font-medium inline-flex items-center gap-1">
+                                <Download className="w-3 h-3" /> Invoice
+                              </button>
+                            )}
+                            <button onClick={() => openTimeline(order)} className="text-xs text-primary hover:underline font-medium">
+                              View Timeline
+                            </button>
+                          </div>
                         </div>
                       </motion.div>
                     );
