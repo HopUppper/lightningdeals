@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Flame, ArrowRight, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import ProductLogo from "@/components/ProductLogo";
 
 const TrendingDeals = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -101,22 +102,8 @@ const TrendingDeals = () => {
                   </div>
 
                   {/* Logo */}
-                  <div className="mb-4">
-                    {p.logo_url ? (
-                      <img
-                        src={p.logo_url}
-                        alt={p.name}
-                        className="w-12 h-12 rounded-xl object-contain bg-muted/30 p-1.5 group-hover:scale-110 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center text-primary-foreground font-display font-bold text-lg group-hover:scale-110 transition-transform duration-300"
-                        style={{ backgroundColor: p.color || "hsl(var(--primary))" }}
-                      >
-                        {p.name[0]}
-                      </div>
-                    )}
+                  <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <ProductLogo name={p.name} logoUrl={p.logo_url} color={p.color} />
                   </div>
 
                   {/* Content */}

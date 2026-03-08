@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Trash2, ArrowRight, Minus, Plus } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
+import ProductLogo from "@/components/ProductLogo";
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
@@ -32,12 +33,7 @@ const Cart = () => {
               <div className="space-y-4">
                 {items.map((item) => (
                   <div key={item.id} className="glass-card p-4 flex items-center gap-4">
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center text-primary-foreground font-display font-bold text-lg shrink-0"
-                      style={{ backgroundColor: item.color }}
-                    >
-                      {item.name[0]}
-                    </div>
+                    <ProductLogo name={item.name} logoUrl={item.logoUrl} color={item.color} />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-display font-semibold text-foreground truncate">{item.name}</h3>
                       <div className="flex items-center gap-2 text-sm">

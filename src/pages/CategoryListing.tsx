@@ -8,6 +8,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import { supabase } from "@/integrations/supabase/client";
 import ProductOfferBadge from "@/components/ProductOfferBadge";
 import { Badge } from "@/components/ui/badge";
+import ProductLogo from "@/components/ProductLogo";
 
 const PAGE_SIZE = 12;
 
@@ -167,22 +168,8 @@ const CategoryListing = () => {
                         <ProductOfferBadge product={p} fallbackDiscount={discount} />
 
                         {/* Logo */}
-                        <div className="flex items-center gap-3 mb-4">
-                          {p.logo_url ? (
-                            <img
-                              src={p.logo_url}
-                              alt={p.name}
-                              className="w-14 h-14 rounded-2xl object-contain bg-muted/30 p-1.5 group-hover:scale-110 transition-transform duration-300"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div
-                              className="w-14 h-14 rounded-2xl flex items-center justify-center text-primary-foreground font-display font-bold text-xl group-hover:scale-110 transition-transform duration-300"
-                              style={{ backgroundColor: p.color || "hsl(var(--primary))" }}
-                            >
-                              {p.name[0]}
-                            </div>
-                          )}
+                        <div className="flex items-center gap-3 mb-4 group-hover:scale-110 transition-transform duration-300">
+                          <ProductLogo name={p.name} logoUrl={p.logo_url} color={p.color} size="w-14 h-14" fontSize="text-xl" />
                         </div>
 
                         {/* Name + description */}
