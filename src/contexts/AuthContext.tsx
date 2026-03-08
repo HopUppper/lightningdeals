@@ -28,22 +28,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchRole = async (userId: string) => {
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .maybeSingle();
-    setRole(data?.role ?? "customer");
+  const fetchRole = async (userId: string): Promise<UserRole> => {
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (error) {
+        console.error("Failed to fetch role:", error.message);
+        return "customer";
+      }
+      return (data?.role as UserRole) ?? "customer";
+    } catch (e) {
+      console.error("Role fetch exception:", e);
+      return "customer";
+    }
   };
 
   useEffect(() => {
+    let mounted = true;
+
+    // Set up auth listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!mounted) return;
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchRole(session.user.id);
+          const userRole = await fetchRole(session.user.id);
+          if (!mounted) return;
+          setRole(userRole);
           // Apply referral code from signup if present
           const storedRef = localStorage.getItem("ld-referral-code");
           if (storedRef) {
@@ -57,16 +72,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
+    // Then get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchRole(session.user.id);
+        const userRole = await fetchRole(session.user.id);
+        if (!mounted) return;
+        setRole(userRole);
       }
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Safety timeout - never stay loading forever
+    const timeout = setTimeout(() => {
+      if (mounted && loading) {
+        console.warn("Auth loading timed out after 8s, forcing load complete");
+        setLoading(false);
+      }
+    }, 8000);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, name: string) => {
