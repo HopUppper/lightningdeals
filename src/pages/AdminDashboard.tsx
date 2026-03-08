@@ -6,6 +6,8 @@ import AdminOverview from "@/components/admin/AdminOverview";
 import AdminOrders from "@/components/admin/AdminOrders";
 import AdminProducts from "@/components/admin/AdminProducts";
 import AdminCategories from "@/components/admin/AdminCategories";
+import AdminCoupons from "@/components/admin/AdminCoupons";
+import AdminErrorLogs from "@/components/admin/AdminErrorLogs";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
@@ -22,7 +24,7 @@ const AdminDashboard = () => {
           <header className="h-14 flex items-center justify-between border-b border-border/50 bg-background/80 backdrop-blur-xl px-4 sticky top-0 z-40">
             <div className="flex items-center gap-3">
               <SidebarTrigger className="text-muted-foreground" />
-              <span className="font-display font-bold text-foreground capitalize">{activeTab}</span>
+              <span className="font-display font-bold text-foreground capitalize">{activeTab === "error-logs" ? "Error Logs" : activeTab}</span>
             </div>
             <div className="flex items-center gap-2">
               <AdminNotifications />
@@ -36,6 +38,8 @@ const AdminDashboard = () => {
             {activeTab === "orders" && <AdminOrders />}
             {activeTab === "products" && <AdminProducts />}
             {activeTab === "categories" && <AdminCategories />}
+            {activeTab === "coupons" && <AdminCoupons />}
+            {activeTab === "error-logs" && <AdminErrorLogs />}
           </main>
         </div>
       </div>
