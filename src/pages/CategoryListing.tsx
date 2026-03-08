@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, memo } from "react";
 import { motion } from "framer-motion";
-import { Clock, ArrowUpDown, Flame, Filter } from "lucide-react";
+import { Clock, ArrowUpDown, Flame, Filter, GitCompareArrows } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import ProductOfferBadge from "@/components/ProductOfferBadge";
 import ProductLogo from "@/components/ProductLogo";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCompare } from "@/contexts/CompareContext";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 12;
 type SortOption = "newest" | "price_low" | "price_high" | "name";
