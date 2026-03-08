@@ -13,7 +13,7 @@ import SEOHead from "@/components/SEOHead";
 import CountdownTimer from "@/components/CountdownTimer";
 import ProductLogo from "@/components/ProductLogo";
 
-const WHATSAPP_NUMBER = "919999999999";
+const WHATSAPP_NUMBER = "917695956938";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
