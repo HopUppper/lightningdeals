@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, memo } from "react";
 import { motion } from "framer-motion";
-import { Clock, ArrowUpDown, Flame } from "lucide-react";
+import { Clock, ArrowUpDown, Flame, Filter } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const PAGE_SIZE = 12;
 type SortOption = "newest" | "price_low" | "price_high" | "name";
+type DurationFilter = "all" | "1_month" | "3_months" | "6_months" | "1_year" | "lifetime";
 
 const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
   const discount = p.price_original > 0
@@ -80,6 +81,7 @@ const CategoryListing = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [durationFilter, setDurationFilter] = useState<DurationFilter>("all");
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const pageRef = useRef(0);
@@ -93,7 +95,18 @@ const CategoryListing = () => {
     }
   };
 
-  const fetchPage = useCallback(async (page: number, isInitial: boolean, sort: SortOption) => {
+  const getDurationIlike = (df: DurationFilter): string | null => {
+    switch (df) {
+      case "1_month": return "%1 Month%";
+      case "3_months": return "%3 Month%";
+      case "6_months": return "%6 Month%";
+      case "1_year": return "%1 Year%";
+      case "lifetime": return "%Lifetime%";
+      default: return null;
+    }
+  };
+
+  const fetchPage = useCallback(async (page: number, isInitial: boolean, sort: SortOption, durFilter: DurationFilter) => {
     if (isInitial) setLoading(true); else setLoadingMore(true);
 
     if (isInitial) {
@@ -105,11 +118,16 @@ const CategoryListing = () => {
     const to = from + PAGE_SIZE - 1;
     const order = getOrderBy(sort);
 
-    const { data: prods, count } = await supabase
+    let query = supabase
       .from("products")
       .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge, categories!inner(name, slug)", { count: "exact" })
       .eq("categories.slug", slug || "")
-      .eq("is_active", true)
+      .eq("is_active", true);
+
+    const durPattern = getDurationIlike(durFilter);
+    if (durPattern) query = query.ilike("duration", durPattern);
+
+    const { data: prods, count } = await query
       .order(order.column, { ascending: order.ascending })
       .range(from, to);
 
@@ -124,8 +142,8 @@ const CategoryListing = () => {
     pageRef.current = 0;
     setProducts([]);
     setHasMore(true);
-    fetchPage(0, true, sortBy);
-  }, [slug, fetchPage, sortBy]);
+    fetchPage(0, true, sortBy, durationFilter);
+  }, [slug, fetchPage, sortBy, durationFilter]);
 
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect();
@@ -133,20 +151,29 @@ const CategoryListing = () => {
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
           pageRef.current += 1;
-          fetchPage(pageRef.current, false, sortBy);
+          fetchPage(pageRef.current, false, sortBy, durationFilter);
         }
       },
       { rootMargin: "200px" }
     );
     if (sentinelRef.current) observerRef.current.observe(sentinelRef.current);
     return () => observerRef.current?.disconnect();
-  }, [hasMore, loadingMore, loading, fetchPage, sortBy]);
+  }, [hasMore, loadingMore, loading, fetchPage, sortBy, durationFilter]);
 
   const sortOptions: { value: SortOption; label: string }[] = [
     { value: "newest", label: "Newest" },
     { value: "price_low", label: "Price: Low → High" },
     { value: "price_high", label: "Price: High → Low" },
     { value: "name", label: "Name A–Z" },
+  ];
+
+  const durationOptions: { value: DurationFilter; label: string }[] = [
+    { value: "all", label: "All Durations" },
+    { value: "1_month", label: "1 Month" },
+    { value: "3_months", label: "3 Months" },
+    { value: "6_months", label: "6 Months" },
+    { value: "1_year", label: "1 Year" },
+    { value: "lifetime", label: "Lifetime" },
   ];
 
   return (
@@ -161,20 +188,37 @@ const CategoryListing = () => {
           </motion.div>
 
           {!loading && products.length > 0 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2.5 mb-10 flex-wrap">
-              <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground mr-1">Sort:</span>
-              {sortOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => { if (opt.value !== sortBy) { setSortBy(opt.value); pageRef.current = 0; } }}
-                  className={`text-xs px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                    sortBy === opt.value ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-4 mb-10">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground mr-1">Sort:</span>
+                {sortOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => { if (opt.value !== sortBy) { setSortBy(opt.value); pageRef.current = 0; } }}
+                    className={`text-xs px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                      sortBy === opt.value ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground mr-1">Duration:</span>
+                {durationOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => { if (opt.value !== durationFilter) { setDurationFilter(opt.value); pageRef.current = 0; } }}
+                    className={`text-xs px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                      durationFilter === opt.value ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </motion.div>
           )}
 
