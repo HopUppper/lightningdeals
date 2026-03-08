@@ -28,6 +28,7 @@ const ProductDetail = () => {
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const { addItem } = useCart();
   const { user } = useAuth();
+  const { addToCompare, isInCompare, removeFromCompare } = useCompare();
 
   useEffect(() => {
     const fetchProduct = async () => {
