@@ -135,11 +135,22 @@ const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categ
             </div>
           </div>
 
-          {/* Description */}
-          <div>
-            <label className="text-xs text-muted-foreground mb-1 block">Short Description</label>
-            <input name="description" value={form.description} onChange={handleChange} className={inputClass} placeholder="Brief one-liner about the product" />
+          {/* Description + AI Generate */}
+          <div className="flex items-center justify-between">
+            <label className="text-xs text-muted-foreground">Short Description</label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={generateAIDescription}
+              disabled={aiLoading || !form.name}
+              className="gap-1.5 h-7 text-xs"
+            >
+              {aiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+              {aiLoading ? "Generating..." : "AI Generate"}
+            </Button>
           </div>
+          <input name="description" value={form.description} onChange={handleChange} className={inputClass} placeholder="Brief one-liner about the product" />
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Detailed Description</label>
             <textarea name="long_description" value={form.long_description} onChange={handleChange} rows={3} className={`${inputClass} resize-none`} placeholder="Full product details shown on the product page" />
