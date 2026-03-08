@@ -32,6 +32,12 @@ const AdminProducts = () => {
     setDialogOpen(true);
   };
 
+  const toLocalDatetime = (iso: string | null) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return d.toISOString().slice(0, 16);
+  };
+
   const openEdit = (p: any) => {
     setEditingId(p.id);
     setForm({
@@ -42,6 +48,9 @@ const AdminProducts = () => {
       duration: p.duration || "1 Year", delivery: p.delivery || "WhatsApp (< 5 min)",
       features: (p.features || []).join("\n"), category_id: p.category_id || "",
       is_active: p.is_active,
+      offer_badge: p.offer_badge || "",
+      offer_label: p.offer_label || "",
+      offer_expires_at: toLocalDatetime(p.offer_expires_at),
     });
     setDialogOpen(true);
   };
@@ -51,13 +60,16 @@ const AdminProducts = () => {
       toast.error("Name and slug are required");
       return;
     }
-    const payload = {
+    const payload: any = {
       name: form.name, slug: form.slug, description: form.description,
       long_description: form.long_description, price_original: form.price_original,
       price_discounted: form.price_discounted, color: form.color, logo_url: form.logo_url,
       duration: form.duration, delivery: form.delivery,
       features: form.features.split("\n").filter(Boolean),
       category_id: form.category_id || null, is_active: form.is_active,
+      offer_badge: form.offer_badge || "",
+      offer_label: form.offer_label || "",
+      offer_expires_at: form.offer_expires_at ? new Date(form.offer_expires_at).toISOString() : null,
     };
 
     if (editingId) {
@@ -100,50 +112,63 @@ const AdminProducts = () => {
                 <th className="text-left p-4 font-medium text-muted-foreground">Product</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Category</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
+                <th className="text-left p-4 font-medium text-muted-foreground">Offer</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
                 <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
-                <tr key={p.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      {p.logo_url ? (
-                        <img src={p.logo_url} alt="" className="w-8 h-8 rounded-lg object-contain bg-muted/30 p-0.5" />
-                      ) : (
-                        <div className="w-8 h-8 rounded-lg bg-muted/50" />
-                      )}
-                      <div>
-                        <p className="font-medium text-foreground">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">{p.slug}</p>
+              {products.map((p) => {
+                const isExpired = p.offer_expires_at && new Date(p.offer_expires_at) < new Date();
+                return (
+                  <tr key={p.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        {p.logo_url ? (
+                          <img src={p.logo_url} alt="" className="w-8 h-8 rounded-lg object-contain bg-muted/30 p-0.5" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-lg bg-muted/50" />
+                        )}
+                        <div>
+                          <p className="font-medium text-foreground">{p.name}</p>
+                          <p className="text-xs text-muted-foreground">{p.slug}</p>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="p-4 text-muted-foreground text-sm">{p.categories?.name || "—"}</td>
-                  <td className="p-4">
-                    <span className="text-muted-foreground line-through text-xs mr-1">₹{p.price_original}</span>
-                    <span className="font-display font-bold text-foreground">₹{p.price_discounted}</span>
-                  </td>
-                  <td className="p-4">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${p.is_active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
-                      {p.is_active ? "Active" : "Draft"}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)}>
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(p.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="p-4 text-muted-foreground text-sm">{p.categories?.name || "—"}</td>
+                    <td className="p-4">
+                      <span className="text-muted-foreground line-through text-xs mr-1">₹{p.price_original}</span>
+                      <span className="font-display font-bold text-foreground">₹{p.price_discounted}</span>
+                    </td>
+                    <td className="p-4">
+                      {p.offer_badge ? (
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${isExpired ? "bg-muted text-muted-foreground line-through" : "bg-accent text-accent-foreground"}`}>
+                          {p.offer_badge}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${p.is_active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                        {p.is_active ? "Active" : "Draft"}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)}>
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(p.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
               {products.length === 0 && (
-                <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No products yet</td></tr>
+                <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No products yet</td></tr>
               )}
             </tbody>
           </table>

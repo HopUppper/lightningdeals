@@ -16,6 +16,9 @@ export interface ProductForm {
   features: string;
   category_id: string;
   is_active: boolean;
+  offer_badge: string;
+  offer_label: string;
+  offer_expires_at: string;
 }
 
 export const emptyForm: ProductForm = {
@@ -23,6 +26,7 @@ export const emptyForm: ProductForm = {
   price_original: 0, price_discounted: 0, color: "#22c55e",
   logo_url: "", duration: "1 Year", delivery: "WhatsApp (< 5 min)",
   features: "", category_id: "", is_active: true,
+  offer_badge: "", offer_label: "", offer_expires_at: "",
 };
 
 interface ProductFormDialogProps {
@@ -36,6 +40,8 @@ interface ProductFormDialogProps {
 }
 
 const inputClass = "w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary";
+
+const badgePresets = ["", "Limited Offer", "Hot Deal", "Best Seller", "New", "50% OFF", "70% OFF", "80% OFF"];
 
 const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categories, onSave }: ProductFormDialogProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -58,6 +64,10 @@ const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categ
       slug: editingId ? prev.slug : autoSlug(name),
     }));
   };
+
+  const discountPercent = form.price_original > 0 && form.price_discounted > 0 && form.price_discounted < form.price_original
+    ? Math.round(((form.price_original - form.price_discounted) / form.price_original) * 100)
+    : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -105,11 +115,70 @@ const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categ
               <input name="price_discounted" type="number" value={form.price_discounted} onChange={handleChange} className={inputClass} min={0} />
             </div>
           </div>
-          {form.price_original > 0 && form.price_discounted > 0 && form.price_discounted < form.price_original && (
-            <p className="text-xs text-primary">
-              💰 {Math.round(((form.price_original - form.price_discounted) / form.price_original) * 100)}% discount
-            </p>
+          {discountPercent > 0 && (
+            <p className="text-xs text-primary">💰 {discountPercent}% discount</p>
           )}
+
+          {/* Offer & Badge Section */}
+          <div className="rounded-lg border border-accent/30 bg-accent/5 p-3 space-y-3">
+            <p className="text-xs font-semibold text-accent-foreground/80 uppercase tracking-wider">🏷️ Offer & Badge</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Badge</label>
+                <select name="offer_badge" value={form.offer_badge} onChange={handleChange} className={inputClass}>
+                  {badgePresets.map((b) => (
+                    <option key={b} value={b}>{b || "None"}</option>
+                  ))}
+                </select>
+                {discountPercent > 0 && !form.offer_badge && (
+                  <button
+                    type="button"
+                    className="text-[10px] text-primary hover:underline mt-1"
+                    onClick={() => setForm(prev => ({ ...prev, offer_badge: `${discountPercent}% OFF` }))}
+                  >
+                    Auto-set "{discountPercent}% OFF"
+                  </button>
+                )}
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Label</label>
+                <input name="offer_label" value={form.offer_label} onChange={handleChange} className={inputClass} placeholder="e.g. Flash Sale" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Offer Expires At</label>
+              <input
+                name="offer_expires_at"
+                type="datetime-local"
+                value={form.offer_expires_at}
+                onChange={handleChange}
+                className={inputClass}
+              />
+              {form.offer_expires_at && (
+                <button
+                  type="button"
+                  className="text-[10px] text-destructive hover:underline mt-1"
+                  onClick={() => setForm(prev => ({ ...prev, offer_expires_at: "" }))}
+                >
+                  Clear expiry
+                </button>
+              )}
+            </div>
+            {/* Badge preview */}
+            {form.offer_badge && (
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground">Preview:</span>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+                  {form.offer_badge}
+                </span>
+                {form.offer_label && (
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/15 text-primary">
+                    {form.offer_label}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Category & Duration */}
           <div className="grid grid-cols-2 gap-3">
