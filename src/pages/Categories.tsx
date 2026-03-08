@@ -17,18 +17,20 @@ const Categories = () => {
     const fetchCats = async () => {
       setLoading(true);
       try {
-        // Fetch categories separately from product counts to avoid join issues
+        console.log("[Categories] Fetching categories...");
         const { data: cats, error: catError } = await supabase
           .from("categories")
           .select("id, name, slug, description, icon")
           .order("name");
+        console.log("[Categories] cats result:", { cats, catError });
         if (catError) throw catError;
 
-        // Get product counts per category
+        console.log("[Categories] Fetching products for counts...");
         const { data: products, error: prodError } = await supabase
           .from("products")
           .select("category_id")
           .eq("is_active", true);
+        console.log("[Categories] products result:", { count: products?.length, prodError });
         if (prodError) throw prodError;
 
         const countMap: Record<string, number> = {};
@@ -36,14 +38,14 @@ const Categories = () => {
           if (p.category_id) countMap[p.category_id] = (countMap[p.category_id] || 0) + 1;
         });
 
-        setCategories(
-          (cats ?? []).map((c: any) => ({
-            ...c,
-            count: countMap[c.id] || 0,
-          }))
-        );
+        const result = (cats ?? []).map((c: any) => ({
+          ...c,
+          count: countMap[c.id] || 0,
+        }));
+        console.log("[Categories] Setting categories:", result.length);
+        setCategories(result);
       } catch (e) {
-        console.error("Failed to fetch categories:", e);
+        console.error("[Categories] Failed to fetch:", e);
         setCategories([]);
       } finally {
         setLoading(false);
