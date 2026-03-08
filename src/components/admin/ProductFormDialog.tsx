@@ -48,6 +48,7 @@ const inputClass = "w-full rounded-lg border border-border bg-background px-3 py
 const badgePresets = ["", "Limited Offer", "Hot Deal", "Best Seller", "New", "50% OFF", "70% OFF", "80% OFF"];
 
 const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categories, onSave }: ProductFormDialogProps) => {
+  const [aiLoading, setAiLoading] = useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setForm((prev) => ({
