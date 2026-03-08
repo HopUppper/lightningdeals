@@ -2,9 +2,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import SEOHead from "@/components/SEOHead";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, ArrowLeft, MessageCircle, Shield, Lock, Zap, Tag, X, ChevronRight } from "lucide-react";
+import { ShoppingCart, ArrowLeft, MessageCircle, Shield, Lock, Zap, Tag, X, ChevronRight, CreditCard, IndianRupee } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,15 +21,33 @@ const generateOrderId = () => {
   return id;
 };
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"whatsapp" | "online">("online");
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
+
+  // Load Razorpay script
+  useEffect(() => {
+    if (!document.getElementById("razorpay-script")) {
+      const script = document.createElement("script");
+      script.id = "razorpay-script";
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
 
   // Auto-fill from profile
   useEffect(() => {
@@ -113,6 +131,93 @@ const Checkout = () => {
     }
   };
 
+  const handleOnlinePayment = async () => {
+    if (!user) { toast.error("Please log in to place an order"); navigate("/login"); return; }
+    if (!form.name || !form.email || !form.phone) { toast.error("Please fill in all fields"); return; }
+    if (!window.Razorpay) { toast.error("Payment system is loading. Please try again."); return; }
+
+    setLoading(true);
+    try {
+      const internalOrderId = generateOrderId();
+
+      // Create Razorpay order via edge function
+      const { data, error } = await supabase.functions.invoke("create-razorpay-order", {
+        body: {
+          amount: finalPrice,
+          receipt: internalOrderId,
+          notes: { customer_name: form.name, customer_email: form.email },
+        },
+      });
+
+      if (error || !data?.orderId) {
+        toast.error("Failed to initiate payment. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      const options = {
+        key: data.key,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Lightning Deals",
+        description: items.map((i) => i.name).join(", ").slice(0, 255),
+        order_id: data.orderId,
+        prefill: { name: form.name, email: form.email, contact: form.phone },
+        theme: { color: "#f59e0b" },
+        handler: async (response: any) => {
+          // Verify payment on server
+          const { data: verifyData, error: verifyError } = await supabase.functions.invoke("verify-razorpay-payment", {
+            body: {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              order_details: {
+                items: items.map((i) => ({ id: i.id, price: i.price, quantity: i.quantity })),
+                user_id: user.id,
+                customer_name: form.name,
+                customer_email: form.email,
+                customer_phone: form.phone,
+                coupon_code: appliedCoupon?.code || "",
+                coupon_discount: couponDiscount,
+                internal_order_id: internalOrderId,
+              },
+            },
+          });
+
+          if (verifyError || !verifyData?.success) {
+            toast.error("Payment verification failed. Contact support.");
+            setLoading(false);
+            return;
+          }
+
+          clearCart();
+          toast.success("Payment successful! 🎉");
+          navigate("/order-confirmation", {
+            state: { orderId: internalOrderId, orderCount: items.reduce((s, i) => s + i.quantity, 0), paid: true },
+          });
+        },
+        modal: {
+          ondismiss: () => {
+            setLoading(false);
+            toast.info("Payment cancelled");
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", (resp: any) => {
+        console.error("Payment failed:", resp.error);
+        toast.error(resp.error?.description || "Payment failed. Please try again.");
+        setLoading(false);
+      });
+      rzp.open();
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  };
+
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-background">
@@ -153,7 +258,7 @@ const Checkout = () => {
                     <Shield className="w-5 h-5 text-accent" />
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Complete your order through <strong className="text-foreground">secure WhatsApp checkout</strong> for instant processing.
+                    All payments are <strong className="text-foreground">encrypted & secure</strong>. Choose your preferred payment method below.
                   </p>
                 </div>
 
@@ -173,6 +278,52 @@ const Checkout = () => {
                   <div>
                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block uppercase tracking-wider">WhatsApp Number *</label>
                     <input name="phone" value={form.phone} onChange={handleChange} className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent/30 transition-all" placeholder="+91 98765 43210" />
+                  </div>
+                </div>
+
+                {/* Payment Method Selection */}
+                <div className="glass-card p-6 space-y-4">
+                  <h2 className="font-display font-semibold text-foreground text-lg">Payment Method</h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setPaymentMethod("online")}
+                      className={`relative p-4 rounded-xl border-2 transition-all text-left ${
+                        paymentMethod === "online"
+                          ? "border-accent bg-accent/5 shadow-[0_0_20px_-8px_hsl(var(--accent)/0.3)]"
+                          : "border-border hover:border-muted-foreground/30"
+                      }`}
+                    >
+                      {paymentMethod === "online" && (
+                        <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                      )}
+                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center mb-3">
+                        <CreditCard className="w-5 h-5 text-accent" />
+                      </div>
+                      <p className="font-display font-semibold text-foreground text-sm">Pay Online</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">UPI, Card, Net Banking</p>
+                    </button>
+
+                    <button
+                      onClick={() => setPaymentMethod("whatsapp")}
+                      className={`relative p-4 rounded-xl border-2 transition-all text-left ${
+                        paymentMethod === "whatsapp"
+                          ? "border-accent bg-accent/5 shadow-[0_0_20px_-8px_hsl(var(--accent)/0.3)]"
+                          : "border-border hover:border-muted-foreground/30"
+                      }`}
+                    >
+                      {paymentMethod === "whatsapp" && (
+                        <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                      )}
+                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-3">
+                        <MessageCircle className="w-5 h-5 text-emerald-500" />
+                      </div>
+                      <p className="font-display font-semibold text-foreground text-sm">WhatsApp</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">Pay after confirmation</p>
+                    </button>
                   </div>
                 </div>
 
@@ -198,26 +349,6 @@ const Checkout = () => {
                       </button>
                     </div>
                   )}
-                </div>
-
-                {/* How it works */}
-                <div className="glass-card p-6">
-                  <h2 className="font-display font-semibold text-foreground mb-4 text-lg">How It Works</h2>
-                  <div className="space-y-3">
-                    {[
-                      'Click "Order on WhatsApp" below',
-                      "Send the pre-filled message to our team",
-                      "We'll guide you with payment instructions",
-                      "Subscription delivered in under 5 minutes",
-                    ].map((text, i) => (
-                      <div key={i} className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
-                          <span className="text-[10px] font-bold text-accent">{i + 1}</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{text}</p>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
 
@@ -259,26 +390,51 @@ const Checkout = () => {
                     </div>
                   </div>
 
-                  {/* WhatsApp Order Button */}
-                  <button
-                    onClick={handleWhatsAppOrder}
-                    disabled={loading}
-                    className="w-full inline-flex items-center justify-center gap-3 py-4 rounded-xl font-semibold text-base text-white disabled:opacity-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                    style={{ background: "linear-gradient(135deg, hsl(142, 70%, 45%), hsl(152, 58%, 36%))", boxShadow: "0 0 30px -8px hsl(142 70% 45% / 0.4)" }}
-                  >
-                    {loading ? (
-                      <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Processing...</>
+                  {/* Payment Button */}
+                  <AnimatePresence mode="wait">
+                    {paymentMethod === "online" ? (
+                      <motion.button
+                        key="online"
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        onClick={handleOnlinePayment}
+                        disabled={loading}
+                        className="w-full inline-flex items-center justify-center gap-3 py-4 rounded-xl font-semibold text-base text-accent-foreground disabled:opacity-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] bg-accent"
+                        style={{ boxShadow: "0 0 30px -8px hsl(var(--accent) / 0.4)" }}
+                      >
+                        {loading ? (
+                          <><div className="w-5 h-5 border-2 border-accent-foreground border-t-transparent rounded-full animate-spin" /> Processing...</>
+                        ) : (
+                          <><IndianRupee className="w-5 h-5" /> Pay ₹{finalPrice} Online</>
+                        )}
+                      </motion.button>
                     ) : (
-                      <><MessageCircle className="w-5 h-5" /> Order on WhatsApp — ₹{finalPrice}</>
+                      <motion.button
+                        key="whatsapp"
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        onClick={handleWhatsAppOrder}
+                        disabled={loading}
+                        className="w-full inline-flex items-center justify-center gap-3 py-4 rounded-xl font-semibold text-base text-white disabled:opacity-50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                        style={{ background: "linear-gradient(135deg, hsl(142, 70%, 45%), hsl(152, 58%, 36%))", boxShadow: "0 0 30px -8px hsl(142 70% 45% / 0.4)" }}
+                      >
+                        {loading ? (
+                          <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> Processing...</>
+                        ) : (
+                          <><MessageCircle className="w-5 h-5" /> Order on WhatsApp — ₹{finalPrice}</>
+                        )}
+                      </motion.button>
                     )}
-                  </button>
+                  </AnimatePresence>
 
                   {/* Trust indicators */}
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       { icon: Lock, label: "Secure" },
                       { icon: Zap, label: "Instant" },
-                      { icon: MessageCircle, label: "Support" },
+                      { icon: Shield, label: "Protected" },
                     ].map((t) => (
                       <div key={t.label} className="flex flex-col items-center gap-1 py-2 rounded-lg bg-secondary/50 text-[10px] text-muted-foreground">
                         <t.icon className="w-3.5 h-3.5" />
