@@ -10,6 +10,7 @@ import GlobalSearch from "@/components/GlobalSearch";
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "Categories", to: "/categories" },
+  { label: "Blog", to: "/blog" },
   { label: "About", to: "/about" },
   { label: "FAQ", to: "/faq" },
   { label: "Contact", to: "/contact" },
