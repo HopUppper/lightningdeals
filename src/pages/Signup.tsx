@@ -103,6 +103,10 @@ const Signup = () => {
                 </button>
               </div>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="referral" className="text-foreground">Referral Code <span className="text-muted-foreground font-normal">(optional)</span></Label>
+              <Input id="referral" placeholder="e.g. LD1A2B3C" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} className="h-12 bg-secondary border-border" />
+            </div>
             <Button type="submit" className="w-full h-12 btn-primary-gradient text-base font-semibold" disabled={loading}>
               {loading ? (
                 <><div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" /> Creating...</>
