@@ -104,11 +104,14 @@
   .glass-card {
     @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl;
     box-shadow: var(--shadow-card);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.3s ease;
   }
   .glass-card:hover {
     box-shadow: var(--shadow-card-hover);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    border-color: hsl(var(--primary) / 0.15);
   }
   .glass-dark {
     background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
@@ -124,17 +127,31 @@
   }
   .btn-primary-gradient {
     background-image: var(--gradient-primary);
-    @apply text-primary-foreground font-semibold rounded-xl px-8 py-3 transition-all duration-300;
+    @apply text-primary-foreground font-semibold rounded-xl px-8 py-3;
     box-shadow: var(--shadow-glow);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .btn-primary-gradient:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px) scale(1.02);
     box-shadow: 0 0 50px -10px hsl(152 58% 36% / 0.5);
+  }
+  .btn-primary-gradient:active {
+    transform: translateY(0) scale(0.98);
   }
   .btn-gold {
     background-image: var(--gradient-gold);
-    @apply text-accent-foreground font-semibold rounded-xl px-8 py-3 transition-all duration-300;
+    @apply text-accent-foreground font-semibold rounded-xl px-8 py-3;
     box-shadow: var(--shadow-gold);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-gold:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 0 40px -8px hsl(43 90% 55% / 0.5);
+  }
+  .btn-gold:active {
+    transform: translateY(0) scale(0.98);
   }
   .section-padding {
     @apply px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24;
