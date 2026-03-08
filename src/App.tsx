@@ -31,6 +31,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+        <CartProvider>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/categories" element={<Categories />} />
