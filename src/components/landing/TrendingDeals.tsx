@@ -1,11 +1,9 @@
 import { useEffect, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Flame, ArrowRight, Clock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
 import ProductLogo from "@/components/ProductLogo";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
   const discount = p.price_original > 0
@@ -17,44 +15,35 @@ const ProductCard = memo(({ p, i }: { p: any; i: number }) => {
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ delay: i * 0.04, type: "spring", damping: 25, stiffness: 120 }}
+      transition={{ delay: i * 0.05, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Link to={`/product/${p.slug}`} className="glass-card p-6 block group relative overflow-hidden h-full">
-        <div className="absolute top-4 right-4 z-10">
-          {p.offer_badge ? (
-            <Badge className="bg-accent text-accent-foreground font-semibold text-[10px] shadow-sm">{p.offer_badge}</Badge>
-          ) : discount > 0 ? (
-            <Badge className="bg-accent text-accent-foreground font-semibold text-[10px] shadow-sm">{discount}% OFF</Badge>
-          ) : (
-            <Badge className="bg-primary/10 text-primary font-semibold text-[10px] border border-primary/20">Trending</Badge>
-          )}
-        </div>
+      <Link to={`/product/${p.slug}`} className="glass-card p-6 block group relative h-full">
+        {discount > 0 && (
+          <span className="absolute top-4 right-4 text-[11px] font-medium text-accent font-body">
+            {discount}% off
+          </span>
+        )}
 
-        <div className="mb-5 group-hover:scale-105 transition-transform duration-300 will-change-transform">
+        <div className="mb-5 group-hover:scale-105 transition-transform duration-500 will-change-transform">
           <ProductLogo name={p.name} logoUrl={p.logo_url} color={p.color} />
         </div>
 
-        <h3 className="font-display font-semibold text-foreground text-base group-hover:text-primary transition-colors duration-200 tracking-tight">{p.name}</h3>
-        <p className="text-sm text-muted-foreground mt-2 leading-relaxed line-clamp-2">{p.description}</p>
+        <h3 className="font-body font-semibold text-foreground text-sm tracking-tight group-hover:text-accent transition-colors duration-300">
+          {p.name}
+        </h3>
+        <p className="text-[13px] text-muted-foreground mt-2 leading-relaxed line-clamp-2 font-body">
+          {p.description}
+        </p>
 
-        <div className="flex items-center gap-1.5 mt-4">
-          <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">{p.duration}</span>
-        </div>
-
-        <div className="flex items-baseline gap-2.5 mt-4">
-          {p.price_discounted > 0 ? (
-            <>
-              <span className="text-xl font-display font-bold text-foreground">₹{p.price_discounted}</span>
-              {p.price_original > 0 && <span className="text-sm text-muted-foreground line-through">₹{p.price_original}</span>}
-            </>
-          ) : (
-            <span className="text-sm font-medium text-primary">Contact for price</span>
+        <div className="flex items-baseline gap-2.5 mt-5">
+          <span className="text-lg font-body font-bold text-foreground">₹{p.price_discounted}</span>
+          {p.price_original > p.price_discounted && (
+            <span className="text-xs text-muted-foreground line-through font-body">₹{p.price_original}</span>
           )}
         </div>
 
-        <div className="mt-5 text-xs font-semibold text-primary opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-200">
-          View Details →
+        <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-body">
+          View details <ArrowRight className="w-3 h-3" />
         </div>
       </Link>
     </motion.div>
@@ -65,12 +54,11 @@ ProductCard.displayName = "ProductCard";
 
 const CardSkeleton = () => (
   <div className="glass-card p-6 h-full">
-    <Skeleton className="w-12 h-12 rounded-2xl mb-5" />
-    <Skeleton className="h-5 w-3/4 mb-2" />
-    <Skeleton className="h-4 w-full mb-1" />
-    <Skeleton className="h-4 w-2/3 mb-4" />
-    <Skeleton className="h-4 w-1/3 mb-4" />
-    <Skeleton className="h-6 w-1/2" />
+    <div className="w-12 h-12 rounded-xl bg-muted animate-shimmer mb-5" />
+    <div className="h-4 w-3/4 bg-muted rounded animate-shimmer mb-3" />
+    <div className="h-3 w-full bg-muted rounded animate-shimmer mb-2" />
+    <div className="h-3 w-2/3 bg-muted rounded animate-shimmer mb-5" />
+    <div className="h-5 w-1/3 bg-muted rounded animate-shimmer" />
   </div>
 );
 
@@ -100,39 +88,36 @@ const TrendingDeals = () => {
   }, []);
 
   return (
-    <section className="section-padding bg-background relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-accent/3 rounded-full blur-[160px] pointer-events-none" />
-
+    <section className="section-padding relative overflow-hidden">
       <div className="container-tight relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ type: "spring", damping: 25 }}
-          className="flex items-end justify-between mb-14"
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="flex items-end justify-between mb-16"
         >
           <div>
-            <div className="inline-flex items-center gap-2 mb-4">
-              <Flame className="w-4 h-4 text-accent" />
-              <span className="section-eyebrow text-accent">Trending Now</span>
-            </div>
-            <h2 className="section-title !mt-0">Trending Deals</h2>
-            <p className="section-subtitle !mt-2">Our most popular subscriptions this week</p>
+            <span className="section-eyebrow">Trending</span>
+            <h2 className="section-title !mt-4">popular this week</h2>
           </div>
-          <Link to="/categories" className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors group">
-            View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+          <Link
+            to="/categories"
+            className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group font-body"
+          >
+            View all <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
           </Link>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {loading
             ? Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={i} />)
             : products.map((p, i) => <ProductCard key={p.id} p={p} i={i} />)
           }
         </div>
 
-        <div className="sm:hidden mt-10 text-center">
-          <Link to="/categories" className="btn-primary-gradient inline-flex items-center gap-2 text-sm">
+        <div className="sm:hidden mt-12 text-center">
+          <Link to="/categories" className="btn-primary !text-sm">
             View All Deals <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
