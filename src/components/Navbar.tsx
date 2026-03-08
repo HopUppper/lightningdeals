@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import BrandLogo from "@/components/BrandLogo";
+import GlobalSearch from "@/components/GlobalSearch";
 
 const navLinks = [
   { label: "Home", to: "/" },
