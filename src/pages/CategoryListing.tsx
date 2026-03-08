@@ -81,6 +81,7 @@ const CategoryListing = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [durationFilter, setDurationFilter] = useState<DurationFilter>("all");
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const pageRef = useRef(0);
