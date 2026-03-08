@@ -73,6 +73,13 @@ const AdminOrders = ({ initialFilter }: Props) => {
         setStatusHistory((prev) => [...prev, { id: Date.now(), status, created_at: new Date().toISOString() }]);
       }
       toast.success(`Order marked as ${status}`);
+
+      // Trigger email notification for meaningful status changes
+      if (["processing", "delivered", "cancelled", "refunded"].includes(status)) {
+        supabase.functions.invoke("send-order-notification", {
+          body: { orderId, newStatus: status },
+        }).catch(() => {}); // Fire and forget
+      }
     }
   };
 
