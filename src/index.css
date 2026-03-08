@@ -149,8 +149,9 @@
     transition: border-color 0.4s ease, background-color 0.4s ease;
   }
   .glass-card:hover {
-    border-color: hsl(0 0% 20%);
-    background-color: hsl(0 0% 9%);
+    border-color: hsl(var(--border));
+    background-color: hsl(var(--card));
+    filter: brightness(1.04);
   }
 
   .glass-nav {
