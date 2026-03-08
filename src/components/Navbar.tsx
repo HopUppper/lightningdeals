@@ -45,12 +45,31 @@ const Navbar = () => {
           <Link to="/cart" className="relative p-2 rounded-xl hover:bg-secondary transition-colors">
             <ShoppingCart className="w-5 h-5 text-foreground" />
           </Link>
-          <Link to="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Login
-          </Link>
-          <Link to="/categories" className="btn-primary-gradient text-sm py-2 px-5 inline-block">
-            Browse Plans
-          </Link>
+          {user ? (
+            <>
+              <Link
+                to={role === "admin" ? "/admin" : "/dashboard"}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {role === "admin" ? "Admin Panel" : "Dashboard"}
+              </Link>
+              <button
+                onClick={signOut}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              >
+                <LogOut className="w-4 h-4" /> Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Login
+              </Link>
+              <Link to="/categories" className="btn-primary-gradient text-sm py-2 px-5 inline-block">
+                Browse Plans
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
