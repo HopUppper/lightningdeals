@@ -23,7 +23,7 @@ const OrderConfirmation = () => {
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring" }}
             >
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+              <CheckCircle className="w-16 h-16 text-primary mx-auto" />
             </motion.div>
 
             <div>
