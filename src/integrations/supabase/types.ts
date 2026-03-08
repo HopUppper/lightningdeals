@@ -79,6 +79,72 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_order_amount: number | null
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order_amount?: number | null
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_order_amount?: number | null
+          used_count?: number
+        }
+        Relationships: []
+      }
+      error_logs: {
+        Row: {
+          created_at: string
+          details: string | null
+          error_type: string
+          id: string
+          message: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          error_type?: string
+          id?: string
+          message?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          error_type?: string
+          id?: string
+          message?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       order_status_history: {
         Row: {
           created_at: string
@@ -113,11 +179,14 @@ export type Database = {
       }
       orders: {
         Row: {
+          coupon_code: string | null
+          coupon_discount: number | null
           created_at: string
           customer_country: string | null
           customer_email: string
           customer_name: string
           customer_phone: string | null
+          fulfillment_notes: string | null
           id: string
           invoice_url: string | null
           notes: string | null
@@ -130,11 +199,14 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          coupon_code?: string | null
+          coupon_discount?: number | null
           created_at?: string
           customer_country?: string | null
           customer_email?: string
           customer_name?: string
           customer_phone?: string | null
+          fulfillment_notes?: string | null
           id?: string
           invoice_url?: string | null
           notes?: string | null
@@ -147,11 +219,14 @@ export type Database = {
           user_id: string
         }
         Update: {
+          coupon_code?: string | null
+          coupon_discount?: number | null
           created_at?: string
           customer_country?: string | null
           customer_email?: string
           customer_name?: string
           customer_phone?: string | null
+          fulfillment_notes?: string | null
           id?: string
           invoice_url?: string | null
           notes?: string | null
