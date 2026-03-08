@@ -8,7 +8,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import {
   Package, LogOut, User, MessageCircle, Mail, Phone, Edit2,
   Check, X, Key, Clock, Shield, RefreshCw, Download, Heart,
-  Star, ArrowRight,
+  Star, ArrowRight, ShoppingCart, Trash2, FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
