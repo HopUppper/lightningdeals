@@ -6,6 +6,7 @@ import AdminOverview from "@/components/admin/AdminOverview";
 import AdminOrders from "@/components/admin/AdminOrders";
 import AdminProducts from "@/components/admin/AdminProducts";
 import AdminCategories from "@/components/admin/AdminCategories";
+import AdminNotifications from "@/components/admin/AdminNotifications";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
@@ -23,9 +24,12 @@ const AdminDashboard = () => {
               <SidebarTrigger className="text-muted-foreground" />
               <span className="font-display font-bold text-foreground capitalize">{activeTab}</span>
             </div>
-            <Button variant="outline" size="sm" onClick={signOut} className="gap-2">
-              <LogOut className="w-4 h-4" /> Logout
-            </Button>
+            <div className="flex items-center gap-2">
+              <AdminNotifications />
+              <Button variant="outline" size="sm" onClick={signOut} className="gap-2">
+                <LogOut className="w-4 h-4" /> Logout
+              </Button>
+            </div>
           </header>
           <main className="flex-1 p-4 sm:p-6 overflow-auto">
             {activeTab === "overview" && <AdminOverview />}
