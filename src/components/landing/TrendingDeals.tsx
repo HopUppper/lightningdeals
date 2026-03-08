@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Flame, ArrowRight, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import ProductLogo from "@/components/ProductLogo";
 
 const TrendingDeals = () => {
   const [products, setProducts] = useState<any[]>([]);
