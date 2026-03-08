@@ -11,9 +11,11 @@ import BrandLogo from "@/components/BrandLogo";
 import { motion } from "framer-motion";
 
 const Signup = () => {
+  const [searchParams] = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState(searchParams.get("ref") || "");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
