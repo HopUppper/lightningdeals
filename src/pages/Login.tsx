@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, LogIn, Zap, Shield, Clock } from "lucide-react";
+import { Eye, EyeOff, LogIn, Zap, Shield, Clock, MailCheck } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
+import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 
 const MAX_ATTEMPTS = 5;
