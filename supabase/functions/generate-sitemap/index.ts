@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
   "Content-Type": "application/xml",
 };
 
@@ -20,6 +20,7 @@ Deno.serve(async (req) => {
   const staticPages = [
     { loc: "/", priority: "1.0", changefreq: "daily" },
     { loc: "/categories", priority: "0.9", changefreq: "daily" },
+    { loc: "/blog", priority: "0.8", changefreq: "weekly" },
     { loc: "/about", priority: "0.5", changefreq: "monthly" },
     { loc: "/contact", priority: "0.5", changefreq: "monthly" },
     { loc: "/faq", priority: "0.5", changefreq: "monthly" },
@@ -29,15 +30,15 @@ Deno.serve(async (req) => {
     { loc: "/delivery-policy", priority: "0.3", changefreq: "yearly" },
   ];
 
-  const { data: products } = await supabase
-    .from("products")
-    .select("slug, updated_at")
-    .eq("is_active", true);
+  const [productsRes, categoriesRes, blogRes] = await Promise.all([
+    supabase.from("products").select("slug, updated_at").eq("is_active", true),
+    supabase.from("categories").select("slug"),
+    supabase.from("blog_posts").select("slug, updated_at").eq("is_published", true),
+  ]);
 
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("slug");
-
+  const products = productsRes.data ?? [];
+  const categories = categoriesRes.data ?? [];
+  const blogPosts = blogRes.data ?? [];
   const today = new Date().toISOString().split("T")[0];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -53,7 +54,7 @@ Deno.serve(async (req) => {
   </url>`;
   }
 
-  for (const cat of categories ?? []) {
+  for (const cat of categories) {
     xml += `
   <url>
     <loc>${BASE_URL}/categories/${cat.slug}</loc>
@@ -62,13 +63,23 @@ Deno.serve(async (req) => {
   </url>`;
   }
 
-  for (const p of products ?? []) {
+  for (const p of products) {
     xml += `
   <url>
     <loc>${BASE_URL}/product/${p.slug}</loc>
     <lastmod>${p.updated_at?.split("T")[0] || today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>`;
+  }
+
+  for (const post of blogPosts) {
+    xml += `
+  <url>
+    <loc>${BASE_URL}/blog/${post.slug}</loc>
+    <lastmod>${post.updated_at?.split("T")[0] || today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>`;
   }
 
