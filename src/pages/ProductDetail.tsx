@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import ProductOfferBadge from "@/components/ProductOfferBadge";
 import SEOHead from "@/components/SEOHead";
+import CountdownTimer from "@/components/CountdownTimer";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
