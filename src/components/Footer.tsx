@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-
+import BrandLogo from "@/components/BrandLogo";
 const Footer = () => (
   <footer className="bg-foreground/[0.03] border-t border-border">
     <div className="container-tight section-padding pb-8">
