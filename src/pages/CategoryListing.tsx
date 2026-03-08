@@ -109,12 +109,12 @@ const CategoryListing = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 section-padding">
+      <div className="pt-28 section-padding">
         <div className="container-tight">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
             <Link to="/categories" className="text-sm text-primary hover:text-primary/80 transition-colors font-medium">← All Categories</Link>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground mt-4 tracking-tight">{categoryName}</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className="section-title !mt-5">{categoryName}</h1>
+            <p className="section-subtitle !mt-2">
               {loading ? "Loading..." : `${totalCount} subscriptions available at massive discounts`}
             </p>
           </motion.div>
@@ -124,7 +124,7 @@ const CategoryListing = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex items-center gap-2 mb-8 flex-wrap"
+              className="flex items-center gap-2.5 mb-10 flex-wrap"
             >
               <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
               <span className="text-sm text-muted-foreground mr-1">Sort:</span>
@@ -132,7 +132,7 @@ const CategoryListing = () => {
                 <button
                   key={opt.value}
                   onClick={() => handleSort(opt.value)}
-                  className={`text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all duration-300 ${
+                  className={`text-xs px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
                     sortBy === opt.value
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -150,7 +150,7 @@ const CategoryListing = () => {
             </div>
           ) : (
             <>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {products.map((p, i) => {
                   const discount = p.price_original > 0
                     ? Math.round(((p.price_original - p.price_discounted) / p.price_original) * 100)
@@ -163,10 +163,10 @@ const CategoryListing = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: Math.min(i % PAGE_SIZE, 11) * 0.04, type: "spring", damping: 20 }}
                     >
-                      <Link to={`/product/${p.slug}`} className="glass-card p-6 block group relative overflow-hidden h-full">
+                      <Link to={`/product/${p.slug}`} className="glass-card p-7 block group relative overflow-hidden h-full">
                         <ProductOfferBadge product={p} fallbackDiscount={discount} />
 
-                        <div className="flex items-center gap-3 mb-4">
+                        <div className="flex items-center gap-4 mb-5">
                           <div className="group-hover:scale-105 transition-transform duration-500">
                             <ProductLogo name={p.name} logoUrl={p.logo_url} color={p.color} size="w-14 h-14" fontSize="text-xl" />
                           </div>
@@ -175,14 +175,14 @@ const CategoryListing = () => {
                         <h3 className="font-display font-semibold text-foreground text-lg group-hover:text-primary transition-colors duration-300 tracking-tight">
                           {p.name}
                         </h3>
-                        <p className="text-sm text-muted-foreground mt-2 leading-relaxed line-clamp-2">{p.description}</p>
+                        <p className="text-sm text-muted-foreground mt-2.5 leading-relaxed line-clamp-2">{p.description}</p>
 
-                        <div className="flex items-center gap-1.5 mt-3">
-                          <Clock className="w-3 h-3 text-muted-foreground" />
+                        <div className="flex items-center gap-1.5 mt-4">
+                          <Clock className="w-3.5 h-3.5 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">{p.duration}</span>
                         </div>
 
-                        <div className="flex items-center gap-2 mt-3">
+                        <div className="flex items-baseline gap-2.5 mt-4">
                           {p.price_discounted > 0 ? (
                             <>
                               <span className="text-xl font-display font-bold text-foreground">₹{p.price_discounted}</span>
@@ -195,7 +195,7 @@ const CategoryListing = () => {
                           )}
                         </div>
 
-                        <div className="mt-4 flex items-center justify-between">
+                        <div className="mt-5 flex items-center justify-between">
                           <span className="text-sm font-semibold text-primary opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
                             View Details →
                           </span>
@@ -212,19 +212,19 @@ const CategoryListing = () => {
               <div ref={sentinelRef} className="h-4" />
 
               {loadingMore && (
-                <div className="flex justify-center py-8">
+                <div className="flex justify-center py-10">
                   <div className="w-6 h-6 border-[3px] border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
 
               {!hasMore && products.length > 0 && (
-                <p className="text-center text-sm text-muted-foreground py-8">You've seen all products in this category</p>
+                <p className="text-center text-sm text-muted-foreground py-10">You've seen all products in this category</p>
               )}
             </>
           )}
 
           {!loading && products.length === 0 && (
-            <div className="text-center py-20">
+            <div className="text-center py-24">
               <p className="text-muted-foreground">No products in this category yet. Check back soon!</p>
             </div>
           )}

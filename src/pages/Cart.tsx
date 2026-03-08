@@ -15,16 +15,16 @@ const Cart = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 section-padding">
+      <div className="pt-28 section-padding">
         <div className="container-tight max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="text-3xl font-display font-bold text-foreground mb-8">Shopping Cart</h1>
+            <h1 className="section-title !mt-0 mb-10">Shopping Cart</h1>
 
             {items.length === 0 ? (
-              <div className="glass-card p-8 text-center">
-                <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h2 className="text-lg font-display font-semibold text-foreground mb-2">Your cart is empty</h2>
-                <p className="text-sm text-muted-foreground mb-6">Browse our premium subscriptions and add items to your cart.</p>
+              <div className="glass-card p-12 text-center">
+                <ShoppingCart className="w-14 h-14 text-muted-foreground mx-auto mb-5" />
+                <h2 className="text-xl font-display font-semibold text-foreground mb-3">Your cart is empty</h2>
+                <p className="text-sm text-muted-foreground mb-8 max-w-sm mx-auto">Browse our premium subscriptions and add items to your cart.</p>
                 <Link to="/categories" className="btn-primary-gradient inline-flex items-center gap-2">
                   Browse Plans <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -32,16 +32,16 @@ const Cart = () => {
             ) : (
               <div className="space-y-4">
                 {items.map((item) => (
-                  <div key={item.id} className="glass-card p-4 flex items-center gap-4">
+                  <div key={item.id} className="glass-card p-5 flex items-center gap-5">
                     <ProductLogo name={item.name} logoUrl={item.logoUrl} color={item.color} />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-display font-semibold text-foreground truncate">{item.name}</h3>
-                      <div className="flex items-center gap-2 text-sm">
+                      <div className="flex items-baseline gap-2 text-sm mt-1">
                         <span className="text-foreground font-semibold">₹{item.price}</span>
                         <span className="text-muted-foreground line-through text-xs">₹{item.original}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
                         <Minus className="w-3 h-3" />
                       </Button>
@@ -57,15 +57,15 @@ const Cart = () => {
                   </div>
                 ))}
 
-                <div className="glass-card p-6 mt-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="text-foreground font-display font-bold text-xl">₹{totalPrice}</span>
+                <div className="glass-card p-8 mt-8">
+                  <div className="flex justify-between items-center mb-6">
+                    <span className="text-muted-foreground text-base">Subtotal</span>
+                    <span className="text-foreground font-display font-bold text-2xl">₹{totalPrice}</span>
                   </div>
-                  <Button onClick={() => navigate("/checkout")} className="btn-primary-gradient w-full flex items-center justify-center gap-2 py-3">
+                  <Button onClick={() => navigate("/checkout")} className="btn-primary-gradient w-full flex items-center justify-center gap-2 py-3.5">
                     Proceed to Checkout <ArrowRight className="w-4 h-4" />
                   </Button>
-                  <button onClick={clearCart} className="w-full text-center text-sm text-muted-foreground hover:text-destructive mt-3 transition-colors">
+                  <button onClick={clearCart} className="w-full text-center text-sm text-muted-foreground hover:text-destructive mt-4 transition-colors">
                     Clear Cart
                   </button>
                 </div>

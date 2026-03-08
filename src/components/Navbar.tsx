@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingCart, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -40,7 +40,7 @@ const Navbar = () => {
           : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="container-tight flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+      <div className="container-tight flex items-center justify-between h-[72px] px-5 sm:px-8 lg:px-10">
         <Link to="/" className="flex items-center">
           <BrandLogo size="sm" />
         </Link>
@@ -51,7 +51,7 @@ const Navbar = () => {
             <Link
               key={l.to}
               to={l.to}
-              className={`text-sm font-medium px-3.5 py-2 rounded-lg transition-all duration-200 ${
+              className={`text-sm font-medium px-4 py-2.5 rounded-lg transition-all duration-200 ${
                 location.pathname === l.to
                   ? "text-primary bg-primary/5"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
@@ -62,7 +62,7 @@ const Navbar = () => {
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-3">
           <Link to="/cart" className="relative p-2.5 rounded-xl hover:bg-secondary/60 transition-all duration-200 group">
             <ShoppingCart className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
             <AnimatePresence>
@@ -82,31 +82,31 @@ const Navbar = () => {
             <>
               <Link
                 to={role === "admin" ? "/admin" : "/dashboard"}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-secondary/60 transition-all duration-200"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground px-4 py-2.5 rounded-lg hover:bg-secondary/60 transition-all duration-200"
               >
                 {role === "admin" ? "Admin" : "Dashboard"}
               </Link>
               <button
                 onClick={signOut}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-secondary/60 transition-all duration-200 flex items-center gap-1.5"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground px-4 py-2.5 rounded-lg hover:bg-secondary/60 transition-all duration-200 flex items-center gap-1.5"
               >
                 <LogOut className="w-3.5 h-3.5" /> Logout
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground px-3.5 py-2 rounded-lg hover:bg-secondary/60 transition-all duration-200">
+              <Link to="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground px-4 py-2.5 rounded-lg hover:bg-secondary/60 transition-all duration-200">
                 Login
               </Link>
-              <Link to="/categories" className="btn-primary-gradient text-sm py-2 px-5 inline-block">
+              <Link to="/categories" className="btn-primary-gradient text-sm !py-2.5 !px-6 inline-block">
                 Browse Plans
               </Link>
             </>
           )}
         </div>
 
-        {/* Mobile toggle */}
-        <div className="md:hidden flex items-center gap-2">
+        {/* Mobile */}
+        <div className="md:hidden flex items-center gap-3">
           <Link to="/cart" className="relative p-2">
             <ShoppingCart className="w-5 h-5 text-foreground" />
             {totalItems > 0 && (
@@ -130,7 +130,7 @@ const Navbar = () => {
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="md:hidden bg-background/95 backdrop-blur-2xl border-b border-border/50 overflow-hidden"
           >
-            <div className="px-4 py-4 space-y-1">
+            <div className="px-5 py-5 space-y-1">
               {navLinks.map((l, i) => (
                 <motion.div
                   key={l.to}
@@ -141,7 +141,7 @@ const Navbar = () => {
                   <Link
                     to={l.to}
                     onClick={() => setOpen(false)}
-                    className={`block text-sm font-medium py-2.5 px-3 rounded-lg transition-colors ${
+                    className={`block text-sm font-medium py-3 px-4 rounded-lg transition-colors ${
                       location.pathname === l.to ? "text-primary bg-primary/5" : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                     }`}
                   >
@@ -149,22 +149,22 @@ const Navbar = () => {
                   </Link>
                 </motion.div>
               ))}
-              <div className="pt-3 mt-2 border-t border-border/50 space-y-1">
+              <div className="pt-4 mt-3 border-t border-border/50 space-y-1">
                 {user ? (
                   <>
-                    <Link to={role === "admin" ? "/admin" : "/dashboard"} onClick={() => setOpen(false)} className="block text-sm font-medium text-muted-foreground py-2.5 px-3 rounded-lg hover:bg-secondary/60">
+                    <Link to={role === "admin" ? "/admin" : "/dashboard"} onClick={() => setOpen(false)} className="block text-sm font-medium text-muted-foreground py-3 px-4 rounded-lg hover:bg-secondary/60">
                       {role === "admin" ? "Admin Panel" : "Dashboard"}
                     </Link>
-                    <button onClick={() => { signOut(); setOpen(false); }} className="block w-full text-left text-sm font-medium text-muted-foreground py-2.5 px-3 rounded-lg hover:bg-secondary/60">
+                    <button onClick={() => { signOut(); setOpen(false); }} className="block w-full text-left text-sm font-medium text-muted-foreground py-3 px-4 rounded-lg hover:bg-secondary/60">
                       Logout
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link to="/login" onClick={() => setOpen(false)} className="block text-sm font-medium text-muted-foreground py-2.5 px-3 rounded-lg hover:bg-secondary/60">
+                    <Link to="/login" onClick={() => setOpen(false)} className="block text-sm font-medium text-muted-foreground py-3 px-4 rounded-lg hover:bg-secondary/60">
                       Login
                     </Link>
-                    <Link to="/categories" onClick={() => setOpen(false)} className="block text-center btn-primary-gradient text-sm py-2.5 mt-2">
+                    <Link to="/categories" onClick={() => setOpen(false)} className="block text-center btn-primary-gradient text-sm !py-3 mt-3">
                       Browse Plans
                     </Link>
                   </>

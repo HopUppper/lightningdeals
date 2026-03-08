@@ -14,7 +14,7 @@ const LimitedOffer = () => {
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true }}
           transition={{ type: "spring", damping: 20, stiffness: 80 }}
-          className="relative overflow-hidden rounded-3xl p-8 sm:p-12 noise-overlay"
+          className="relative overflow-hidden rounded-3xl p-10 sm:p-14 noise-overlay"
           style={{ background: "var(--gradient-hero)" }}
         >
           <motion.div
@@ -28,14 +28,14 @@ const LimitedOffer = () => {
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           />
 
-          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
             <div>
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-dark border border-white/10 mb-4"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-dark border border-white/10 mb-5"
               >
                 <Clock className="w-3.5 h-3.5 text-accent" />
                 <span className="text-sm font-medium text-primary-foreground/70">Limited Time Offer</span>
@@ -45,7 +45,7 @@ const LimitedOffer = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-primary-foreground mb-3 tracking-tight"
+                className="!text-3xl sm:!text-4xl lg:!text-5xl font-display font-bold text-primary-foreground mb-4 tracking-tight"
               >
                 Get <span className="gradient-text-gold">70% OFF</span> on All Plans
               </motion.h2>
@@ -54,7 +54,7 @@ const LimitedOffer = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
-                className="text-primary-foreground/50 max-w-lg mb-5"
+                className="text-primary-foreground/50 max-w-lg mb-6 text-lg"
               >
                 Don't miss our biggest sale. Premium tools at unbeatable prices.
               </motion.p>
@@ -66,7 +66,7 @@ const LimitedOffer = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.4, type: "spring", damping: 16 }}
             >
-              <Link to="/categories" className="btn-gold inline-flex items-center gap-2 whitespace-nowrap text-base group">
+              <Link to="/categories" className="btn-gold inline-flex items-center gap-2.5 whitespace-nowrap text-base group">
                 Shop Now
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>

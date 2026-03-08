@@ -7,14 +7,12 @@ import { Shield, Zap, Heart, Users } from "lucide-react";
 const About = () => (
   <div className="min-h-screen bg-background">
     <Navbar />
-    <div className="pt-24 section-padding">
+    <div className="pt-28 section-padding">
       <div className="container-tight max-w-3xl">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-          <span className="text-sm font-semibold text-primary uppercase tracking-wider">About Us</span>
-          <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground mt-3">
-            We Make Premium Affordable
-          </h1>
-          <p className="text-muted-foreground mt-4 leading-relaxed">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="page-header">
+          <span className="section-eyebrow">About Us</span>
+          <h1 className="section-title">We Make Premium Affordable</h1>
+          <p className="section-subtitle mx-auto">
             Lightning Deals is India's trusted platform for discounted digital subscriptions. We partner with authorized resellers to bring you premium software at prices that won't break the bank.
           </p>
         </motion.div>
@@ -26,10 +24,12 @@ const About = () => (
             { icon: Heart, title: "Customer First", desc: "24/7 support and hassle-free experience guaranteed." },
             { icon: Users, title: "10K+ Trust Us", desc: "Join thousands of happy customers across India." },
           ].map((item, i) => (
-            <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card p-6">
-              <item.icon className="w-8 h-8 text-primary mb-4" />
-              <h3 className="font-display font-semibold text-foreground mb-2">{item.title}</h3>
-              <p className="text-sm text-muted-foreground">{item.desc}</p>
+            <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="glass-card p-8">
+              <div className="w-12 h-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-5">
+                <item.icon className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-display font-semibold text-foreground mb-2.5 text-lg">{item.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
             </motion.div>
           ))}
         </div>
