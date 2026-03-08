@@ -58,7 +58,7 @@ const AdminDashboard = () => {
   const tabLabel = (tab: string) => {
     const labels: Record<string, string> = {
       overview: "Overview", orders: "Orders", products: "Products",
-      categories: "Categories", coupons: "Coupons", "error-logs": "Error Logs",
+      categories: "Categories", coupons: "Coupons", blog: "Blog", "error-logs": "Error Logs",
     };
     return labels[tab] || tab;
   };
