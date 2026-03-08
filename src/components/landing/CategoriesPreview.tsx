@@ -13,15 +13,6 @@ const PRIORITY_SLUGS = [
   "business-collaboration",
 ];
 
-const iconMap: Record<string, string> = {
-  "ai-tools": "⚡",
-  "design-tools": "🎨",
-  "developer-tools": "🚀",
-  "marketing-tools": "📈",
-  "productivity-tools": "⚙️",
-  "business-collaboration": "💼",
-};
-
 const CategoriesPreview = memo(() => {
   const [categories, setCategories] = useState<any[]>([]);
 
@@ -38,8 +29,7 @@ const CategoriesPreview = memo(() => {
           .map((slug) => data.find((c) => c.slug === slug))
           .filter(Boolean);
         const remaining = data.filter((c) => !PRIORITY_SLUGS.includes(c.slug));
-        const final = [...prioritized, ...remaining].slice(0, 6);
-        setCategories(final);
+        setCategories([...prioritized, ...remaining].slice(0, 6));
       } catch (e) {
         console.error("Failed to fetch categories:", e);
       }
@@ -50,59 +40,46 @@ const CategoriesPreview = memo(() => {
   if (categories.length === 0) return null;
 
   return (
-    <section className="section-padding bg-secondary/20 relative overflow-hidden">
-      <div className="absolute inset-0 mesh-gradient pointer-events-none" />
-
+    <section className="section-padding relative overflow-hidden">
       <div className="container-tight relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ type: "spring", damping: 25 }}
-          className="text-center mb-14"
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center mb-16"
         >
-          <span className="section-eyebrow">Explore</span>
-          <h2 className="section-title">Browse by Category</h2>
-          <p className="section-subtitle mx-auto">Find the perfect tools for your needs</p>
+          <span className="section-eyebrow">Categories</span>
+          <h2 className="section-title">browse by category</h2>
+          <p className="section-subtitle mx-auto">Find the perfect tools for your workflow</p>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {categories.map((cat, i) => (
             <motion.div
               key={cat.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-30px" }}
-              transition={{ delay: i * 0.05, type: "spring", damping: 25 }}
+              transition={{ delay: i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
               <Link
                 to={`/categories/${cat.slug}`}
-                className="glass-card p-7 flex flex-col items-center text-center group h-full"
+                className="glass-card p-8 flex flex-col items-start group h-full"
               >
-                <span className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-200">
-                  {iconMap[cat.slug] || "📦"}
-                </span>
-                <h3 className="font-display font-semibold text-foreground text-sm group-hover:text-primary transition-colors duration-200">
+                <h3 className="font-body font-semibold text-foreground text-sm group-hover:text-accent transition-colors duration-300">
                   {cat.name}
                 </h3>
                 {cat.description && (
-                  <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">{cat.description}</p>
+                  <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed font-body">{cat.description}</p>
                 )}
+                <div className="mt-auto pt-4 flex items-center gap-1 text-xs text-muted-foreground group-hover:text-accent transition-colors duration-300 font-body">
+                  Explore <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
+                </div>
               </Link>
             </motion.div>
           ))}
         </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center mt-10"
-        >
-          <Link to="/categories" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors group">
-            View All Categories <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
-          </Link>
-        </motion.div>
       </div>
     </section>
   );
