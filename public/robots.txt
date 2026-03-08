@@ -1,6 +1,15 @@
 User-agent: Googlebot
 Allow: /
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /signup
+Disallow: /reset-password
+Disallow: /forgot-password
 
+Sitemap: https://yxflvfacmosjsnkeiigy.supabase.co/functions/v1/generate-sitemap
 User-agent: Bingbot
 Allow: /
 

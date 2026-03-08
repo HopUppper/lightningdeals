@@ -13,6 +13,7 @@ import SEOHead from "@/components/SEOHead";
 import CountdownTimer from "@/components/CountdownTimer";
 import ProductLogo from "@/components/ProductLogo";
 import { useCompare } from "@/contexts/CompareContext";
+import JsonLd, { productSchema, breadcrumbSchema } from "@/components/JsonLd";
 
 const WHATSAPP_NUMBER = "917695956938";
 
@@ -183,6 +184,12 @@ const ProductDetail = () => {
         ogImage={product.logo_url || undefined}
       />
       <Navbar />
+      <JsonLd data={productSchema(product)} />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", url: "https://lightningdeals.lovable.app" },
+        { name: "Categories", url: "https://lightningdeals.lovable.app/categories" },
+        { name: product.name, url: `https://lightningdeals.lovable.app/product/${product.slug}` },
+      ])} />
       <div className="pt-28 section-padding">
         <div className="container-tight">
           <Link to="/categories" className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5">
