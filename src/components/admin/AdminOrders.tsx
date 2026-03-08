@@ -74,6 +74,13 @@ const AdminOrders = ({ initialFilter }: Props) => {
       }
       toast.success(`Order marked as ${status}`);
 
+      // Auto-generate invoice on delivery
+      if (status === "delivered") {
+        supabase.functions.invoke("generate-invoice", {
+          body: { order_id: orderId },
+        }).then(() => toast.success("Invoice auto-generated")).catch(() => {});
+      }
+
       // Trigger email notification for meaningful status changes
       if (["processing", "delivered", "cancelled", "refunded"].includes(status)) {
         supabase.functions.invoke("send-order-notification", {
