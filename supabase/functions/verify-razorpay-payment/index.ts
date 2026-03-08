@@ -78,6 +78,8 @@ serve(async (req) => {
           customer_country: order_data.customer_country || '',
           notes: order_data.notes || '',
           order_status: 'pending',
+          coupon_code: order_data.coupon_code || '',
+          coupon_discount: order_data.coupon_discount || 0,
         }).select().single();
 
         if (error) {
