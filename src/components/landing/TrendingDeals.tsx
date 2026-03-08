@@ -80,14 +80,21 @@ const TrendingDeals = () => {
 
   useEffect(() => {
     const fetchTrending = async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false })
-        .limit(8);
-      setProducts(data ?? []);
-      setLoading(false);
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("id, name, slug, description, price_original, price_discounted, duration, logo_url, color, offer_badge")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false })
+          .limit(8);
+        if (error) throw error;
+        setProducts(data ?? []);
+      } catch (e) {
+        console.error("Failed to fetch trending deals:", e);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchTrending();
   }, []);

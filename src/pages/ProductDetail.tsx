@@ -24,25 +24,31 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
-      let { data } = await supabase
-        .from("products")
-        .select("*, categories(name, slug)")
-        .eq("slug", id || "")
-        .eq("is_active", true)
-        .maybeSingle();
-
-      if (!data) {
-        const res = await supabase
+      try {
+        let { data } = await supabase
           .from("products")
           .select("*, categories(name, slug)")
-          .eq("id", id || "")
+          .eq("slug", id || "")
           .eq("is_active", true)
           .maybeSingle();
-        data = res.data;
-      }
 
-      setProduct(data);
-      setLoading(false);
+        if (!data) {
+          const res = await supabase
+            .from("products")
+            .select("*, categories(name, slug)")
+            .eq("id", id || "")
+            .eq("is_active", true)
+            .maybeSingle();
+          data = res.data;
+        }
+
+        setProduct(data);
+      } catch (e) {
+        console.error("Failed to fetch product:", e);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchProduct();
   }, [id]);

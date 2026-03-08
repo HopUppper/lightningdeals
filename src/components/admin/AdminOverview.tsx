@@ -38,48 +38,53 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [ordersRes, productsRes] = await Promise.all([
-        supabase.from("orders").select("*, products(name, logo_url)").order("created_at", { ascending: false }),
-        supabase.from("products").select("id", { count: "exact" }),
-      ]);
+      try {
+        const [ordersRes, productsRes] = await Promise.all([
+          supabase.from("orders").select("*, products(name, logo_url)").order("created_at", { ascending: false }),
+          supabase.from("products").select("id", { count: "exact" }),
+        ]);
 
-      const orderData = ordersRes.data ?? [];
-      setOrders(orderData.slice(0, 8));
+        const orderData = ordersRes.data ?? [];
+        setOrders(orderData.slice(0, 8));
 
-      const paidOrders = orderData.filter((o) => o.payment_status === "paid");
-      const pendingOrders = orderData.filter((o) => o.order_status === "pending").length;
-      const uniqueUsers = new Set(orderData.map((o) => o.user_id));
-      const totalRevenue = paidOrders.reduce((sum, o) => sum + Number(o.payment_amount), 0);
+        const paidOrders = orderData.filter((o) => o.payment_status === "paid");
+        const pendingOrders = orderData.filter((o) => o.order_status === "pending").length;
+        const uniqueUsers = new Set(orderData.map((o) => o.user_id));
+        const totalRevenue = paidOrders.reduce((sum, o) => sum + Number(o.payment_amount), 0);
 
-      const productMap = new Map<string, { name: string; count: number; revenue: number }>();
-      paidOrders.forEach((o) => {
-        const name = o.products?.name || "Unknown";
-        const existing = productMap.get(name) || { name, count: 0, revenue: 0 };
-        existing.count++;
-        existing.revenue += Number(o.payment_amount);
-        productMap.set(name, existing);
-      });
-      setTopProducts(Array.from(productMap.values()).sort((a, b) => b.count - a.count).slice(0, 5));
+        const productMap = new Map<string, { name: string; count: number; revenue: number }>();
+        paidOrders.forEach((o) => {
+          const name = o.products?.name || "Unknown";
+          const existing = productMap.get(name) || { name, count: 0, revenue: 0 };
+          existing.count++;
+          existing.revenue += Number(o.payment_amount);
+          productMap.set(name, existing);
+        });
+        setTopProducts(Array.from(productMap.values()).sort((a, b) => b.count - a.count).slice(0, 5));
 
-      const dayMap = new Map<string, { revenue: number; orders: number }>();
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const key = d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-        dayMap.set(key, { revenue: 0, orders: 0 });
+        const dayMap = new Map<string, { revenue: number; orders: number }>();
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const key = d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+          dayMap.set(key, { revenue: 0, orders: 0 });
+        }
+        paidOrders.forEach((o) => {
+          const key = new Date(o.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+          const existing = dayMap.get(key);
+          if (existing) { existing.revenue += Number(o.payment_amount); existing.orders++; }
+        });
+        setDailySales(Array.from(dayMap.entries()).map(([date, v]) => ({ date, ...v })));
+
+        setStats({
+          revenue: totalRevenue, customers: uniqueUsers.size,
+          products: productsRes.count ?? 0, orderCount: orderData.length, pendingOrders
+        });
+      } catch (e) {
+        console.error("Failed to fetch admin overview:", e);
+      } finally {
+        setLoading(false);
       }
-      paidOrders.forEach((o) => {
-        const key = new Date(o.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-        const existing = dayMap.get(key);
-        if (existing) { existing.revenue += Number(o.payment_amount); existing.orders++; }
-      });
-      setDailySales(Array.from(dayMap.entries()).map(([date, v]) => ({ date, ...v })));
-
-      setStats({
-        revenue: totalRevenue, customers: uniqueUsers.size,
-        products: productsRes.count ?? 0, orderCount: orderData.length, pendingOrders
-      });
-      setLoading(false);
     };
     fetchData();
   }, []);

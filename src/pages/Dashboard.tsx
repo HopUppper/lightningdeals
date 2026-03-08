@@ -32,17 +32,22 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!user) return;
-      const [profileRes, ordersRes] = await Promise.all([
-        supabase.from("profiles").select("*").eq("user_id", user.id).single(),
-        supabase.from("orders").select("*, products(name, logo_url, duration, delivery, slug)").eq("user_id", user.id).order("created_at", { ascending: false }),
-      ]);
-      setProfile(profileRes.data);
-      setOrders(ordersRes.data ?? []);
-      if (profileRes.data) {
-        setProfileForm({ name: profileRes.data.name || "", phone: profileRes.data.phone || "" });
+      if (!user) { setLoading(false); return; }
+      try {
+        const [profileRes, ordersRes] = await Promise.all([
+          supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
+          supabase.from("orders").select("*, products(name, logo_url, duration, delivery, slug)").eq("user_id", user.id).order("created_at", { ascending: false }),
+        ]);
+        setProfile(profileRes.data);
+        setOrders(ordersRes.data ?? []);
+        if (profileRes.data) {
+          setProfileForm({ name: profileRes.data.name || "", phone: profileRes.data.phone || "" });
+        }
+      } catch (e) {
+        console.error("Failed to fetch dashboard data:", e);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchData();
   }, [user]);

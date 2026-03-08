@@ -11,27 +11,31 @@ const Categories = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchCats = async () => {
       setLoading(true);
-      // Single query — get categories + count via products join
-      const { data: cats } = await supabase
-        .from("categories")
-        .select("id, name, slug, description, icon, products(id)")
-        .eq("products.is_active", true)
-        .order("name");
-
-      if (!cats) { setCategories([]); setLoading(false); return; }
-
-      setCategories(
-        cats.map((c: any) => ({
-          ...c,
-          count: Array.isArray(c.products) ? c.products.length : 0,
-          products: undefined,
-        }))
-      );
-      setLoading(false);
+      try {
+        const { data: cats, error } = await supabase
+          .from("categories")
+          .select("id, name, slug, description, icon, products(id)")
+          .eq("products.is_active", true)
+          .order("name");
+        if (error) throw error;
+        if (!cats) { setCategories([]); return; }
+        setCategories(
+          cats.map((c: any) => ({
+            ...c,
+            count: Array.isArray(c.products) ? c.products.length : 0,
+            products: undefined,
+          }))
+        );
+      } catch (e) {
+        console.error("Failed to fetch categories:", e);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetch();
+    fetchCats();
   }, []);
 
   return (

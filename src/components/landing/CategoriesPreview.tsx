@@ -27,20 +27,22 @@ const CategoriesPreview = memo(() => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data } = await supabase
-        .from("categories")
-        .select("id, name, slug, description")
-        .order("name");
-
-      if (!data) return;
-
-      // Prioritize the 6 selected categories, then fill with others up to 6
-      const prioritized = PRIORITY_SLUGS
-        .map((slug) => data.find((c) => c.slug === slug))
-        .filter(Boolean);
-      const remaining = data.filter((c) => !PRIORITY_SLUGS.includes(c.slug));
-      const final = [...prioritized, ...remaining].slice(0, 6);
-      setCategories(final);
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .select("id, name, slug, description")
+          .order("name");
+        if (error) throw error;
+        if (!data) return;
+        const prioritized = PRIORITY_SLUGS
+          .map((slug) => data.find((c) => c.slug === slug))
+          .filter(Boolean);
+        const remaining = data.filter((c) => !PRIORITY_SLUGS.includes(c.slug));
+        const final = [...prioritized, ...remaining].slice(0, 6);
+        setCategories(final);
+      } catch (e) {
+        console.error("Failed to fetch categories:", e);
+      }
     };
     fetchCategories();
   }, []);
