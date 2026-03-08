@@ -103,6 +103,38 @@ const Dashboard = () => {
     toast.success("Removed from wishlist");
   };
 
+  const handleReorder = (order: any) => {
+    if (order.products?.slug) {
+      navigate(`/product/${order.products.slug}`);
+    }
+  };
+
+  const handleGenerateInvoice = async (order: any) => {
+    setGeneratingInvoice(order.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-invoice", {
+        body: { order_id: order.id },
+      });
+      if (error || !data?.success) {
+        toast.error("Failed to generate invoice");
+      } else {
+        setOrders((prev) => prev.map((o) => o.id === order.id ? { ...o, invoice_url: data.invoice_path } : o));
+        toast.success("Invoice generated!");
+      }
+    } catch {
+      toast.error("Failed to generate invoice");
+    } finally {
+      setGeneratingInvoice(null);
+    }
+  };
+
+  const deleteReview = async (reviewId: string) => {
+    const { error } = await supabase.from("reviews").delete().eq("id", reviewId);
+    if (error) { toast.error("Failed to delete review"); return; }
+    setMyReviews((prev) => prev.filter((r) => r.id !== reviewId));
+    toast.success("Review deleted");
+  };
+
   const deliveredOrders = orders.filter((o) => o.order_status === "delivered");
   const pendingOrders = orders.filter((o) => o.order_status === "pending" || o.order_status === "processing");
 
