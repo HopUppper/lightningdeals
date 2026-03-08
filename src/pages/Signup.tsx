@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 
 const Signup = () => {
   const [name, setName] = useState("");
