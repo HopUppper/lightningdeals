@@ -78,7 +78,6 @@ const CategoryListing = () => {
     fetchPage(0, true, sortBy);
   }, [slug, fetchPage, sortBy]);
 
-  // Infinite scroll observer
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect();
     observerRef.current = new IntersectionObserver(
@@ -112,31 +111,31 @@ const CategoryListing = () => {
       <Navbar />
       <div className="pt-24 section-padding">
         <div className="container-tight">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <Link to="/categories" className="text-sm text-primary hover:underline">← All Categories</Link>
-            <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground mt-4">{categoryName}</h1>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+            <Link to="/categories" className="text-sm text-primary hover:text-primary/80 transition-colors font-medium">← All Categories</Link>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-foreground mt-4 tracking-tight">{categoryName}</h1>
             <p className="text-muted-foreground mt-2">
               {loading ? "Loading..." : `${totalCount} subscriptions available at massive discounts`}
             </p>
           </motion.div>
 
-          {/* Sort controls */}
+          {/* Sort */}
           {!loading && products.length > 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex items-center gap-2 mb-8 flex-wrap"
             >
-              <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+              <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground" />
               <span className="text-sm text-muted-foreground mr-1">Sort:</span>
               {sortOptions.map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => handleSort(opt.value)}
-                  className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-200 ${
+                  className={`text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all duration-300 ${
                     sortBy === opt.value
                       ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      : "bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground"
                   }`}
                 >
                   {opt.label}
@@ -151,7 +150,7 @@ const CategoryListing = () => {
             </div>
           ) : (
             <>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {products.map((p, i) => {
                   const discount = p.price_original > 0
                     ? Math.round(((p.price_original - p.price_discounted) / p.price_original) * 100)
@@ -162,29 +161,27 @@ const CategoryListing = () => {
                       key={p.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: Math.min(i % PAGE_SIZE, 11) * 0.04 }}
+                      transition={{ delay: Math.min(i % PAGE_SIZE, 11) * 0.04, type: "spring", damping: 20 }}
                     >
                       <Link to={`/product/${p.slug}`} className="glass-card p-6 block group relative overflow-hidden h-full">
                         <ProductOfferBadge product={p} fallbackDiscount={discount} />
 
-                        {/* Logo */}
-                        <div className="flex items-center gap-3 mb-4 group-hover:scale-110 transition-transform duration-300">
-                          <ProductLogo name={p.name} logoUrl={p.logo_url} color={p.color} size="w-14 h-14" fontSize="text-xl" />
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="group-hover:scale-105 transition-transform duration-500">
+                            <ProductLogo name={p.name} logoUrl={p.logo_url} color={p.color} size="w-14 h-14" fontSize="text-xl" />
+                          </div>
                         </div>
 
-                        {/* Name + description */}
-                        <h3 className="font-display font-semibold text-foreground text-lg group-hover:text-primary transition-colors duration-200">
+                        <h3 className="font-display font-semibold text-foreground text-lg group-hover:text-primary transition-colors duration-300 tracking-tight">
                           {p.name}
                         </h3>
                         <p className="text-sm text-muted-foreground mt-2 leading-relaxed line-clamp-2">{p.description}</p>
 
-                        {/* Duration tag */}
                         <div className="flex items-center gap-1.5 mt-3">
                           <Clock className="w-3 h-3 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">{p.duration}</span>
                         </div>
 
-                        {/* Price */}
                         <div className="flex items-center gap-2 mt-3">
                           {p.price_discounted > 0 ? (
                             <>
@@ -198,13 +195,12 @@ const CategoryListing = () => {
                           )}
                         </div>
 
-                        {/* Hover CTA */}
                         <div className="mt-4 flex items-center justify-between">
-                          <span className="text-sm font-semibold text-primary group-hover:translate-x-1 transition-transform duration-200">
+                          <span className="text-sm font-semibold text-primary opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
                             View Details →
                           </span>
                           {p.offer_badge && (
-                            <Flame className="w-4 h-4 text-accent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                            <Flame className="w-4 h-4 text-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           )}
                         </div>
                       </Link>

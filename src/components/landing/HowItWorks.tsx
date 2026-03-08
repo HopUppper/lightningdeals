@@ -24,20 +24,22 @@ const steps = [
 
 const container = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.15 } },
+  show: { transition: { staggerChildren: 0.12 } },
 };
 
 const card = {
-  hidden: { opacity: 0, y: 40, scale: 0.95 },
+  hidden: { opacity: 0, y: 40, scale: 0.96 },
   show: {
     opacity: 1, y: 0, scale: 1,
-    transition: { type: "spring" as const, damping: 18, stiffness: 90 },
+    transition: { type: "spring" as const, damping: 20, stiffness: 90 },
   },
 };
 
 const HowItWorks = () => (
-  <section className="section-padding bg-background">
-    <div className="container-tight">
+  <section className="section-padding bg-secondary/30 relative overflow-hidden">
+    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/3 rounded-full blur-[150px] pointer-events-none" />
+
+    <div className="container-tight relative z-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -46,26 +48,33 @@ const HowItWorks = () => (
         className="text-center mb-16"
       >
         <span className="text-sm font-semibold text-primary uppercase tracking-wider">Simple Process</span>
-        <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mt-3">How It Works</h2>
+        <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mt-3 tracking-tight">How It Works</h2>
+        <p className="text-muted-foreground mt-3 max-w-md mx-auto">Three simple steps to get your premium subscription</p>
       </motion.div>
 
       <motion.div
-        className="grid md:grid-cols-3 gap-8"
+        className="grid md:grid-cols-3 gap-6"
         variants={container}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
       >
-        {steps.map((s) => (
-          <motion.div key={s.step} variants={card} className="glass-card p-8 text-center relative group">
-            <div className="absolute top-6 right-6 text-5xl font-display font-bold text-border/50 select-none group-hover:text-primary/15 transition-colors duration-500">
-              {s.step}
+        {steps.map((s, i) => (
+          <motion.div key={s.step} variants={card} className="relative">
+            {/* Connecting line */}
+            {i < steps.length - 1 && (
+              <div className="hidden md:block absolute top-12 left-[calc(50%+40px)] right-[calc(-50%+40px)] h-px bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
+            )}
+            <div className="glass-card p-8 text-center relative group h-full">
+              <div className="absolute top-6 right-6 text-4xl font-display font-bold text-primary/5 select-none group-hover:text-primary/10 transition-colors duration-700">
+                {s.step}
+              </div>
+              <div className="w-14 h-14 rounded-2xl bg-primary/8 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/15 group-hover:scale-110 transition-all duration-500">
+                <s.icon className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-display font-semibold text-foreground mb-3 tracking-tight">{s.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-400">
-              <s.icon className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="text-lg font-display font-semibold text-foreground mb-3">{s.title}</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
           </motion.div>
         ))}
       </motion.div>
