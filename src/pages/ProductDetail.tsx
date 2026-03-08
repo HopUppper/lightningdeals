@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import ProductOfferBadge from "@/components/ProductOfferBadge";
+import SEOHead from "@/components/SEOHead";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
