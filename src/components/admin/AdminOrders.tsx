@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Eye, MessageCircle, StickyNote } from "lucide-react";
+import { Search, Eye, MessageCircle, CheckCircle, Truck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-const statuses = ["all", "pending", "processing", "delivered", "cancelled", "refunded"] as const;
+const allStatuses = ["all", "pending", "processing", "delivered", "cancelled", "refunded"] as const;
 
 const statusColor = (status: string) => {
   const map: Record<string, string> = {
@@ -18,10 +18,14 @@ const statusColor = (status: string) => {
   return map[status] ?? "bg-muted text-muted-foreground";
 };
 
-const AdminOrders = () => {
+interface Props {
+  initialFilter?: string;
+}
+
+const AdminOrders = ({ initialFilter }: Props) => {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>(initialFilter || "all");
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [statusHistory, setStatusHistory] = useState<any[]>([]);
@@ -43,6 +47,10 @@ const AdminOrders = () => {
   };
 
   useEffect(() => { fetchOrders(); }, [filterStatus]);
+
+  useEffect(() => {
+    if (initialFilter) setFilterStatus(initialFilter);
+  }, [initialFilter]);
 
   const openOrderDetail = async (order: any) => {
     setSelectedOrder(order);
@@ -68,12 +76,23 @@ const AdminOrders = () => {
     }
   };
 
+  const updatePayment = async (orderId: string, paymentStatus: string) => {
+    const { error } = await supabase.from("orders").update({ payment_status: paymentStatus } as any).eq("id", orderId);
+    if (error) {
+      toast.error("Failed to update payment");
+    } else {
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, payment_status: paymentStatus } : o)));
+      toast.success(`Payment marked as ${paymentStatus}`);
+    }
+  };
+
   const filtered = orders.filter((o) => {
     if (!search) return true;
     const s = search.toLowerCase();
     return (
       o.customer_name?.toLowerCase().includes(s) ||
       o.customer_email?.toLowerCase().includes(s) ||
+      o.customer_phone?.toLowerCase().includes(s) ||
       o.payment_id?.toLowerCase().includes(s) ||
       o.id?.toLowerCase().includes(s) ||
       o.products?.name?.toLowerCase().includes(s)
@@ -83,7 +102,7 @@ const AdminOrders = () => {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <h2 className="text-xl font-display font-bold text-foreground">All Orders ({orders.length})</h2>
+        <h2 className="text-xl font-display font-bold text-foreground">Orders ({orders.length})</h2>
         <div className="flex gap-2 items-center flex-wrap">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -95,7 +114,7 @@ const AdminOrders = () => {
             />
           </div>
           <div className="flex gap-1 bg-muted/50 rounded-lg p-1 flex-wrap">
-            {statuses.map((s) => (
+            {allStatuses.map((s) => (
               <button
                 key={s}
                 onClick={() => setFilterStatus(s)}
@@ -120,39 +139,43 @@ const AdminOrders = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Customer</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Product</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Amount</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Payment</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs">Date</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs">Customer</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs">Product</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs">Amount</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs">Payment</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs">Status</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground text-xs">Quick Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((order) => (
                   <tr key={order.id} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
-                    <td className="p-4 text-xs text-muted-foreground whitespace-nowrap">
+                    <td className="p-3 text-xs text-muted-foreground whitespace-nowrap">
                       {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                     </td>
-                    <td className="p-4">
-                      <p className="font-medium text-foreground text-sm">{order.customer_name || "—"}</p>
-                      <p className="text-xs text-muted-foreground">{order.customer_email}</p>
+                    <td className="p-3">
+                      <p className="font-medium text-foreground text-xs">{order.customer_name || "—"}</p>
+                      <p className="text-[10px] text-muted-foreground">{order.customer_phone || order.customer_email}</p>
                     </td>
-                    <td className="p-4 text-foreground text-sm">{order.products?.name ?? "—"}</td>
-                    <td className="p-4 font-display font-bold text-foreground">₹{order.payment_amount}</td>
-                    <td className="p-4">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${
-                        order.payment_status === "paid" ? "bg-primary/20 text-primary" : "bg-accent/20 text-accent-foreground"
-                      }`}>
+                    <td className="p-3 text-foreground text-xs">{order.products?.name ?? "—"}</td>
+                    <td className="p-3 font-display font-bold text-foreground text-xs">₹{order.payment_amount}</td>
+                    <td className="p-3">
+                      <button
+                        onClick={() => updatePayment(order.id, order.payment_status === "paid" ? "pending" : "paid")}
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-medium capitalize cursor-pointer transition-colors ${
+                          order.payment_status === "paid" ? "bg-primary/20 text-primary" : "bg-accent/20 text-accent-foreground hover:bg-primary/20 hover:text-primary"
+                        }`}
+                        title="Click to toggle payment status"
+                      >
                         {order.payment_status}
-                      </span>
+                      </button>
                     </td>
-                    <td className="p-4">
+                    <td className="p-3">
                       <select
                         value={order.order_status}
                         onChange={(e) => updateStatus(order.id, e.target.value)}
-                        className={`text-xs border-0 rounded-full px-2.5 py-1 font-medium capitalize cursor-pointer ${statusColor(order.order_status)}`}
+                        className={`text-[10px] border-0 rounded-full px-2 py-0.5 font-medium capitalize cursor-pointer ${statusColor(order.order_status)}`}
                       >
                         <option value="pending">Pending</option>
                         <option value="processing">Processing</option>
@@ -161,10 +184,28 @@ const AdminOrders = () => {
                         <option value="refunded">Refunded</option>
                       </select>
                     </td>
-                    <td className="p-4">
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openOrderDetail(order)}>
-                          <Eye className="w-4 h-4" />
+                    <td className="p-3">
+                      <div className="flex gap-0.5">
+                        {order.order_status !== "delivered" && (
+                          <Button
+                            variant="ghost" size="icon" className="h-7 w-7 text-primary"
+                            onClick={() => updateStatus(order.id, "delivered")}
+                            title="Mark Delivered"
+                          >
+                            <Truck className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
+                        {order.payment_status !== "paid" && (
+                          <Button
+                            variant="ghost" size="icon" className="h-7 w-7 text-emerald-500"
+                            onClick={() => updatePayment(order.id, "paid")}
+                            title="Mark Paid"
+                          >
+                            <CheckCircle className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openOrderDetail(order)} title="View Details">
+                          <Eye className="w-3.5 h-3.5" />
                         </Button>
                         {order.customer_phone && (
                           <a
@@ -172,17 +213,26 @@ const AdminOrders = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MessageCircle className="w-4 h-4" />
+                            <Button variant="ghost" size="icon" className="h-7 w-7" title="WhatsApp">
+                              <MessageCircle className="w-3.5 h-3.5" />
                             </Button>
                           </a>
+                        )}
+                        {order.order_status !== "cancelled" && (
+                          <Button
+                            variant="ghost" size="icon" className="h-7 w-7 text-destructive"
+                            onClick={() => updateStatus(order.id, "cancelled")}
+                            title="Cancel"
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                          </Button>
                         )}
                       </div>
                     </td>
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={7} className="p-8 text-center text-muted-foreground">No orders found</td></tr>
+                  <tr><td colSpan={7} className="p-8 text-center text-muted-foreground text-sm">No orders found</td></tr>
                 )}
               </tbody>
             </table>
@@ -215,7 +265,6 @@ const AdminOrders = () => {
                 </div>
               )}
 
-              {/* Status Buttons */}
               <div className="flex gap-2 pt-2 flex-wrap">
                 {["pending", "processing", "delivered", "cancelled", "refunded"].map((s) => (
                   <Button
@@ -230,7 +279,6 @@ const AdminOrders = () => {
                 ))}
               </div>
 
-              {/* Status Timeline */}
               {statusHistory.length > 0 && (
                 <div>
                   <span className="text-muted-foreground block text-xs mb-2 font-semibold">Order Timeline</span>
