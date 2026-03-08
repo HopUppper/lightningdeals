@@ -111,6 +111,7 @@ const AdminDashboard = () => {
 
           <main className="flex-1 p-4 sm:p-6 overflow-auto">
             {activeTab === "overview" && <AdminOverview onNavigate={setActiveTab} onQuickAction={handleQuickAction} />}
+            {activeTab === "analytics" && <AdminAnalytics />}
             {activeTab === "orders" && <AdminOrders initialFilter={orderFilter} />}
             {activeTab === "products" && <AdminProducts autoOpenNew={autoOpenNewProduct} onNewHandled={() => setAutoOpenNewProduct(false)} />}
             {activeTab === "categories" && <AdminCategories />}
