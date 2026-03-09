@@ -32,6 +32,7 @@ const ProductDetail = () => {
   const { user } = useAuth();
   const { addToCompare, isInCompare, removeFromCompare } = useCompare();
 
+  // Fetch public product data (no auth dependency)
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
@@ -64,15 +65,6 @@ const ProductDetail = () => {
           });
           setReviews(reviewsData ?? []);
 
-          // Check wishlist - requires auth, use supabase client
-          if (user) {
-            try {
-              const { data: wl } = await supabase
-                .from("wishlist").select("id").eq("user_id", user.id).eq("product_id", data.id).maybeSingle();
-              setWishlisted(!!wl);
-            } catch { /* ignore auth errors */ }
-          }
-
           // Fetch related products - public data
           if (data.category_id) {
             const { data: related } = await queryPublic({
@@ -92,7 +84,20 @@ const ProductDetail = () => {
       }
     };
     fetchProduct();
-  }, [id, user]);
+  }, [id]);
+
+  // Check wishlist separately (uses auth client, non-blocking)
+  useEffect(() => {
+    if (!user || !product) return;
+    const checkWishlist = async () => {
+      try {
+        const { data: wl } = await supabase
+          .from("wishlist").select("id").eq("user_id", user.id).eq("product_id", product.id).maybeSingle();
+        setWishlisted(!!wl);
+      } catch { /* ignore auth errors */ }
+    };
+    checkWishlist();
+  }, [user, product]);
 
   const toggleWishlist = useCallback(async () => {
     if (!user) { toast.error("Please login to save to wishlist"); return; }
