@@ -50,8 +50,8 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
     const fetchData = async () => {
       try {
         const [ordersRes, productsRes, profilesRes, reviewsRes] = await Promise.all([
-          supabase.from("orders").select("*, products(name, logo_url)").order("created_at", { ascending: false }),
-          supabase.from("products").select("id", { count: "exact" }),
+          supabase.from("orders").select("*, products(name, logo_url, buying_price)").order("created_at", { ascending: false }),
+          supabase.from("products").select("id, buying_price", { count: "exact" }),
           supabase.from("profiles").select("user_id, name, email, created_at").order("created_at", { ascending: false }).limit(50),
           supabase.from("reviews").select("rating"),
         ]);
