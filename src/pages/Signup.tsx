@@ -107,6 +107,16 @@ const Signup = () => {
                 </button>
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-foreground">Phone Number</Label>
+                <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 bg-secondary border-border" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="location" className="text-foreground">Location</Label>
+                <Input id="location" placeholder="e.g. Mumbai, India" value={location} onChange={(e) => setLocation(e.target.value)} className="h-12 bg-secondary border-border" />
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="referral" className="text-foreground">Referral Code <span className="text-muted-foreground font-normal">(optional)</span></Label>
               <Input id="referral" placeholder="e.g. LD1A2B3C" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} className="h-12 bg-secondary border-border" />

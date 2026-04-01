@@ -117,6 +117,7 @@ const AdminDashboard = () => {
             {activeTab === "orders" && <AdminOrders initialFilter={orderFilter} />}
             {activeTab === "products" && <AdminProducts autoOpenNew={autoOpenNewProduct} onNewHandled={() => setAutoOpenNewProduct(false)} />}
             {activeTab === "categories" && <AdminCategories />}
+            {activeTab === "customers" && <AdminCustomers />}
             {activeTab === "coupons" && <AdminCoupons />}
             {activeTab === "blog" && <AdminBlog />}
             {activeTab === "error-logs" && <AdminErrorLogs />}
