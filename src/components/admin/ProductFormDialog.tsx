@@ -13,6 +13,7 @@ export interface ProductForm {
   long_description: string;
   price_original: number;
   price_discounted: number;
+  buying_price: number;
   color: string;
   logo_url: string;
   duration: string;
@@ -27,7 +28,7 @@ export interface ProductForm {
 
 export const emptyForm: ProductForm = {
   name: "", slug: "", description: "", long_description: "",
-  price_original: 0, price_discounted: 0, color: "#22c55e",
+  price_original: 0, price_discounted: 0, buying_price: 0, color: "#22c55e",
   logo_url: "", duration: "1 Year", delivery: "WhatsApp (< 5 min)",
   features: "", category_id: "", is_active: true,
   offer_badge: "", offer_label: "", offer_expires_at: "",
