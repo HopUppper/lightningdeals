@@ -240,9 +240,10 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
       </div>
 
       {/* Stats with trends */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         {[
           { icon: DollarSign, label: "Revenue", value: `₹${stats.revenue.toLocaleString()}`, trend: revenueTrend },
+          { icon: TrendingUp, label: "Profit", value: `₹${stats.profit.toLocaleString()}`, trend: null },
           { icon: ShoppingCart, label: "Orders", value: stats.orderCount, trend: orderTrend },
           { icon: Users, label: "Customers", value: stats.customers, trend: null },
           { icon: Package, label: "Products", value: stats.products, trend: null },
