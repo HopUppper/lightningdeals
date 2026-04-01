@@ -58,6 +58,12 @@ const ProductDetail = () => {
         setProduct(data);
 
         if (data) {
+          // Track recently viewed
+          addToRecentlyViewed({
+            id: data.id, name: data.name, slug: data.slug,
+            price_discounted: data.price_discounted, price_original: data.price_original,
+            logo_url: data.logo_url, color: data.color, duration: data.duration,
+          });
           // Fetch reviews - public data
           const { data: reviewsData } = await queryPublic({
             table: "reviews",
