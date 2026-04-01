@@ -71,6 +71,7 @@ const AdminDashboard = () => {
     { label: "Orders", tab: "orders" },
     { label: "Products", tab: "products" },
     { label: "Categories", tab: "categories" },
+    { label: "Customers", tab: "customers" },
     { label: "Coupons", tab: "coupons" },
     { label: "Blog", tab: "blog" },
     { label: "Error Logs", tab: "error-logs" },
