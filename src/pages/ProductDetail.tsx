@@ -15,6 +15,7 @@ import CountdownTimer from "@/components/CountdownTimer";
 import ProductLogo from "@/components/ProductLogo";
 import { useCompare } from "@/contexts/CompareContext";
 import JsonLd, { productSchema, breadcrumbSchema } from "@/components/JsonLd";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 
 const WHATSAPP_NUMBER = "917695956938";
 
