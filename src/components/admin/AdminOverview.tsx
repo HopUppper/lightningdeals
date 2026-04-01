@@ -159,7 +159,7 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
         setStatusBreakdown(Array.from(statusMap.entries()).map(([name, value]) => ({ name, value })));
 
         setStats({
-          revenue: totalRevenue, customers: uniqueUsers.size,
+          revenue: totalRevenue, profit: totalProfit, customers: uniqueUsers.size,
           products: productsRes.count ?? 0, orderCount: orderData.length, pendingOrders
         });
       } catch (e) {
