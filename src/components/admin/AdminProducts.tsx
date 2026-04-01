@@ -71,6 +71,7 @@ const AdminProducts = ({ autoOpenNew, onNewHandled }: Props) => {
       name: p.name, slug: p.slug, description: p.description || "",
       long_description: p.long_description || "",
       price_original: p.price_original, price_discounted: p.price_discounted,
+      buying_price: p.buying_price || 0,
       color: p.color || "#22c55e", logo_url: p.logo_url || "",
       duration: p.duration || "1 Year", delivery: p.delivery || "WhatsApp (< 5 min)",
       features: (p.features || []).join("\n"), category_id: p.category_id || "",
