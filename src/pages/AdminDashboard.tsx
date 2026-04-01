@@ -11,6 +11,7 @@ import AdminErrorLogs from "@/components/admin/AdminErrorLogs";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import AdminBlog from "@/components/admin/AdminBlog";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
+import AdminCustomers from "@/components/admin/AdminCustomers";
 import { Button } from "@/components/ui/button";
 import { LogOut, Search, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
