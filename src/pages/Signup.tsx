@@ -15,6 +15,8 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [location, setLocation] = useState("");
   const [referralCode, setReferralCode] = useState(searchParams.get("ref") || "");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,11 +36,13 @@ const Signup = () => {
     if (error) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
-      // Store referral code in profile if provided
+      // Store referral code and extra profile info for after verification
       if (referralCode.trim()) {
-        // We'll update after email verification via a separate mechanism
-        // For now store in localStorage to apply after first login
         localStorage.setItem("ld-referral-code", referralCode.trim());
+      }
+      if (phone.trim() || location.trim()) {
+        localStorage.setItem("ld-signup-phone", phone.trim());
+        localStorage.setItem("ld-signup-location", location.trim());
       }
       setSuccess(true);
     }
@@ -101,6 +105,16 @@ const Signup = () => {
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-foreground">Phone Number</Label>
+                <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 bg-secondary border-border" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="location" className="text-foreground">Location</Label>
+                <Input id="location" placeholder="e.g. Mumbai, India" value={location} onChange={(e) => setLocation(e.target.value)} className="h-12 bg-secondary border-border" />
               </div>
             </div>
             <div className="space-y-2">

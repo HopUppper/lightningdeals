@@ -15,6 +15,7 @@ import CountdownTimer from "@/components/CountdownTimer";
 import ProductLogo from "@/components/ProductLogo";
 import { useCompare } from "@/contexts/CompareContext";
 import JsonLd, { productSchema, breadcrumbSchema } from "@/components/JsonLd";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 
 const WHATSAPP_NUMBER = "917695956938";
 
@@ -31,6 +32,7 @@ const ProductDetail = () => {
   const { addItem } = useCart();
   const { user } = useAuth();
   const { addToCompare, isInCompare, removeFromCompare } = useCompare();
+  const { recentlyViewed, addToRecentlyViewed } = useRecentlyViewed();
 
   // Fetch public product data (no auth dependency)
   useEffect(() => {
@@ -56,6 +58,12 @@ const ProductDetail = () => {
         setProduct(data);
 
         if (data) {
+          // Track recently viewed
+          addToRecentlyViewed({
+            id: data.id, name: data.name, slug: data.slug,
+            price_discounted: data.price_discounted, price_original: data.price_original,
+            logo_url: data.logo_url, color: data.color, duration: data.duration,
+          });
           // Fetch reviews - public data
           const { data: reviewsData } = await queryPublic({
             table: "reviews",
@@ -378,7 +386,49 @@ const ProductDetail = () => {
             </div>
           )}
 
-          {/* Reviews Section */}
+          {/* Recently Viewed */}
+          {recentlyViewed.filter((p) => p.id !== product.id).length > 0 && (
+            <div className="mt-24 border-t border-border pt-16">
+              <div className="mb-10">
+                <span className="section-eyebrow">History</span>
+                <h2 className="section-title !mt-3">Recently Viewed</h2>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {recentlyViewed.filter((p) => p.id !== product.id).slice(0, 4).map((p, i) => {
+                  const disc = p.price_original > 0
+                    ? Math.round(((p.price_original - p.price_discounted) / p.price_original) * 100)
+                    : 0;
+                  return (
+                    <motion.div
+                      key={p.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.08 }}
+                    >
+                      <Link to={`/product/${p.slug}`} className="glass-card p-6 block group h-full hover:border-primary/30 transition-all">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="group-hover:scale-105 transition-transform">
+                            <ProductLogo name={p.name} logoUrl={p.logo_url} color={p.color} size="w-12 h-12" fontSize="text-lg" />
+                          </div>
+                          {disc > 0 && (
+                            <span className="text-[10px] font-medium text-accent bg-accent/10 px-2 py-0.5 rounded-full">{disc}% off</span>
+                          )}
+                        </div>
+                        <h3 className="font-display font-semibold text-foreground group-hover:text-primary transition-colors truncate">{p.name}</h3>
+                        <div className="flex items-baseline gap-2 mt-3">
+                          <span className="font-display font-bold text-foreground">₹{p.price_discounted}</span>
+                          {p.price_original > p.price_discounted && (
+                            <span className="text-xs text-muted-foreground line-through">₹{p.price_original}</span>
+                          )}
+                        </div>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="mt-24 border-t border-border pt-16">
             <div className="flex items-end justify-between mb-10">
               <div>

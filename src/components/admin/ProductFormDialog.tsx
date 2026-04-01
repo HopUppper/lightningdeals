@@ -13,6 +13,7 @@ export interface ProductForm {
   long_description: string;
   price_original: number;
   price_discounted: number;
+  buying_price: number;
   color: string;
   logo_url: string;
   duration: string;
@@ -27,7 +28,7 @@ export interface ProductForm {
 
 export const emptyForm: ProductForm = {
   name: "", slug: "", description: "", long_description: "",
-  price_original: 0, price_discounted: 0, color: "#22c55e",
+  price_original: 0, price_discounted: 0, buying_price: 0, color: "#22c55e",
   logo_url: "", duration: "1 Year", delivery: "WhatsApp (< 5 min)",
   features: "", category_id: "", is_active: true,
   offer_badge: "", offer_label: "", offer_expires_at: "",
@@ -157,14 +158,18 @@ const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categ
           </div>
 
           {/* Pricing */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Original Price (₹) *</label>
               <input name="price_original" type="number" value={form.price_original} onChange={handleChange} className={inputClass} min={0} />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Discounted Price (₹) *</label>
+              <label className="text-xs text-muted-foreground mb-1 block">Selling Price (₹) *</label>
               <input name="price_discounted" type="number" value={form.price_discounted} onChange={handleChange} className={inputClass} min={0} />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Buying Price (₹)</label>
+              <input name="buying_price" type="number" value={form.buying_price} onChange={handleChange} className={inputClass} min={0} />
             </div>
           </div>
           {discountPercent > 0 && (

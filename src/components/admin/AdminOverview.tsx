@@ -29,7 +29,7 @@ const COLORS = ["hsl(38, 85%, 58%)", "hsl(210, 20%, 95%)", "hsl(142, 70%, 45%)",
 
 const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
   const [orders, setOrders] = useState<any[]>([]);
-  const [stats, setStats] = useState({ revenue: 0, customers: 0, products: 0, orderCount: 0, pendingOrders: 0 });
+  const [stats, setStats] = useState({ revenue: 0, profit: 0, customers: 0, products: 0, orderCount: 0, pendingOrders: 0 });
   const [prevStats, setPrevStats] = useState({ revenue: 0, orderCount: 0 });
   const [topProducts, setTopProducts] = useState<{ name: string; count: number; revenue: number }[]>([]);
   const [dailySales, setDailySales] = useState<{ date: string; revenue: number; orders: number }[]>([]);
@@ -50,8 +50,8 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
     const fetchData = async () => {
       try {
         const [ordersRes, productsRes, profilesRes, reviewsRes] = await Promise.all([
-          supabase.from("orders").select("*, products(name, logo_url)").order("created_at", { ascending: false }),
-          supabase.from("products").select("id", { count: "exact" }),
+          supabase.from("orders").select("*, products(name, logo_url, buying_price)").order("created_at", { ascending: false }),
+          supabase.from("products").select("id, buying_price", { count: "exact" }),
           supabase.from("profiles").select("user_id, name, email, created_at").order("created_at", { ascending: false }).limit(50),
           supabase.from("reviews").select("rating"),
         ]);
@@ -66,6 +66,10 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
         const pendingOrders = orderData.filter((o) => o.order_status === "pending").length;
         const uniqueUsers = new Set(orderData.map((o) => o.user_id));
         const totalRevenue = paidOrders.reduce((sum, o) => sum + Number(o.payment_amount), 0);
+        const totalProfit = paidOrders.reduce((sum, o) => {
+          const buyingPrice = Number(o.products?.buying_price ?? 0);
+          return sum + (Number(o.payment_amount) - buyingPrice);
+        }, 0);
 
         // Conversion rate (paid / total orders)
         setConversionRate(orderData.length > 0 ? Math.round((paidOrders.length / orderData.length) * 100) : 0);
@@ -155,7 +159,7 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
         setStatusBreakdown(Array.from(statusMap.entries()).map(([name, value]) => ({ name, value })));
 
         setStats({
-          revenue: totalRevenue, customers: uniqueUsers.size,
+          revenue: totalRevenue, profit: totalProfit, customers: uniqueUsers.size,
           products: productsRes.count ?? 0, orderCount: orderData.length, pendingOrders
         });
       } catch (e) {
@@ -236,9 +240,10 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
       </div>
 
       {/* Stats with trends */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         {[
           { icon: DollarSign, label: "Revenue", value: `₹${stats.revenue.toLocaleString()}`, trend: revenueTrend },
+          { icon: TrendingUp, label: "Profit", value: `₹${stats.profit.toLocaleString()}`, trend: null },
           { icon: ShoppingCart, label: "Orders", value: stats.orderCount, trend: orderTrend },
           { icon: Users, label: "Customers", value: stats.customers, trend: null },
           { icon: Package, label: "Products", value: stats.products, trend: null },

@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, ShoppingCart, Package, FolderTree, Tag, AlertTriangle, FileText, BarChart3 } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, FolderTree, Tag, AlertTriangle, FileText, BarChart3, Users } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 
 const items = [
@@ -18,6 +18,7 @@ const items = [
   { title: "Orders", key: "orders", icon: ShoppingCart },
   { title: "Products", key: "products", icon: Package },
   { title: "Categories", key: "categories", icon: FolderTree },
+  { title: "Customers", key: "customers", icon: Users },
   { title: "Coupons", key: "coupons", icon: Tag },
   { title: "Blog", key: "blog", icon: FileText },
   { title: "Error Logs", key: "error-logs", icon: AlertTriangle },

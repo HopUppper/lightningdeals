@@ -11,6 +11,7 @@ import AdminErrorLogs from "@/components/admin/AdminErrorLogs";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import AdminBlog from "@/components/admin/AdminBlog";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
+import AdminCustomers from "@/components/admin/AdminCustomers";
 import { Button } from "@/components/ui/button";
 import { LogOut, Search, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -59,7 +60,7 @@ const AdminDashboard = () => {
   const tabLabel = (tab: string) => {
     const labels: Record<string, string> = {
       overview: "Overview", analytics: "Analytics", orders: "Orders", products: "Products",
-      categories: "Categories", coupons: "Coupons", blog: "Blog", "error-logs": "Error Logs",
+      categories: "Categories", customers: "Customers", coupons: "Coupons", blog: "Blog", "error-logs": "Error Logs",
     };
     return labels[tab] || tab;
   };
@@ -70,6 +71,7 @@ const AdminDashboard = () => {
     { label: "Orders", tab: "orders" },
     { label: "Products", tab: "products" },
     { label: "Categories", tab: "categories" },
+    { label: "Customers", tab: "customers" },
     { label: "Coupons", tab: "coupons" },
     { label: "Blog", tab: "blog" },
     { label: "Error Logs", tab: "error-logs" },
@@ -115,6 +117,7 @@ const AdminDashboard = () => {
             {activeTab === "orders" && <AdminOrders initialFilter={orderFilter} />}
             {activeTab === "products" && <AdminProducts autoOpenNew={autoOpenNewProduct} onNewHandled={() => setAutoOpenNewProduct(false)} />}
             {activeTab === "categories" && <AdminCategories />}
+            {activeTab === "customers" && <AdminCustomers />}
             {activeTab === "coupons" && <AdminCoupons />}
             {activeTab === "blog" && <AdminBlog />}
             {activeTab === "error-logs" && <AdminErrorLogs />}
