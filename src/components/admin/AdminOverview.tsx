@@ -29,7 +29,7 @@ const COLORS = ["hsl(38, 85%, 58%)", "hsl(210, 20%, 95%)", "hsl(142, 70%, 45%)",
 
 const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
   const [orders, setOrders] = useState<any[]>([]);
-  const [stats, setStats] = useState({ revenue: 0, customers: 0, products: 0, orderCount: 0, pendingOrders: 0 });
+  const [stats, setStats] = useState({ revenue: 0, profit: 0, customers: 0, products: 0, orderCount: 0, pendingOrders: 0 });
   const [prevStats, setPrevStats] = useState({ revenue: 0, orderCount: 0 });
   const [topProducts, setTopProducts] = useState<{ name: string; count: number; revenue: number }[]>([]);
   const [dailySales, setDailySales] = useState<{ date: string; revenue: number; orders: number }[]>([]);
