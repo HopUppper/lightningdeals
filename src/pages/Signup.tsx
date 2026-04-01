@@ -36,11 +36,13 @@ const Signup = () => {
     if (error) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
-      // Store referral code in profile if provided
+      // Store referral code and extra profile info for after verification
       if (referralCode.trim()) {
-        // We'll update after email verification via a separate mechanism
-        // For now store in localStorage to apply after first login
         localStorage.setItem("ld-referral-code", referralCode.trim());
+      }
+      if (phone.trim() || location.trim()) {
+        localStorage.setItem("ld-signup-phone", phone.trim());
+        localStorage.setItem("ld-signup-location", location.trim());
       }
       setSuccess(true);
     }
