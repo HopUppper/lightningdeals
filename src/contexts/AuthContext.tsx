@@ -59,11 +59,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const userRole = await fetchRole(session.user.id);
           if (!mounted) return;
           setRole(userRole);
-          // Apply referral code from signup if present
+          // Apply referral code and extra profile data from signup if present
           const storedRef = localStorage.getItem("ld-referral-code");
-          if (storedRef) {
-            localStorage.removeItem("ld-referral-code");
-            await supabase.from("profiles").update({ referred_by: storedRef }).eq("user_id", session.user.id);
+          const storedPhone = localStorage.getItem("ld-signup-phone");
+          const storedLocation = localStorage.getItem("ld-signup-location");
+          const profileUpdate: Record<string, string> = {};
+          if (storedRef) { profileUpdate.referred_by = storedRef; localStorage.removeItem("ld-referral-code"); }
+          if (storedPhone) { profileUpdate.phone = storedPhone; localStorage.removeItem("ld-signup-phone"); }
+          if (storedLocation) { profileUpdate.location = storedLocation; localStorage.removeItem("ld-signup-location"); }
+          if (Object.keys(profileUpdate).length > 0) {
+            await supabase.from("profiles").update(profileUpdate).eq("user_id", session.user.id);
           }
         } else {
           setRole(null);

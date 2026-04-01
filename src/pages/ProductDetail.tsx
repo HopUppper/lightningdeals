@@ -32,6 +32,7 @@ const ProductDetail = () => {
   const { addItem } = useCart();
   const { user } = useAuth();
   const { addToCompare, isInCompare, removeFromCompare } = useCompare();
+  const { recentlyViewed, addToRecentlyViewed } = useRecentlyViewed();
 
   // Fetch public product data (no auth dependency)
   useEffect(() => {

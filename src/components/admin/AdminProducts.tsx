@@ -87,7 +87,8 @@ const AdminProducts = ({ autoOpenNew, onNewHandled }: Props) => {
     const payload: any = {
       name: form.name, slug: form.slug, description: form.description,
       long_description: form.long_description, price_original: form.price_original,
-      price_discounted: form.price_discounted, color: form.color, logo_url: form.logo_url,
+      price_discounted: form.price_discounted, buying_price: form.buying_price,
+      color: form.color, logo_url: form.logo_url,
       duration: form.duration, delivery: form.delivery,
       features: form.features.split("\n").filter(Boolean),
       category_id: form.category_id || null, is_active: form.is_active,

@@ -158,14 +158,18 @@ const ProductFormDialog = ({ open, onOpenChange, form, setForm, editingId, categ
           </div>
 
           {/* Pricing */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Original Price (₹) *</label>
               <input name="price_original" type="number" value={form.price_original} onChange={handleChange} className={inputClass} min={0} />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Discounted Price (₹) *</label>
+              <label className="text-xs text-muted-foreground mb-1 block">Selling Price (₹) *</label>
               <input name="price_discounted" type="number" value={form.price_discounted} onChange={handleChange} className={inputClass} min={0} />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Buying Price (₹)</label>
+              <input name="buying_price" type="number" value={form.buying_price} onChange={handleChange} className={inputClass} min={0} />
             </div>
           </div>
           {discountPercent > 0 && (
