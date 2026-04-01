@@ -66,6 +66,10 @@ const AdminOverview = ({ onNavigate, onQuickAction }: Props) => {
         const pendingOrders = orderData.filter((o) => o.order_status === "pending").length;
         const uniqueUsers = new Set(orderData.map((o) => o.user_id));
         const totalRevenue = paidOrders.reduce((sum, o) => sum + Number(o.payment_amount), 0);
+        const totalProfit = paidOrders.reduce((sum, o) => {
+          const buyingPrice = Number(o.products?.buying_price ?? 0);
+          return sum + (Number(o.payment_amount) - buyingPrice);
+        }, 0);
 
         // Conversion rate (paid / total orders)
         setConversionRate(orderData.length > 0 ? Math.round((paidOrders.length / orderData.length) * 100) : 0);
