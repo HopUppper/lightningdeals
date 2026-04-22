@@ -1,4 +1,5 @@
-import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ProtectedRouteProps {
@@ -8,6 +9,21 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const { user, role, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (!user) {
+      navigate("/login", { replace: true, state: { from: location } });
+      return;
+    }
+
+    if (requiredRole && role && role !== requiredRole) {
+      navigate(role === "admin" ? "/admin" : "/dashboard", { replace: true });
+    }
+  }, [loading, user, role, requiredRole, navigate, location]);
 
   if (loading) {
     return (
@@ -17,11 +33,9 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     );
   }
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return null;
 
-  if (requiredRole && role !== requiredRole) {
-    return <Navigate to={role === "admin" ? "/admin" : "/dashboard"} replace />;
-  }
+  if (requiredRole && role && role !== requiredRole) return null;
 
   return <>{children}</>;
 };
