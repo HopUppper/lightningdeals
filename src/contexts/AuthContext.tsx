@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import type { TablesUpdate } from "@/integrations/supabase/types";
 
 type UserRole = "customer" | "admin";
 
@@ -63,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const storedRef = localStorage.getItem("ld-referral-code");
           const storedPhone = localStorage.getItem("ld-signup-phone");
           const storedLocation = localStorage.getItem("ld-signup-location");
-          const profileUpdate: Record<string, string> = {};
+          const profileUpdate: Pick<TablesUpdate<"profiles">, "referred_by" | "phone" | "location"> = {};
           if (storedRef) { profileUpdate.referred_by = storedRef; localStorage.removeItem("ld-referral-code"); }
           if (storedPhone) { profileUpdate.phone = storedPhone; localStorage.removeItem("ld-signup-phone"); }
           if (storedLocation) { profileUpdate.location = storedLocation; localStorage.removeItem("ld-signup-location"); }
