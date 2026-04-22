@@ -28,6 +28,7 @@ const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const RoleVerification = lazy(() => import("./pages/RoleVerification"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -93,6 +94,7 @@ const App = () => (
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/change-password" element={<ProtectedRoute requiredRole="customer"><ChangePassword /></ProtectedRoute>} />
+              <Route path="/role-verification" element={<ProtectedRoute><RoleVerification /></ProtectedRoute>} />
               <Route path="/wishlist" element={<ProtectedRoute requiredRole="customer"><Wishlist /></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute requiredRole="customer"><Dashboard /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
