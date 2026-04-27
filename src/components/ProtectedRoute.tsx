@@ -20,12 +20,14 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
       return;
     }
 
+    // Wait for role to resolve before deciding on redirect
     if (requiredRole && role && role !== requiredRole) {
       navigate(role === "admin" ? "/admin" : "/dashboard", { replace: true });
     }
   }, [loading, user, role, requiredRole, navigate, location]);
 
-  if (loading) {
+  // Show loader while auth or role is still resolving
+  if (loading || (user && requiredRole && !role)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
